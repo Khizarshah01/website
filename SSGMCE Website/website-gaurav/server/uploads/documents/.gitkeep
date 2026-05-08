@@ -1,3 +1,0 @@
-# This file ensures the documents folder is tracked by git
-# Place your uploaded PDF files in this directory
-# Files are served via API endpoint: /api/document-download/download/{path}

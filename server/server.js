@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const path = require("path");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const { noSqlInjectionGuard } = require("./middleware/nosqlGuard");
 const { streamUploadedFile } = require("./controllers/uploadController");
 
@@ -31,6 +33,51 @@ const allowedOrigins = Array.from(
 
 const isLocalDevOrigin = (origin = "") =>
   /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(String(origin || ""));
+
+// ===== SECURITY: Rate Limiting =====
+// Authentication rate limiter - prevent brute force attacks
+const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minute window
+  max: 5, // limit each IP to 5 login/register attempts per windowMs
+  message: {
+    status: 429,
+    success: false,
+    message:
+      "Too many authentication attempts from this IP. Please try again after 15 minutes.",
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  skip: (req) => {
+    // Skip rate limiting for GET requests
+    return req.method === "GET";
+  },
+});
+
+// General API rate limiter - protect against DoS
+const apiRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minute window
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: {
+    status: 429,
+    success: false,
+    message: "Too many requests from this IP. Please try again later.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Upload rate limiter - prevent abuse of file upload endpoint
+const uploadRateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour window
+  max: 20, // limit each IP to 20 uploads per hour
+  message: {
+    status: 429,
+    success: false,
+    message: "Too many uploads from this IP. Please try again after an hour.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const securityHeaders = (req, res, next) => {
   const cspDirectives = [
@@ -61,6 +108,8 @@ const securityHeaders = (req, res, next) => {
 
 // Middleware
 app.use(securityHeaders);
+app.use(helmet()); // Comprehensive security headers (HSTS, CSP, X-Frame-Options, etc.)
+app.use(apiRateLimiter); // Apply general API rate limiting
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -142,9 +191,9 @@ app.use("/api/faculty", facultyRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/notices", noticeRoutes);
 app.use("/api/events", eventRoutes);
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRateLimiter, authRoutes); // Apply stricter rate limiting to auth endpoints
 app.use("/api/pages", pageContentRoutes);
-app.use("/api/upload", uploadRoutes);
+app.use("/api/upload", uploadRateLimiter, uploadRoutes); // Apply stricter rate limiting to upload endpoints
 app.use("/api/research", researchRoutes);
 app.use("/api/placements", placementRoutes);
 app.use("/api/iqac", iqacRoutes);
@@ -254,7 +303,9 @@ const getMongoConnectionHints = (error) => {
 
 const connectToMongo = async () => {
   const primaryUri =
-    process.env.MONGODB_URI || process.env.MONGODB_DIRECT_URI || "mongodb://localhost:27017/ssgmce";
+    process.env.MONGODB_URI ||
+    process.env.MONGODB_DIRECT_URI ||
+    "mongodb://localhost:27017/ssgmce";
   const directUri = process.env.MONGODB_DIRECT_URI;
   const mongoConnectStartedAt = Date.now();
 
@@ -262,7 +313,9 @@ const connectToMongo = async () => {
     await mongoose.connect(primaryUri, mongoConnectOptions);
     return {
       uriLabel:
-        primaryUri === directUri && directUri ? "MONGODB_DIRECT_URI" : "MONGODB_URI",
+        primaryUri === directUri && directUri
+          ? "MONGODB_DIRECT_URI"
+          : "MONGODB_URI",
       connectMs: Date.now() - mongoConnectStartedAt,
     };
   } catch (error) {
