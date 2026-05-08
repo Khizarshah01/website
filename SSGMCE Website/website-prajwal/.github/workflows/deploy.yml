@@ -1,0 +1,56 @@
+name: Deploy MERN Application
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install Server Dependencies
+        run: cd server && npm install
+
+      - name: Install Client Dependencies
+        run: cd client && npm install
+
+      - name: Build Client
+        run: cd client && npm run build
+        env:
+          VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL || 'https://ssgmce-backend.onrender.com' }}
+
+      - name: Verify Server Configuration
+        run: |
+          cd server
+          npm list --omit=dev
+          echo "✅ Server dependencies verified"
+
+      - name: Deploy to Render
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }} \
+            -H "Content-Type: application/json" || echo "Deploy hook not configured yet"
+
+      - name: Deploy to Vercel
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          echo "Vercel deploys automatically on push to main"
+
+      - name: Notify Deployment
+        if: success()
+        run: echo "✅ Deployment pipeline completed successfully"
+
+      - name: Notify Failure
+        if: failure()
+        run: echo "❌ Deployment pipeline failed - check logs above"

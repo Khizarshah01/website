@@ -1,0 +1,40 @@
+{
+  "name": "ssgmce-website",
+  "version": "1.0.0",
+  "description": "SSGMCE College Website - MERN Stack Application",
+  "main": "server/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "cd server && npm run dev",
+    "client:dev": "cd client && npm run dev",
+    "build": "npm run server:build && npm run client:build",
+    "server:build": "cd server && npm install",
+    "client:build": "cd client && npm install && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install && cd ..",
+    "seed": "cd server && npm run seed:admin-office",
+    "seed:overwrite": "cd server && npm run seed:admin-office:overwrite"
+  },
+  "keywords": [
+    "mern",
+    "express",
+    "react",
+    "mongodb",
+    "college",
+    "website"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR_USERNAME/ssgmce-website.git"
+  }
+}

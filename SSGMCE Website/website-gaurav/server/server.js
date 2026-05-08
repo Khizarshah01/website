@@ -73,8 +73,7 @@ const uploadRateLimiter = rateLimit({
   message: {
     status: 429,
     success: false,
-    message:
-      "Too many uploads from this IP. Please try again after an hour.",
+    message: "Too many uploads from this IP. Please try again after an hour.",
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -304,7 +303,9 @@ const getMongoConnectionHints = (error) => {
 
 const connectToMongo = async () => {
   const primaryUri =
-    process.env.MONGODB_URI || process.env.MONGODB_DIRECT_URI || "mongodb://localhost:27017/ssgmce";
+    process.env.MONGODB_URI ||
+    process.env.MONGODB_DIRECT_URI ||
+    "mongodb://localhost:27017/ssgmce";
   const directUri = process.env.MONGODB_DIRECT_URI;
   const mongoConnectStartedAt = Date.now();
 
@@ -312,7 +313,9 @@ const connectToMongo = async () => {
     await mongoose.connect(primaryUri, mongoConnectOptions);
     return {
       uriLabel:
-        primaryUri === directUri && directUri ? "MONGODB_DIRECT_URI" : "MONGODB_URI",
+        primaryUri === directUri && directUri
+          ? "MONGODB_DIRECT_URI"
+          : "MONGODB_URI",
       connectMs: Date.now() - mongoConnectStartedAt,
     };
   } catch (error) {

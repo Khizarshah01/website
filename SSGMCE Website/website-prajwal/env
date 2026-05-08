@@ -1,0 +1,21 @@
+PORT=5000
+MONGODB_URI=mongodb+srv://gauravghatol17:YCVMNqaYPMOTfE7V@project1.h6t7ulv.mongodb.net/CollegeWebsite?appName=Project1
+
+JWT_SECRET=your_jwt_secret_key_change_this_in_production
+NODE_ENV=development
+ADMIN_JWT_SECRET=change_this_admin_jwt_secret
+ADMIN_GATE_TOKEN=admin
+ADMIN_AUTO_SEED=true
+CORS_ORIGIN=http://localhost:3000
+
+ADMIN_EMAIL=admin@ssgmce.com
+ADMIN_PASSWORD=password123
+ADMIN_NAME=Admin
+
+#MONGODB_URI=mongodb://admin:admin@10.0.10.198:27017/ssgmce?authSource=admin
+
+# mongodb+srv://webteam_db_user:cmKiUhugvjsXH0Et@ssgmce.szsg37z.mongodb.net/ssgmce?appName=ssgmce
+# mongodb+srv://gauravghatol17:YCVMNqaYPMOTfE7V@project1.h6t7ulv.mongodb.net/CollegeWebsite?appName=Project1
+# mongodb+srv://webteam_db_user:cmKiUhugvjsXH0Et@ssgmce.szsg37z.mongodb.net/ssgmce?appName=ssgmce
+
+# mongodb+srv://gauravghatol17:YCVMNqaYPMOTfE7V@project1.h6t7ulv.mongodb.net/
