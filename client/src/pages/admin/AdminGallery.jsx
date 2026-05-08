@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  FaCalendarAlt,
   FaEdit,
   FaFileImage,
   FaPlus,
@@ -12,16 +11,14 @@ import {
 } from "react-icons/fa";
 import AdminLayout from "../../components/admin/AdminLayout";
 import apiClient from "../../utils/apiClient";
-import { getErrorMessage, logUnexpectedError } from "../../utils/apiErrors";
 import { resolveUploadedAssetUrl } from "../../utils/uploadUrls";
 
 const FALLBACK_CATEGORIES = [
-  "Technical",
-  "Cultural",
+  "Campus",
+  "Events",
+  "Labs",
   "Sports",
-  "Workshop",
-  "Seminar",
-  "Conference",
+  "Cultural",
   "Other",
 ];
 const OTHER_CATEGORY = "Other";
@@ -41,41 +38,21 @@ const emptyCategoryForm = () => ({
   isActive: true,
 });
 
-const toDateTimeInputValue = (value) => {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return localDate.toISOString().slice(0, 16);
-};
-
-const formatDateTime = (value) => {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "-";
-  return date.toLocaleString();
-};
-
-const AdminEvents = () => {
-  const [events, setEvents] = useState([]);
+const AdminGallery = () => {
+  const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [loadingItems, setLoadingItems] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
-  const [showEventForm, setShowEventForm] = useState(false);
-  const [eventForm, setEventForm] = useState({
+  const [showImageForm, setShowImageForm] = useState(false);
+  const [imageForm, setImageForm] = useState({
     title: "",
-    description: "",
-    eventDate: "",
-    endDate: "",
-    location: "SSGMCE Campus",
-    organizer: "",
     category: FALLBACK_CATEGORIES[0],
-    image: "",
-    registrationLink: "",
+    imageUrl: "",
+    order: 0,
     isActive: true,
   });
-  const [editingEventId, setEditingEventId] = useState(null);
+  const [editingImageId, setEditingImageId] = useState(null);
 
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [categoryForm, setCategoryForm] = useState(emptyCategoryForm());
@@ -84,16 +61,15 @@ const AdminEvents = () => {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [deleteEventId, setDeleteEventId] = useState(null);
+  const [deleteImageId, setDeleteImageId] = useState(null);
   const [deleteCategoryId, setDeleteCategoryId] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [filterCategory, setFilterCategory] = useState("All");
   const fileInputRef = useRef(null);
 
-  const authHeader = () => {
-    const token = localStorage.getItem("adminToken");
-    return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-  };
+  const authHeader = () => ({
+    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
+  });
 
   const sortedCategories = useMemo(
     () => [...categories].sort(sortByOrder),
@@ -108,20 +84,22 @@ const AdminEvents = () => {
     [sortedCategories],
   );
 
-  const eventCategoryNames = useMemo(() => {
-    const names = events.map((item) => normalizeName(item.category)).filter(Boolean);
+  const itemCategoryNames = useMemo(() => {
+    const names = items
+      .map((item) => normalizeName(item.category))
+      .filter(Boolean);
     return Array.from(new Set(names));
-  }, [events]);
+  }, [items]);
 
   const orderedCategoryNames = useMemo(() => {
     const configuredLower = new Set(
       configuredCategoryNames.map((name) => name.toLowerCase()),
     );
-    const extras = eventCategoryNames
+    const extras = itemCategoryNames
       .filter((name) => !configuredLower.has(name.toLowerCase()))
       .sort((a, b) => a.localeCompare(b));
     return [...configuredCategoryNames, ...extras];
-  }, [configuredCategoryNames, eventCategoryNames]);
+  }, [configuredCategoryNames, itemCategoryNames]);
 
   const defaultCategory = useMemo(() => {
     const firstActive = sortedCategories.find((category) => category.isActive);
@@ -135,7 +113,7 @@ const AdminEvents = () => {
       .filter((category) => category.isActive)
       .map((category) => normalizeName(category.name))
       .filter(Boolean);
-    const current = normalizeName(eventForm.category);
+    const current = normalizeName(imageForm.category);
     const lowerSet = new Set(activeNames.map((name) => name.toLowerCase()));
     if (current && !lowerSet.has(current.toLowerCase())) {
       activeNames.push(current);
@@ -143,63 +121,50 @@ const AdminEvents = () => {
     if (activeNames.length > 0) return activeNames;
     if (orderedCategoryNames.length > 0) return orderedCategoryNames;
     return FALLBACK_CATEGORIES;
-  }, [sortedCategories, orderedCategoryNames, eventForm.category]);
+  }, [sortedCategories, orderedCategoryNames, imageForm.category]);
 
   const filterTabs = useMemo(() => ["All", ...orderedCategoryNames], [orderedCategoryNames]);
 
-  const categoryEventCountMap = useMemo(() => {
+  const categoryImageCountMap = useMemo(() => {
     const map = new Map();
-    for (const item of events) {
+    for (const item of items) {
       const key = normalizeName(item.category).toLowerCase();
       if (!key) continue;
       map.set(key, (map.get(key) || 0) + 1);
     }
     return map;
-  }, [events]);
+  }, [items]);
 
-  const eventCountForCategory = (name) =>
-    categoryEventCountMap.get(normalizeName(name).toLowerCase()) || 0;
+  const imageCountForCategory = (name) =>
+    categoryImageCountMap.get(normalizeName(name).toLowerCase()) || 0;
 
-  const emptyEventForm = (category = defaultCategory) => ({
+  const emptyImageForm = (category = defaultCategory) => ({
     title: "",
-    description: "",
-    eventDate: "",
-    endDate: "",
-    location: "SSGMCE Campus",
-    organizer: "",
     category,
-    image: "",
-    registrationLink: "",
+    imageUrl: "",
+    order: 0,
     isActive: true,
   });
 
-  const fetchEvents = async () => {
+  const fetchItems = async () => {
     try {
-      setLoadingEvents(true);
-      const res = await apiClient.get("/events/admin/all", authHeader());
-      const list = Array.isArray(res.data?.data)
-        ? res.data.data
-        : Array.isArray(res.data)
-          ? res.data
-          : [];
-      setEvents(list);
-      setError("");
-    } catch (err) {
-      logUnexpectedError("Error loading events:", err);
-      setError(getErrorMessage(err, "Failed to load events."));
+      setLoadingItems(true);
+      const res = await apiClient.get("/gallery/admin/all", authHeader());
+      setItems(Array.isArray(res.data?.data) ? res.data.data : []);
+    } catch {
+      setError("Failed to load gallery images.");
     } finally {
-      setLoadingEvents(false);
+      setLoadingItems(false);
     }
   };
 
   const fetchCategories = async () => {
     try {
       setLoadingCategories(true);
-      const res = await apiClient.get("/events/categories/admin/all", authHeader());
+      const res = await apiClient.get("/gallery/categories/admin/all", authHeader());
       const list = Array.isArray(res.data?.data) ? res.data.data : [];
       setCategories(list);
-    } catch (err) {
-      logUnexpectedError("Error loading event categories:", err);
+    } catch {
       setCategories(
         FALLBACK_CATEGORIES.map((name, index) => ({
           _id: `fallback-${name.toLowerCase()}`,
@@ -209,14 +174,14 @@ const AdminEvents = () => {
           isFallback: true,
         })),
       );
-      setError(getErrorMessage(err, "Failed to load event categories. Showing fallback list."));
+      setError("Failed to load gallery categories. Showing fallback list.");
     } finally {
       setLoadingCategories(false);
     }
   };
 
   useEffect(() => {
-    fetchEvents();
+    fetchItems();
     fetchCategories();
   }, []);
 
@@ -227,14 +192,16 @@ const AdminEvents = () => {
   }, [filterTabs, filterCategory]);
 
   useEffect(() => {
-    const current = normalizeName(eventForm.category).toLowerCase();
-    const valid = categoryOptions.some((category) => category.toLowerCase() === current);
+    const current = normalizeName(imageForm.category).toLowerCase();
+    const valid = categoryOptions.some(
+      (category) => category.toLowerCase() === current,
+    );
     if (!valid) {
-      setEventForm((prev) => ({ ...prev, category: defaultCategory }));
+      setImageForm((prev) => ({ ...prev, category: defaultCategory }));
     }
-  }, [categoryOptions, defaultCategory, eventForm.category]);
+  }, [categoryOptions, defaultCategory, imageForm.category]);
 
-  const handleEventImageUpload = async (file) => {
+  const handleImageUpload = async (file) => {
     if (!file) return;
 
     const fd = new FormData();
@@ -251,109 +218,79 @@ const AdminEvents = () => {
       });
       const uploadedUrl = res.data?.fileUrl || res.data?.url || "";
       if (!uploadedUrl) throw new Error("Upload URL missing.");
-      setEventForm((currentForm) => ({ ...currentForm, image: uploadedUrl }));
-    } catch (err) {
-      setError(getErrorMessage(err, "Image upload failed. Please upload an image under 20MB."));
+      setImageForm((currentForm) => ({ ...currentForm, imageUrl: uploadedUrl }));
+    } catch {
+      setError("Image upload failed. Please upload an image under 20MB.");
     } finally {
       setUploading(false);
     }
   };
 
-  const handleEventSubmit = async (e) => {
+  const handleImageSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    const title = normalizeName(eventForm.title);
-    const description = normalizeName(eventForm.description);
-    const startDate = eventForm.eventDate ? new Date(eventForm.eventDate) : null;
-    const endDate = eventForm.endDate ? new Date(eventForm.endDate) : null;
-
-    if (!title || !description || !startDate) {
-      setError("Title, description, and start date are required.");
-      return;
-    }
-
-    if (Number.isNaN(startDate.getTime())) {
-      setError("Start date is invalid.");
-      return;
-    }
-
-    if (endDate && Number.isNaN(endDate.getTime())) {
-      setError("End date is invalid.");
-      return;
-    }
-
-    if (endDate && endDate < startDate) {
-      setError("End date must be after start date.");
+    if (!normalizeName(imageForm.title) || !normalizeName(imageForm.imageUrl)) {
+      setError("Title and image are required.");
       return;
     }
 
     const payload = {
-      ...eventForm,
-      title,
-      description,
-      eventDate: startDate,
-      endDate: endDate || undefined,
-      location: normalizeName(eventForm.location) || "SSGMCE Campus",
-      organizer: normalizeName(eventForm.organizer),
-      category: normalizeName(eventForm.category) || defaultCategory,
-      image: normalizeName(eventForm.image),
-      registrationLink: normalizeName(eventForm.registrationLink),
-      isActive: eventForm.isActive !== false,
+      ...imageForm,
+      title: normalizeName(imageForm.title),
+      category: normalizeName(imageForm.category) || defaultCategory,
+      imageUrl: normalizeName(imageForm.imageUrl),
+      order: Number(imageForm.order) || 0,
+      isActive: imageForm.isActive !== false,
     };
 
     try {
-      if (editingEventId) {
-        await apiClient.put(`/events/${editingEventId}`, payload, authHeader());
-        setSuccess("Event updated.");
+      if (editingImageId) {
+        await apiClient.put(`/gallery/${editingImageId}`, payload, authHeader());
+        setSuccess("Gallery image updated.");
       } else {
-        await apiClient.post("/events", payload, authHeader());
-        setSuccess("Event created.");
+        await apiClient.post("/gallery", payload, authHeader());
+        setSuccess("Gallery image added.");
       }
 
-      await Promise.all([fetchEvents(), fetchCategories()]);
-      resetEventForm();
+      await Promise.all([fetchItems(), fetchCategories()]);
+      resetImageForm();
     } catch (err) {
-      setError(getErrorMessage(err, "Failed to save event."));
+      setError(err.response?.data?.message || "Operation failed.");
     }
   };
 
-  const handleEventEdit = (item) => {
-    setEventForm({
+  const handleImageEdit = (item) => {
+    setImageForm({
       title: item.title || "",
-      description: item.description || "",
-      eventDate: toDateTimeInputValue(item.eventDate),
-      endDate: toDateTimeInputValue(item.endDate),
-      location: item.location || "SSGMCE Campus",
-      organizer: item.organizer || "",
       category: normalizeName(item.category) || defaultCategory,
-      image: item.image || "",
-      registrationLink: item.registrationLink || "",
+      imageUrl: item.imageUrl || "",
+      order: item.order ?? 0,
       isActive: item.isActive !== false,
     });
-    setEditingEventId(item._id);
-    setShowEventForm(true);
+    setEditingImageId(item._id);
+    setShowImageForm(true);
     setError("");
     setSuccess("");
   };
 
-  const handleEventDelete = async (id) => {
+  const handleImageDelete = async (id) => {
     try {
-      await apiClient.delete(`/events/${id}`, authHeader());
-      setSuccess("Event deleted.");
-      setDeleteEventId(null);
-      await fetchEvents();
+      await apiClient.delete(`/gallery/${id}`, authHeader());
+      setSuccess("Gallery image deleted.");
+      setDeleteImageId(null);
+      await fetchItems();
     } catch (err) {
-      setError(getErrorMessage(err, "Failed to delete event."));
-      setDeleteEventId(null);
+      setError(err.response?.data?.message || "Delete failed.");
+      setDeleteImageId(null);
     }
   };
 
-  const resetEventForm = () => {
-    setEventForm(emptyEventForm());
-    setEditingEventId(null);
-    setShowEventForm(false);
+  const resetImageForm = () => {
+    setImageForm(emptyImageForm());
+    setEditingImageId(null);
+    setShowImageForm(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -408,16 +345,20 @@ const AdminEvents = () => {
     try {
       setSubmittingCategory(true);
       if (editingCategoryId) {
-        await apiClient.put(`/events/categories/${editingCategoryId}`, payload, authHeader());
+        await apiClient.put(
+          `/gallery/categories/${editingCategoryId}`,
+          payload,
+          authHeader(),
+        );
         setSuccess("Category updated.");
       } else {
-        await apiClient.post("/events/categories", payload, authHeader());
+        await apiClient.post("/gallery/categories", payload, authHeader());
         setSuccess("Category created.");
       }
-      await Promise.all([fetchCategories(), fetchEvents()]);
+      await Promise.all([fetchCategories(), fetchItems()]);
       resetCategoryForm();
     } catch (err) {
-      setError(getErrorMessage(err, "Category operation failed."));
+      setError(err.response?.data?.message || "Category operation failed.");
     } finally {
       setSubmittingCategory(false);
     }
@@ -425,12 +366,12 @@ const AdminEvents = () => {
 
   const handleCategoryDelete = async (id) => {
     try {
-      await apiClient.delete(`/events/categories/${id}`, authHeader());
-      setSuccess(`Category deleted. Related events moved to "${OTHER_CATEGORY}".`);
+      await apiClient.delete(`/gallery/categories/${id}`, authHeader());
+      setSuccess(`Category deleted. Related images moved to "${OTHER_CATEGORY}".`);
       setDeleteCategoryId(null);
-      await Promise.all([fetchCategories(), fetchEvents()]);
+      await Promise.all([fetchCategories(), fetchItems()]);
     } catch (err) {
-      setError(getErrorMessage(err, "Delete failed."));
+      setError(err.response?.data?.message || "Delete failed.");
       setDeleteCategoryId(null);
     }
   };
@@ -441,23 +382,12 @@ const AdminEvents = () => {
 
   const canEditCategory = (category) => !category?.isFallback;
 
-  const filteredEvents =
+  const filteredItems =
     filterCategory === "All"
-      ? events
-      : events.filter(
+      ? items
+      : items.filter(
           (item) => normalizeName(item.category).toLowerCase() === filterCategory.toLowerCase(),
         );
-
-  const sortedFilteredEvents = useMemo(
-    () =>
-      [...filteredEvents].sort((a, b) => {
-        const timeA = a?.eventDate ? new Date(a.eventDate).getTime() : 0;
-        const timeB = b?.eventDate ? new Date(b.eventDate).getTime() : 0;
-        if (timeA !== timeB) return timeB - timeA;
-        return String(a?.title || "").localeCompare(String(b?.title || ""));
-      }),
-    [filteredEvents],
-  );
 
   return (
     <AdminLayout>
@@ -465,10 +395,10 @@ const AdminEvents = () => {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
-              Events Management
+              Gallery Images
             </h1>
             <p className="mt-1 text-gray-500 dark:text-gray-400">
-              Manage college events and event categories from one place.
+              Upload images and manage gallery categories from one place.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -480,12 +410,12 @@ const AdminEvents = () => {
             </button>
             <button
               onClick={() => {
-                resetEventForm();
-                setShowEventForm(true);
+                resetImageForm();
+                setShowImageForm(true);
               }}
               className="flex items-center gap-2 rounded-lg bg-cyan-600 px-5 py-2.5 font-medium text-white shadow-lg transition-colors hover:bg-cyan-700"
             >
-              <FaPlus /> Add Event
+              <FaPlus /> Add Image
             </button>
           </div>
         </div>
@@ -515,9 +445,13 @@ const AdminEvents = () => {
           </div>
 
           {loadingCategories ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">Loading categories...</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Loading categories...
+            </p>
           ) : sortedCategories.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">No categories found.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              No categories found.
+            </p>
           ) : (
             <div className="space-y-2">
               {sortedCategories.map((category) => (
@@ -530,7 +464,7 @@ const AdminEvents = () => {
                       {category.name}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Order {category.order ?? 0} | {eventCountForCategory(category.name)} events
+                      Order {category.order ?? 0} | {imageCountForCategory(category.name)} images
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -547,7 +481,11 @@ const AdminEvents = () => {
                       onClick={() => openEditCategory(category)}
                       disabled={!canEditCategory(category)}
                       className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40 dark:text-blue-400 dark:hover:bg-blue-900/30"
-                      title={canEditCategory(category) ? "Edit Category" : "Reload categories to edit"}
+                      title={
+                        canEditCategory(category)
+                          ? "Edit Category"
+                          : "Reload categories to edit"
+                      }
                     >
                       <FaEdit size={12} />
                     </button>
@@ -586,137 +524,109 @@ const AdminEvents = () => {
           ))}
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1a1a2e]">
-          {loadingEvents ? (
-            <div className="p-12 text-center">
-              <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-b-2 border-t-2 border-cyan-500" />
-              <p className="text-gray-500 dark:text-gray-400">Loading events...</p>
-            </div>
-          ) : sortedFilteredEvents.length === 0 ? (
-            <div className="p-12 text-center">
-              <FaCalendarAlt className="mx-auto mb-4 text-6xl text-gray-300 dark:text-gray-600" />
-              <h3 className="mb-2 text-xl font-bold text-gray-800 dark:text-gray-200">
-                No Events Found
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Add your first event using the button above.
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50">
-                  <tr>
-                    <th className="px-5 py-3 text-left font-semibold">Event</th>
-                    <th className="px-5 py-3 text-left font-semibold">Category</th>
-                    <th className="px-5 py-3 text-left font-semibold">Event Date</th>
-                    <th className="px-5 py-3 text-left font-semibold">Status</th>
-                    <th className="px-5 py-3 text-right font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                  {sortedFilteredEvents.map((item) => (
-                    <tr key={item._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
-                      <td className="px-5 py-4">
-                        <div className="flex items-start gap-3">
-                          <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50">
-                            {item.image ? (
-                              <img
-                                src={resolveUploadedAssetUrl(item.image)}
-                                alt={item.title}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center text-gray-300 dark:text-gray-600">
-                                <FaFileImage />
-                              </div>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold text-gray-800 dark:text-gray-200">
-                              {item.title}
-                            </p>
-                            <p className="mt-1 line-clamp-1 text-xs text-gray-500 dark:text-gray-400">
-                              {item.description}
-                            </p>
-                            <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
-                              {item.location || "SSGMCE Campus"}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-4">{item.category || "-"}</td>
-                      <td className="px-5 py-4">
-                        <p>{formatDateTime(item.eventDate)}</p>
-                        {item.endDate ? (
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Ends: {formatDateTime(item.endDate)}
-                          </p>
-                        ) : null}
-                      </td>
-                      <td className="px-5 py-4">
-                        <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                            item.isActive
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-200 text-gray-600"
-                          }`}
-                        >
-                          {item.isActive ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => handleEventEdit(item)}
-                            className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30"
-                            title="Edit"
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            onClick={() => setDeleteEventId(item._id)}
-                            className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
-                            title="Delete"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+        {loadingItems ? (
+          <div className="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:bg-[#1a1a2e]">
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-b-2 border-t-2 border-cyan-500" />
+            <p className="text-gray-500 dark:text-gray-400">Loading gallery items...</p>
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:bg-[#1a1a2e]">
+            <FaFileImage className="mx-auto mb-4 text-6xl text-gray-300 dark:text-gray-600" />
+            <h3 className="mb-2 text-xl font-bold text-gray-800 dark:text-gray-200">
+              No Gallery Images
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400">
+              Add your first gallery image using the button above.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredItems
+              .slice()
+              .sort((a, b) => {
+                const orderA = Number.isFinite(Number(a?.order)) ? Number(a.order) : 0;
+                const orderB = Number.isFinite(Number(b?.order)) ? Number(b.order) : 0;
+                if (orderA !== orderB) return orderA - orderB;
+                return String(a?.title || "").localeCompare(String(b?.title || ""));
+              })
+              .map((item) => (
+                <div
+                  key={item._id}
+                  className="group rounded-xl border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-[#1a1a2e]"
+                >
+                  <div className="relative overflow-hidden rounded-lg border border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-800/50">
+                    <img
+                      src={resolveUploadedAssetUrl(item.imageUrl)}
+                      alt={item.title}
+                      className="h-44 w-full object-cover"
+                    />
+                  </div>
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="line-clamp-1 text-sm font-semibold text-gray-800 dark:text-gray-200">
+                        {item.title}
+                      </p>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                          item.isActive
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                            : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                        }`}
+                      >
+                        {item.isActive ? "Active" : "Hidden"}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {item.category} | Order {item.order ?? 0}
+                    </p>
+                  </div>
+                  <div className="mt-3 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                    <button
+                      onClick={() => handleImageEdit(item)}
+                      className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                      title="Edit"
+                    >
+                      <FaEdit size={12} />
+                    </button>
+                    <button
+                      onClick={() => setDeleteImageId(item._id)}
+                      className="rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
+                      title="Delete"
+                    >
+                      <FaTrash size={12} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
 
-      {showEventForm && (
+      {showImageForm && (
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
-          <div className="my-8 w-full max-w-3xl rounded-2xl bg-white shadow-2xl dark:bg-[#1a1a2e]">
+          <div className="my-8 w-full max-w-xl rounded-2xl bg-white shadow-2xl dark:bg-[#1a1a2e]">
             <div className="flex items-center justify-between border-b border-gray-200 p-6 dark:border-gray-700">
               <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                {editingEventId ? "Edit Event" : "Add Event"}
+                {editingImageId ? "Edit Gallery Image" : "Add Gallery Image"}
               </h2>
               <button
-                onClick={resetEventForm}
+                onClick={resetImageForm}
                 className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800"
               >
                 <FaTimes />
               </button>
             </div>
 
-            <form onSubmit={handleEventSubmit} className="space-y-5 p-6">
+            <form onSubmit={handleImageSubmit} className="space-y-5 p-6">
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Image
+                  Image *
                 </label>
                 <div className="flex items-start gap-4">
                   <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-800/50">
-                    {eventForm.image ? (
+                    {imageForm.imageUrl ? (
                       <img
-                        src={resolveUploadedAssetUrl(eventForm.image)}
+                        src={resolveUploadedAssetUrl(imageForm.imageUrl)}
                         alt="Preview"
                         className="h-full w-full object-cover"
                       />
@@ -750,7 +660,7 @@ const AdminEvents = () => {
                       className="hidden"
                       onChange={(e) => {
                         const selectedFile = e.target.files?.[0];
-                        handleEventImageUpload(selectedFile);
+                        handleImageUpload(selectedFile);
                         e.target.value = "";
                       }}
                     />
@@ -758,11 +668,11 @@ const AdminEvents = () => {
                       type="text"
                       inputMode="url"
                       placeholder="https://... or /uploads/images/..."
-                      value={eventForm.image}
+                      value={imageForm.imageUrl}
                       onChange={(e) =>
-                        setEventForm((currentForm) => ({
+                        setImageForm((currentForm) => ({
                           ...currentForm,
-                          image: e.target.value,
+                          imageUrl: e.target.value,
                         }))
                       }
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-cyan-500 dark:border-gray-600"
@@ -777,9 +687,9 @@ const AdminEvents = () => {
                 </label>
                 <input
                   type="text"
-                  value={eventForm.title}
+                  value={imageForm.title}
                   onChange={(e) =>
-                    setEventForm((currentForm) => ({
+                    setImageForm((currentForm) => ({
                       ...currentForm,
                       title: e.target.value,
                     }))
@@ -789,69 +699,15 @@ const AdminEvents = () => {
                 />
               </div>
 
-              <div>
-                <label className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Description *
-                </label>
-                <textarea
-                  rows={4}
-                  value={eventForm.description}
-                  onChange={(e) =>
-                    setEventForm((currentForm) => ({
-                      ...currentForm,
-                      description: e.target.value,
-                    }))
-                  }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-cyan-500 dark:border-gray-600"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Start Date & Time *
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={eventForm.eventDate}
-                    onChange={(e) =>
-                      setEventForm((currentForm) => ({
-                        ...currentForm,
-                        eventDate: e.target.value,
-                      }))
-                    }
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-cyan-500 dark:border-gray-600"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    End Date & Time
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={eventForm.endDate}
-                    onChange={(e) =>
-                      setEventForm((currentForm) => ({
-                        ...currentForm,
-                        endDate: e.target.value,
-                      }))
-                    }
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-cyan-500 dark:border-gray-600"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Category
                   </label>
                   <select
-                    value={eventForm.category}
+                    value={imageForm.category}
                     onChange={(e) =>
-                      setEventForm((currentForm) => ({
+                      setImageForm((currentForm) => ({
                         ...currentForm,
                         category: e.target.value,
                       }))
@@ -867,74 +723,40 @@ const AdminEvents = () => {
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Location
+                    Display Order
                   </label>
                   <input
-                    type="text"
-                    value={eventForm.location}
+                    type="number"
+                    value={imageForm.order}
                     onChange={(e) =>
-                      setEventForm((currentForm) => ({
+                      setImageForm((currentForm) => ({
                         ...currentForm,
-                        location: e.target.value,
+                        order: e.target.value,
                       }))
                     }
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-cyan-500 dark:border-gray-600"
                   />
                 </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Organizer
-                  </label>
-                  <input
-                    type="text"
-                    value={eventForm.organizer}
-                    onChange={(e) =>
-                      setEventForm((currentForm) => ({
-                        ...currentForm,
-                        organizer: e.target.value,
-                      }))
-                    }
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-cyan-500 dark:border-gray-600"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Registration Link
-                </label>
-                <input
-                  type="url"
-                  value={eventForm.registrationLink}
-                  onChange={(e) =>
-                    setEventForm((currentForm) => ({
-                      ...currentForm,
-                      registrationLink: e.target.value,
-                    }))
-                  }
-                  placeholder="https://..."
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-transparent focus:ring-2 focus:ring-cyan-500 dark:border-gray-600"
-                />
               </div>
 
               <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <input
                   type="checkbox"
-                  checked={eventForm.isActive}
+                  checked={imageForm.isActive}
                   onChange={(e) =>
-                    setEventForm((currentForm) => ({
+                    setImageForm((currentForm) => ({
                       ...currentForm,
                       isActive: e.target.checked,
                     }))
                   }
                 />
-                Show this event on the public Events page
+                Show this image on Gallery page
               </label>
 
               <div className="flex justify-end gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
                 <button
                   type="button"
-                  onClick={resetEventForm}
+                  onClick={resetImageForm}
                   className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-800"
                 >
                   Cancel
@@ -944,7 +766,7 @@ const AdminEvents = () => {
                   className="flex items-center gap-2 rounded-lg bg-cyan-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-cyan-700"
                 >
                   <FaSave />
-                  {editingEventId ? "Update Event" : "Add Event"}
+                  {editingImageId ? "Update Image" : "Add Image"}
                 </button>
               </div>
             </form>
@@ -1014,7 +836,7 @@ const AdminEvents = () => {
                     }))
                   }
                 />
-                Show this category on the public Events filters
+                Show this category on the public Gallery tabs
               </label>
 
               <div className="flex justify-end gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
@@ -1039,24 +861,24 @@ const AdminEvents = () => {
         </div>
       )}
 
-      {deleteEventId && (
+      {deleteImageId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-[#1a1a2e]">
             <h3 className="mb-2 text-lg font-bold text-gray-800 dark:text-gray-200">
-              Delete Event?
+              Delete Gallery Image?
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               This action cannot be undone.
             </p>
             <div className="mt-6 flex justify-end gap-3">
               <button
-                onClick={() => setDeleteEventId(null)}
+                onClick={() => setDeleteImageId(null)}
                 className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-800"
               >
                 Cancel
               </button>
               <button
-                onClick={() => handleEventDelete(deleteEventId)}
+                onClick={() => handleImageDelete(deleteImageId)}
                 className="rounded-lg bg-red-600 px-4 py-2 text-sm text-white transition-colors hover:bg-red-700"
               >
                 Delete
@@ -1073,7 +895,7 @@ const AdminEvents = () => {
               Delete Category?
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Events in this category will be moved to "{OTHER_CATEGORY}".
+              Images in this category will be moved to "{OTHER_CATEGORY}".
             </p>
             <div className="mt-6 flex justify-end gap-3">
               <button
@@ -1096,4 +918,4 @@ const AdminEvents = () => {
   );
 };
 
-export default AdminEvents;
+export default AdminGallery;

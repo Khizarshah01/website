@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FaDownload, FaFilePdf, FaExternalLinkAlt, FaInfoCircle, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { getDocumentAssetUrl } from "../utils/documentPaths";
 
 /**
  * PDFDocumentViewer Component
@@ -7,17 +8,15 @@ import { FaDownload, FaFilePdf, FaExternalLinkAlt, FaInfoCircle, FaChevronDown, 
  */
 const PDFDocumentViewer = ({ title, summary, pdfUrl, fileSize, year }) => {
   const [showFullSummary, setShowFullSummary] = useState(false);
-
-  const isExternalUrl = pdfUrl && (pdfUrl.startsWith("http://") || pdfUrl.startsWith("https://"));
-  const isLocalPath = pdfUrl && pdfUrl.startsWith("/uploads/");
+  const resolvedPdfUrl = getDocumentAssetUrl(pdfUrl);
 
   const handleViewOnline = () => {
-    window.open(pdfUrl, "_blank");
+    window.open(resolvedPdfUrl, "_blank", "noopener,noreferrer");
   };
 
   const handleDownload = () => {
     const link = document.createElement("a");
-    link.href = pdfUrl;
+    link.href = resolvedPdfUrl;
     link.download = title ? `${title}.pdf` : "document.pdf";
     document.body.appendChild(link);
     link.click();

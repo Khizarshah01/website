@@ -424,7 +424,7 @@ const Navbar = () => {
                 setActiveSubDropdown(null);
               }}
             >
-              <div className="relative w-full">
+              <div className="relative ml-auto w-fit max-w-full">
                 <ul className="flex flex-wrap items-center justify-end gap-x-0.5 gap-y-1 lg:gap-x-1">
                   {menuItems.map((item, index) => (
                     <li
@@ -524,7 +524,7 @@ const Navbar = () => {
                     const columns = getColumns(allItems, colCount);
 
                     return (
-                      <div className="absolute left-1/2 top-full z-50 w-[min(calc(100vw-2rem),1280px)] -translate-x-1/2 pt-2">
+                      <div className="absolute right-0 top-full z-50 w-[min(calc(100vw-9rem),1120px)] pt-2">
                         <div className="relative overflow-hidden rounded-lg bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)]">
                           <div className="px-5 py-4 lg:px-7 lg:py-5">
                             <div className="flex min-w-0 items-stretch gap-5">

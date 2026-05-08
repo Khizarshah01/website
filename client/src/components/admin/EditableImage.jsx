@@ -36,7 +36,6 @@ const EditableImage = ({
   const [error, setError] = useState(null);
   const [showUploadUI, setShowUploadUI] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [imageLoadFailed, setImageLoadFailed] = useState(false);
   const fileInputRef = useRef(null);
 
   // Helper to safely get value from path
@@ -59,12 +58,6 @@ const EditableImage = ({
     ? resolvedFallbackUrl
     : resolvedImageUrl || resolvedFallbackUrl;
 
-  React.useEffect(() => {
-    setImageLoadFailed(false);
-  }, [displayImageUrl]);
-
-  const canRenderImage = Boolean(displayImageUrl) && !imageLoadFailed;
-
   const applyFallbackImage = (event) => {
     if (
       resolvedFallbackUrl &&
@@ -73,7 +66,7 @@ const EditableImage = ({
       event.currentTarget.src = resolvedFallbackUrl;
       return;
     }
-    setImageLoadFailed(true);
+    event.currentTarget.style.display = "none";
   };
 
   const handleFileSelect = async (file) => {
@@ -174,7 +167,7 @@ const EditableImage = ({
 
   // View Mode (not editing)
   if (!isEditing) {
-    return canRenderImage ? (
+    return displayImageUrl ? (
       <img
         src={displayImageUrl}
         alt={alt}
@@ -262,7 +255,7 @@ const EditableImage = ({
   // Edit Mode - Image Display
   return (
     <div className="relative group">
-      {canRenderImage ? (
+      {displayImageUrl ? (
         <>
           <img
             src={displayImageUrl}

@@ -456,6 +456,7 @@ const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const AdminNews = lazy(() => import("./pages/admin/AdminNews"));
 const AdminNotices = lazy(() => import("./pages/admin/AdminNotices"));
 const AdminEvents = lazy(() => import("./pages/admin/AdminEvents"));
+const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
 const AdminDocuments = lazy(() => import("./pages/admin/AdminDocuments"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
@@ -614,6 +615,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AdminEvents />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/gallery"
+                element={
+                  <ProtectedRoute>
+                    <AdminGallery />
                   </ProtectedRoute>
                 }
               />

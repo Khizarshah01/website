@@ -1,25 +1,112 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
 import PageHeader from '../components/PageHeader';
+import apiClient from "../utils/apiClient";
+import { resolveUploadedAssetUrl } from "../utils/uploadUrls";
 
 const Gallery = () => {
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [galleryCategories, setGalleryCategories] = useState([]);
+  const [categoryApiAvailable, setCategoryApiAvailable] = useState(false);
+  const [loadingImages, setLoadingImages] = useState(true);
 
-  const categories = ['All', 'Campus', 'Events', 'Labs', 'Sports', 'Cultural'];
+  useEffect(() => {
+    const fetchGalleryData = async () => {
+      try {
+        setLoadingImages(true);
+        const [itemsResult, categoriesResult] = await Promise.allSettled([
+          apiClient.get("/gallery"),
+          apiClient.get("/gallery/categories"),
+        ]);
 
-  const galleryImages = [
-    { id: 1, category: 'Campus', title: 'College Main Building', url: '/gallery/photos/main-building.jpg' },
-    { id: 2, category: 'Campus', title: 'Central Library', url: '/gallery/photos/central-library.jpg' },
-    { id: 3, category: 'Labs', title: 'Computer Laboratory', url: '/gallery/photos/computer-lab.jpg' },
-    { id: 4, category: 'Labs', title: 'Engineering Workshop', url: '/gallery/photos/engineering-workshop.jpg' },
-    { id: 5, category: 'Events', title: 'Seminar Hall Events', url: '/gallery/photos/seminar-event.jpg' },
-    { id: 6, category: 'Events', title: 'Auditorium Programs', url: '/gallery/photos/auditorium-event.jpg' },
-    { id: 7, category: 'Cultural', title: 'Cultural Venue', url: '/gallery/photos/cultural-venue.jpg' },
-    { id: 8, category: 'Cultural', title: 'Campus Amphitheatre', url: '/gallery/photos/amphitheatre.jpg' },
-    { id: 9, category: 'Sports', title: 'Sports Ground', url: '/gallery/photos/sports-ground.jpg' },
-    { id: 10, category: 'Sports', title: 'Indoor Sports Facility', url: '/gallery/photos/indoor-sports.jpg' },
-    { id: 11, category: 'Campus', title: 'Auditorium', url: '/gallery/photos/auditorium.jpg' },
-    { id: 12, category: 'Campus', title: 'Seminar Hall', url: '/gallery/photos/seminar-hall.jpg' },
+        const itemData =
+          itemsResult.status === "fulfilled" &&
+          Array.isArray(itemsResult.value.data?.data)
+            ? itemsResult.value.data.data
+            : [];
+        const categoryData =
+          categoriesResult.status === "fulfilled" &&
+          Array.isArray(categoriesResult.value.data?.data)
+            ? categoriesResult.value.data.data
+            : [];
+        setGalleryItems(itemData);
+        setGalleryCategories(categoryData);
+        setCategoryApiAvailable(categoriesResult.status === "fulfilled");
+      } catch {
+        setGalleryItems([]);
+        setGalleryCategories([]);
+        setCategoryApiAvailable(false);
+      } finally {
+        setLoadingImages(false);
+      }
+    };
+
+    fetchGalleryData();
+  }, []);
+
+  const fallbackGalleryImages = [
+    { id: 1, category: "Campus", title: "College Main Building", url: "/gallery/photos/main-building.jpg", order: 1 },
+    { id: 2, category: "Campus", title: "Central Library", url: "/gallery/photos/central-library.jpg", order: 2 },
+    { id: 3, category: "Labs", title: "Computer Laboratory", url: "/gallery/photos/computer-lab.jpg", order: 3 },
+    { id: 4, category: "Labs", title: "Engineering Workshop", url: "/gallery/photos/engineering-workshop.jpg", order: 4 },
+    { id: 5, category: "Events", title: "Seminar Hall Events", url: "/gallery/photos/seminar-event.jpg", order: 5 },
+    { id: 6, category: "Events", title: "Auditorium Programs", url: "/gallery/photos/auditorium-event.jpg", order: 6 },
+    { id: 7, category: "Cultural", title: "Cultural Venue", url: "/gallery/photos/cultural-venue.jpg", order: 7 },
+    { id: 8, category: "Cultural", title: "Campus Amphitheatre", url: "/gallery/photos/amphitheatre.jpg", order: 8 },
+    { id: 9, category: "Sports", title: "Sports Ground", url: "/gallery/photos/sports-ground.jpg", order: 9 },
+    { id: 10, category: "Sports", title: "Indoor Sports Facility", url: "/gallery/photos/indoor-sports.jpg", order: 10 },
+    { id: 11, category: "Campus", title: "Auditorium", url: "/gallery/photos/auditorium.jpg", order: 11 },
+    { id: 12, category: "Campus", title: "Seminar Hall", url: "/gallery/photos/seminar-hall.jpg", order: 12 },
   ];
+
+  const normalizedGalleryImages = useMemo(() => {
+    if (!Array.isArray(galleryItems) || galleryItems.length === 0) {
+      return fallbackGalleryImages;
+    }
+    return galleryItems
+      .filter((item) => item?.imageUrl)
+      .map((item, index) => ({
+        id: item._id || item.id || `gallery-item-${index}`,
+        category: item.category || "Other",
+        title: item.title || "Gallery Image",
+        url: resolveUploadedAssetUrl(item.imageUrl),
+        order: Number.isFinite(Number(item.order)) ? Number(item.order) : index,
+      }))
+      .sort((a, b) => a.order - b.order || String(a.title).localeCompare(String(b.title)));
+  }, [galleryItems]);
+
+  const categories = useMemo(() => {
+    const sortedApiCategories = galleryCategories
+      .map((category, index) => ({
+        name: String(category?.name || "").trim(),
+        order: Number.isFinite(Number(category?.order))
+          ? Number(category.order)
+          : index,
+      }))
+      .filter((category) => category.name)
+      .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+
+    const apiNames = [];
+    const seenApiNames = new Set();
+    for (const category of sortedApiCategories) {
+      const lower = category.name.toLowerCase();
+      if (seenApiNames.has(lower)) continue;
+      seenApiNames.add(lower);
+      apiNames.push(category.name);
+    }
+
+    const imageCategories = Array.from(
+      new Set(normalizedGalleryImages.map((img) => img.category).filter(Boolean)),
+    );
+    const finalCategories = categoryApiAvailable ? apiNames : imageCategories;
+    return ["All", ...finalCategories];
+  }, [categoryApiAvailable, galleryCategories, normalizedGalleryImages]);
+
+  useEffect(() => {
+    if (!categories.includes(selectedCategory)) {
+      setSelectedCategory("All");
+    }
+  }, [categories, selectedCategory]);
 
   const galleryVideos = [
     {
@@ -44,9 +131,10 @@ const Gallery = () => {
     },
   ];
 
-  const filteredImages = selectedCategory === 'All' 
-    ? galleryImages 
-    : galleryImages.filter(img => img.category === selectedCategory);
+  const filteredImages =
+    selectedCategory === "All"
+      ? normalizedGalleryImages
+      : normalizedGalleryImages.filter((img) => img.category === selectedCategory);
 
   return (
     <div className="animation-fade-in">
@@ -79,6 +167,9 @@ const Gallery = () => {
       {/* Gallery Grid */}
       <section className="py-16">
         <div className="container mx-auto px-4">
+          {loadingImages ? (
+            <div className="text-center text-gray-500">Loading gallery images...</div>
+          ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredImages.map((image) => (
               <div 
@@ -103,6 +194,7 @@ const Gallery = () => {
               </div>
             ))}
           </div>
+          )}
         </div>
       </section>
 

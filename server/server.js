@@ -133,6 +133,7 @@ const documentRoutes = require("./routes/documentRoutes");
 const nirfRoutes = require("./routes/nirfRoutes");
 const convertRoutes = require("./routes/convertRoutes");
 const documentDownloadRoutes = require("./routes/documentDownloadRoutes");
+const galleryRoutes = require("./routes/galleryRoutes");
 const { initializeDatabase } = require("./utils/dbInit");
 
 // API Routes
@@ -149,6 +150,7 @@ app.use("/api/placements", placementRoutes);
 app.use("/api/iqac", iqacRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/document-download", documentDownloadRoutes);
+app.use("/api/gallery", galleryRoutes);
 app.use("/api/nirf", nirfRoutes);
 app.use("/api/convert", convertRoutes);
 
