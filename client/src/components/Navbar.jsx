@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaBars, FaTimes, FaChevronDown, FaChevronRight } from "react-icons/fa";
+import {
+  FaBars,
+  FaTimes,
+  FaChevronDown,
+  FaChevronRight,
+} from "react-icons/fa";
 import logo from "../assets/images/common/logo.png";
 import aboutNavbarImage from "../assets/images/navbar/about.jpg";
 import academicsNavbarImage from "../assets/images/navbar/Academics.JPG";
@@ -53,13 +58,6 @@ const Navbar = () => {
     if (firstItem?.subDropdown?.length)
       return firstItem.subDropdown[0]?.path || "/";
     return item?.path || "/";
-  };
-
-  const handleTopLevelMenuClick = (item) => {
-    navigate(getFirstDropdownPath(item));
-    setIsOpen(false);
-    setActiveDropdown(null);
-    setActiveSubDropdown(null);
   };
 
   const menuItems = [
@@ -440,7 +438,10 @@ const Navbar = () => {
                       {item.dropdown ? (
                         <button
                           onClick={() => {
-                            handleTopLevelMenuClick(item);
+                            setActiveDropdown((current) =>
+                              current === item.name ? null : item.name,
+                            );
+                            setActiveSubDropdown(null);
                           }}
                           className={`px-2.5 lg:px-3 py-2.5 text-gray-700 font-medium hover:text-ssgmce-blue transition-colors duration-300 flex items-center whitespace-nowrap text-[13px] xl:text-sm ${
                             activeDropdown === item.name
@@ -481,8 +482,7 @@ const Navbar = () => {
                     // Split items into columns
                     const getColumns = (items, colCount) => {
                       const weightedLength = items.reduce(
-                        (total, item) =>
-                          total + (item.isSectionHeader ? 0.35 : 1),
+                        (total, item) => total + (item.isSectionHeader ? 0.35 : 1),
                         0,
                       );
                       const perCol = Math.ceil(weightedLength / colCount);
@@ -511,7 +511,8 @@ const Navbar = () => {
                         return { colCount: 4, imageWidth: "hidden" };
                       }
                       return {
-                        colCount: itemCount > 18 ? 4 : itemCount > 10 ? 3 : 2,
+                        colCount:
+                          itemCount > 18 ? 4 : itemCount > 10 ? 3 : 2,
                         imageWidth: "w-[240px]",
                       };
                     };
@@ -521,74 +522,35 @@ const Navbar = () => {
                       allItems.length,
                     );
                     const columns = getColumns(allItems, colCount);
-                    const isAcademicsMenu = activeItem.name === "Academics";
-
-                    const getAcademicsGroups = (items) => {
-                      const groups = {
-                        departments: [],
-                        academicLinks: [],
-                      };
-
-                      let currentGroup = "departments";
-                      items.forEach((entry) => {
-                        if (entry.isSectionHeader) {
-                          const normalized = (entry.name || "").toLowerCase();
-                          if (normalized.includes("academic")) {
-                            currentGroup = "academicLinks";
-                          } else if (normalized.includes("department")) {
-                            currentGroup = "departments";
-                          }
-                          return;
-                        }
-
-                        groups[currentGroup].push(entry);
-                      });
-
-                      return groups;
-                    };
-
-                    const academicsGroups = isAcademicsMenu
-                      ? getAcademicsGroups(allItems)
-                      : null;
-
-                    const splitIntoTwoColumns = (items) => {
-                      const midpoint = Math.ceil(items.length / 2);
-                      return [items.slice(0, midpoint), items.slice(midpoint)];
-                    };
-
-                    const academicsLinkColumns = isAcademicsMenu
-                      ? splitIntoTwoColumns(academicsGroups.academicLinks)
-                      : null;
 
                     return (
-                      <div
-                        className={`absolute top-full z-50 w-[min(calc(100vw-9rem),1120px)] pt-2 ${
-                          activeItem.name === "Activities"
-                            ? "right-0 left-auto"
-                            : "left-0"
-                        }`}
-                      >
+                      <div className="absolute right-0 top-full z-50 w-[min(calc(100vw-9rem),1120px)] pt-2">
                         <div className="relative overflow-hidden rounded-lg bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)]">
-                          <div
-                            className={`px-5 py-4 lg:px-7 lg:py-5 ${
-                              activeItem.name === "Academics" ? "" : ""
-                            }`}
-                          >
+                          <div className="px-5 py-4 lg:px-7 lg:py-5">
                             <div className="flex min-w-0 items-stretch gap-5">
                               {/* Left Side - Menu Items */}
-                              {isAcademicsMenu ? (
-                                <div className="grid min-w-0 flex-1 gap-x-8 gap-y-2 lg:grid-cols-3">
-                                  <div className="min-w-0">
-                                    <div className="mb-2 border-b border-gray-100 pb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-ssgmce-blue">
-                                      Departments
-                                    </div>
+                              <div
+                                className={`grid min-w-0 flex-1 gap-x-7 gap-y-2 ${
+                                  colCount === 4
+                                    ? "lg:grid-cols-4"
+                                    : colCount === 3
+                                      ? "lg:grid-cols-3"
+                                      : "lg:grid-cols-2"
+                                }`}
+                              >
+                                {columns.map((col, colIdx) => (
+                                  <div
+                                    key={`col-${colIdx}`}
+                                    className="min-w-0 flex-1"
+                                  >
                                     <ul className="space-y-0.5">
-                                      {academicsGroups.departments.map(
-                                        (subItem, subIndex) => (
-                                          <li
-                                            key={`dept-${subIndex}`}
-                                            className="relative"
-                                          >
+                                      {col.map((subItem, subIndex) => (
+                                        <li key={subIndex} className="relative">
+                                          {subItem.isSectionHeader ? (
+                                            <div className="mb-1 mt-2 border-b border-gray-100 pb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-ssgmce-blue first:mt-0">
+                                              {subItem.name}
+                                            </div>
+                                          ) : (
                                             <Link
                                               to={subItem.path}
                                               onClick={() => {
@@ -599,107 +561,13 @@ const Navbar = () => {
                                             >
                                               {subItem.name}
                                             </Link>
-                                          </li>
-                                        ),
-                                      )}
+                                          )}
+                                        </li>
+                                      ))}
                                     </ul>
                                   </div>
-
-                                  <div className="min-w-0">
-                                    <div className="mb-2 border-b border-gray-100 pb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-ssgmce-blue">
-                                      Academic Links I
-                                    </div>
-                                    <ul className="space-y-0.5">
-                                      {academicsLinkColumns[0].map(
-                                        (subItem, subIndex) => (
-                                          <li
-                                            key={`acad-${subIndex}`}
-                                            className="relative"
-                                          >
-                                            <Link
-                                              to={subItem.path}
-                                              onClick={() => {
-                                                setActiveDropdown(null);
-                                                setActiveSubDropdown(null);
-                                              }}
-                                              className="block min-w-0 break-words py-1.5 text-[13px] font-medium leading-snug text-gray-700 transition-all hover:text-ssgmce-orange hover:underline xl:text-sm"
-                                            >
-                                              {subItem.name}
-                                            </Link>
-                                          </li>
-                                        ),
-                                      )}
-                                    </ul>
-                                  </div>
-
-                                  <div className="min-w-0">
-                                    <ul className="space-y-0.5">
-                                      {academicsLinkColumns[1].map(
-                                        (subItem, subIndex) => (
-                                          <li
-                                            key={`acad-2-${subIndex}`}
-                                            className="relative"
-                                          >
-                                            <Link
-                                              to={subItem.path}
-                                              onClick={() => {
-                                                setActiveDropdown(null);
-                                                setActiveSubDropdown(null);
-                                              }}
-                                              className="block min-w-0 break-words py-1.5 text-[13px] font-medium leading-snug text-gray-700 transition-all hover:text-ssgmce-orange hover:underline xl:text-sm"
-                                            >
-                                              {subItem.name}
-                                            </Link>
-                                          </li>
-                                        ),
-                                      )}
-                                    </ul>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div
-                                  className={`grid min-w-0 flex-1 gap-x-7 gap-y-2 ${
-                                    colCount === 4
-                                      ? "lg:grid-cols-4"
-                                      : colCount === 3
-                                        ? "lg:grid-cols-3"
-                                        : "lg:grid-cols-2"
-                                  }`}
-                                >
-                                  {columns.map((col, colIdx) => (
-                                    <div
-                                      key={`col-${colIdx}`}
-                                      className="min-w-0 flex-1"
-                                    >
-                                      <ul className="space-y-0.5">
-                                        {col.map((subItem, subIndex) => (
-                                          <li
-                                            key={subIndex}
-                                            className="relative"
-                                          >
-                                            {subItem.isSectionHeader ? (
-                                              <div className="mb-1 mt-2 border-b border-gray-100 pb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-ssgmce-blue first:mt-0">
-                                                {subItem.name}
-                                              </div>
-                                            ) : (
-                                              <Link
-                                                to={subItem.path}
-                                                onClick={() => {
-                                                  setActiveDropdown(null);
-                                                  setActiveSubDropdown(null);
-                                                }}
-                                                className="block min-w-0 break-words py-1.5 text-[13px] font-medium leading-snug text-gray-700 transition-all hover:text-ssgmce-orange hover:underline xl:text-sm"
-                                              >
-                                                {subItem.name}
-                                              </Link>
-                                            )}
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
+                                ))}
+                              </div>
 
                               {/* Right Side - Promotional Image */}
                               {imageWidth !== "hidden" && (
@@ -767,7 +635,11 @@ const Navbar = () => {
                     {item.dropdown ? (
                       <>
                         <button
-                          onClick={() => handleTopLevelMenuClick(item)}
+                          onClick={() =>
+                            setActiveDropdown(
+                              activeDropdown === item.name ? null : item.name,
+                            )
+                          }
                           className="w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-50 rounded flex justify-between items-center font-semibold text-sm"
                         >
                           {item.name}{" "}

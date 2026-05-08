@@ -1,10 +1,9 @@
 import React from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaFileAlt } from "react-icons/fa";
+import { useEdit } from "../contexts/EditContext";
 import MobileSidebarToggle from "./MobileSidebarToggle";
-import {
-  DOCUMENT_SECTIONS,
-} from "../data/documentsCatalog";
+import { DOCUMENT_SECTIONS } from "../data/documentsCatalog";
 
 const adminLinks = [
   { pageId: "documents-policies", label: "Policies and Procedure" },
@@ -20,17 +19,22 @@ const adminLinks = [
   { pageId: "documents-tattwadarshi", label: "e-Tattwadarshi" },
 ];
 
-const DocumentsSidebar = () => {
+const pathToPageId = (path) => path.replace(/^\//, "").replace(/\//g, "-");
+
+const filteredDocumentLinks = DOCUMENT_SECTIONS
+  .filter((section) => section.id !== "office")
+  .map((section) => ({
+    name: section.label,
+    path: `/documents/${section.id}`,
+  }));
+
+const DocumentsSidebar = ({ sections }) => {
   const location = useLocation();
-  const { pageId: activeAdminPageId } = useParams();
+  const navigate = useNavigate();
+  const { isEditing } = useEdit();
   const isAdminEditor =
     location.pathname.startsWith("/admin/pages/editor/") ||
     location.pathname.startsWith("/admin/visual/");
-
-  const getAdminBasePath = () =>
-    location.pathname.startsWith("/admin/visual/")
-      ? "/admin/visual"
-      : "/admin/pages/editor";
 
   const handleScroll = (e, id) => {
     e.preventDefault();
@@ -43,73 +47,82 @@ const DocumentsSidebar = () => {
     }
   };
 
-  const navContent = (
-    <ul className="space-y-1">
-      {!isAdminEditor && (
-        <>
-          <li>
-            <Link
-              to="/documents"
-              className={`block rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
-                location.pathname === "/documents"
-                  ? "bg-ssgmce-blue/10 font-semibold text-ssgmce-blue"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              Documents Home
-            </Link>
-          </li>
+  const handleLinkClick = (e, path) => {
+    if (isEditing) {
+      e.preventDefault();
+      navigate(`/admin/visual/${pathToPageId(path)}`);
+    }
+  };
 
-          <li className="pt-2">
-            <div className="px-4 pb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">
-              Document Catalog
-            </div>
-            <ul className="space-y-1">
-              {DOCUMENT_SECTIONS.map((section) => {
-                const isActive = location.pathname === section.route;
-
-                return (
-                  <li key={section.route}>
-                    <Link
-                      to={section.route}
-                      className={`block rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
-                        isActive
-                          ? "bg-ssgmce-blue/10 font-semibold text-ssgmce-blue"
-                          : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      {section.label}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </li>
-        </>
-      )}
-
-      {isAdminEditor &&
-        adminLinks.map((link) => {
-          const targetPath = `${getAdminBasePath()}/${link.pageId}`;
-          const isActive = activeAdminPageId === link.pageId;
+  const publicNavContent = (
+    <nav>
+      <ul className="space-y-1">
+        {filteredDocumentLinks.map((link) => {
+          const isActive =
+            location.pathname === link.path ||
+            (isEditing &&
+              location.pathname === `/admin/visual/${pathToPageId(link.path)}`);
 
           return (
-            <li key={link.pageId}>
+            <li key={link.path}>
               <Link
-                to={targetPath}
+                to={isEditing ? `/admin/visual/${pathToPageId(link.path)}` : link.path}
+                onClick={(e) => handleLinkClick(e, link.path)}
                 className={`block rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-ssgmce-blue/10 font-semibold text-ssgmce-blue"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
-                {link.label}
+                {link.name}
               </Link>
+
+              {isActive && sections && sections.length > 0 && (
+                <ul className="mt-1 mb-2 ml-4 space-y-1 border-l-2 border-blue-200 pl-3">
+                  {sections.map((section) => (
+                    <li key={section.sectionId}>
+                      <a
+                        href={`#${section.sectionId}`}
+                        onClick={(e) => handleScroll(e, section.sectionId)}
+                        className="block rounded px-3 py-1.5 text-xs text-gray-500 transition-colors hover:bg-blue-50 hover:text-ssgmce-blue"
+                      >
+                        {section.title}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           );
         })}
-    </ul>
+      </ul>
+    </nav>
   );
+
+  const adminNavContent = (
+    <div className="space-y-1">
+      {adminLinks.map((link) => {
+        const targetPath = `/admin/visual/${link.pageId}`;
+        const isActive = location.pathname === targetPath;
+
+        return (
+          <Link
+            key={link.pageId}
+            to={targetPath}
+            className={`block rounded-xl px-4 py-2.5 text-sm transition ${
+              isActive
+                ? "bg-ssgmce-blue/10 font-semibold text-ssgmce-blue"
+                : "text-slate-700 hover:bg-slate-100 hover:text-ssgmce-blue"
+            }`}
+          >
+            {link.label}
+          </Link>
+        );
+      })}
+    </div>
+  );
+
+  const navContent = isAdminEditor ? adminNavContent : publicNavContent;
 
   return (
     <>

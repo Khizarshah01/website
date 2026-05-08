@@ -6,12 +6,8 @@ const path = require("path");
 const { noSqlInjectionGuard } = require("./middleware/nosqlGuard");
 const { streamUploadedFile } = require("./controllers/uploadController");
 
-// Load environment variables. Prefer server/.env, but support the existing
-// project-level "env" file used by the local setup.
-const envResult = dotenv.config();
-if (envResult.error) {
-  dotenv.config({ path: path.resolve(__dirname, "../env") });
-}
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const { protect, adminOnly } = require("./middleware/authMiddleware");
@@ -134,10 +130,10 @@ const researchRoutes = require("./routes/researchRoutes");
 const placementRoutes = require("./routes/placementRoutes");
 const iqacRoutes = require("./routes/iqacRoutes");
 const documentRoutes = require("./routes/documentRoutes");
-const documentDownloadRoutes = require("./routes/documentDownloadRoutes");
 const nirfRoutes = require("./routes/nirfRoutes");
 const convertRoutes = require("./routes/convertRoutes");
-const popupBannerRoutes = require("./routes/popupBannerRoutes");
+const documentDownloadRoutes = require("./routes/documentDownloadRoutes");
+const galleryRoutes = require("./routes/galleryRoutes");
 const { initializeDatabase } = require("./utils/dbInit");
 
 // API Routes
@@ -154,9 +150,9 @@ app.use("/api/placements", placementRoutes);
 app.use("/api/iqac", iqacRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/document-download", documentDownloadRoutes);
+app.use("/api/gallery", galleryRoutes);
 app.use("/api/nirf", nirfRoutes);
 app.use("/api/convert", convertRoutes);
-app.use("/api/popup-banners", popupBannerRoutes);
 
 app.use("/api", (_req, res) => {
   res.status(404).json({

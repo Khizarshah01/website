@@ -59,7 +59,7 @@ const DOCUMENT_CONTENT_PAGES = [
   {
     pageId: "documents-mandatory",
     label: "Mandatory Disclosure",
-    route: "/documents/disclosure",
+    route: "/documents/mandatory",
     title: "Mandatory Disclosure",
     description: "Mandatory Disclosure",
   },

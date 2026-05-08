@@ -134,7 +134,7 @@ const NAVBAR_ROUTE_ORDER = {
   ],
   documents: [
     "/documents/policies",
-    "/documents/disclosure",
+    "/documents/mandatory",
     "/documents/naac",
     "/documents/nba",
     "/documents/iso",

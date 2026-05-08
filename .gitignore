@@ -6,7 +6,6 @@ yarn.lock
 
 # Environment variables
 .env
-env
 .env.local
 .env.development.local
 .env.test.local
@@ -17,6 +16,11 @@ client/dist/
 client/build/
 server/dist/
 server/build/
+
+# Documents - served via API from server/uploads/documents
+client/public/documents/
+server/uploads/documents/*
+!server/uploads/documents/.gitkeep
 
 # Logs
 logs/

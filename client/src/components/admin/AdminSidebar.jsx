@@ -33,6 +33,7 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
       { name: "News & Updates", path: "/admin/news", icon: FaNewspaper },
       { name: "Notices", path: "/admin/notices", icon: FaBullhorn },
       { name: "Events", path: "/admin/events", icon: FaCalendarAlt },
+      { name: "Gallery", path: "/admin/gallery", icon: FaFileImage },
       { name: "Popup Banner", path: "/admin/popup-banner", icon: FaEye },
       { name: "Menu Manager", path: "/admin/menu-manager", icon: FaBars },
     ]},

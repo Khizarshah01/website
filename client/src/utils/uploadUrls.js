@@ -33,6 +33,11 @@ export const resolveUploadedAssetUrl = (url = "") => {
   if (/^(data:|blob:)/i.test(normalizedUrl)) {
     return normalizedUrl;
   }
+  if (
+    /^(image|upload)-\d+-\d+.*\.(png|jpe?g|gif|webp|svg)$/i.test(normalizedUrl)
+  ) {
+    return `${BACKEND_BASE_URL}/uploads/images/${normalizedUrl}`;
+  }
   if (/^(uploads|api)\//i.test(normalizedUrl)) {
     return `${BACKEND_BASE_URL}/${normalizedUrl}`;
   }
