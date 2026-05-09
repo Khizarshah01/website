@@ -58,6 +58,39 @@ const SIDEBAR_MAP = {
 const PAGE_CACHE_TTL_MS = 5 * 60 * 1000;
 const pageDataCache = new Map();
 const pageRequestCache = new Map();
+const LEGACY_PHD_ENROLLMENT_URL =
+  "https://www.ssgmce.ac.in/uploads/pdf/PhD%20Enrollment%20in%20Research%20Centres-Updated-Aug-24.pdf";
+const LOCAL_PHD_ENROLLMENT_URL =
+  "/documents/research/phd/phd-enrollment-in-research-centres-updated-aug-24.pdf";
+const RESEARCH_UG_PROJECTS_LINK_REPLACEMENTS = [
+  ["/departments/cse", "/departments/cse?tab=ug-projects"],
+  ["/departments/electrical", "/departments/electrical?tab=projects"],
+  ["/departments/entc", "/departments/entc?tab=projects"],
+  ["/departments/it", "/departments/it?tab=projects"],
+  ["/departments/mechanical", "/departments/mechanical?tab=student-projects"],
+];
+const RESEARCH_NISP_LINK_REPLACEMENTS = [
+  [
+    "https://www.ssgmce.ac.in/uploads/pdf/SGIARC-TBI-NISP.pdf",
+    "/documents/research/nisp/sgiarc-tbi-nisp.pdf",
+  ],
+  [
+    "https://www.ssgmce.ac.in/uploads/pdf/MHRD_NISP_policy.pdf",
+    "/documents/research/nisp/mhrd-nisp-policy.pdf",
+  ],
+  [
+    "https://www.ssgmce.ac.in/uploads/pdf/NISP%20_Expert%20Committee.pdf",
+    "/documents/research/nisp/nisp-expert-committee.pdf",
+  ],
+  [
+    "https://www.ssgmce.ac.in/uploads/pdf/NISP%201st%20meeting%20Policy.pdf",
+    "/documents/research/nisp/nisp-1st-meeting-policy.pdf",
+  ],
+  [
+    "https://www.ssgmce.ac.in/uploads/pdf/NISP%202nd%20meeting%20policy.pdf",
+    "/documents/research/nisp/nisp-2nd-meeting-policy.pdf",
+  ],
+];
 
 const PREFETCH_GROUPS = {
   "about-": [
@@ -115,6 +148,71 @@ const PREFETCH_GROUPS = {
 const getStorageCacheKey = (pageId) =>
   `ssgmce-page-cache:${String(pageId || "").toLowerCase()}`;
 
+const normalizeLegacyPageData = (pageId, pageData) => {
+  if (!pageData || String(pageId || "").toLowerCase() !== "research-phd") {
+    if (
+      String(pageId || "").toLowerCase() !== "research-ug-projects" &&
+      String(pageId || "").toLowerCase() !== "research-nisp"
+    ) {
+      return pageData;
+    }
+  }
+
+  const clonedSections = Array.isArray(pageData.sections)
+    ? pageData.sections.map((section) => {
+        const text = section?.content?.text;
+        if (typeof text !== "string") {
+          return section;
+        }
+
+        let nextText = text;
+        if (String(pageId || "").toLowerCase() === "research-phd") {
+          if (!nextText.includes(LEGACY_PHD_ENROLLMENT_URL)) {
+            return section;
+          }
+
+          nextText = nextText.replace(
+            LEGACY_PHD_ENROLLMENT_URL,
+            LOCAL_PHD_ENROLLMENT_URL,
+          );
+        }
+
+        if (String(pageId || "").toLowerCase() === "research-ug-projects") {
+          RESEARCH_UG_PROJECTS_LINK_REPLACEMENTS.forEach(([from, to]) => {
+            nextText = nextText.replaceAll(`](${from})`, `](${to})`);
+          });
+
+          if (nextText === text) {
+            return section;
+          }
+        }
+
+        if (String(pageId || "").toLowerCase() === "research-nisp") {
+          RESEARCH_NISP_LINK_REPLACEMENTS.forEach(([from, to]) => {
+            nextText = nextText.replaceAll(from, to);
+          });
+
+          if (nextText === text) {
+            return section;
+          }
+        }
+
+        return {
+          ...section,
+          content: {
+            ...section.content,
+            text: nextText,
+          },
+        };
+      })
+    : pageData.sections;
+
+  return {
+    ...pageData,
+    sections: clonedSections,
+  };
+};
+
 const getCachedPageData = (pageId) => {
   const normalizedPageId = String(pageId || "").toLowerCase();
   if (!normalizedPageId) return null;
@@ -127,15 +225,17 @@ const getCachedPageData = (pageId) => {
     return null;
   }
 
-  return cached.data;
+  return normalizeLegacyPageData(normalizedPageId, cached.data);
 };
 
 const setCachedPageData = (pageId, data) => {
   const normalizedPageId = String(pageId || "").toLowerCase();
   if (!normalizedPageId || !data) return;
 
+  const normalizedData = normalizeLegacyPageData(normalizedPageId, data);
+
   const entry = {
-    data,
+    data: normalizedData,
     timestamp: Date.now(),
   };
   pageDataCache.set(normalizedPageId, entry);
@@ -167,7 +267,7 @@ const readSessionCachedPageData = (pageId) => {
     }
 
     pageDataCache.set(normalizedPageId, parsed);
-    return parsed.data;
+    return normalizeLegacyPageData(normalizedPageId, parsed.data);
   } catch {
     return null;
   }
@@ -189,7 +289,7 @@ const fetchPageById = async (pageId) => {
       if (!res?.data?.success) {
         throw new Error(res?.data?.message || "Page not found");
       }
-      return res.data.data;
+      return normalizeLegacyPageData(normalizedPageId, res.data.data);
     })
     .finally(() => {
       pageRequestCache.delete(normalizedPageId);
@@ -2329,6 +2429,7 @@ Constituted By **All India Council for Technical Education, New Delhi**
                           value={section.content.text}
                           path={`sections[${index}].content.text`}
                           pageId={pageId}
+                          sectionTitle={section.title}
                           className={
                             isAdmissionsThemePage || isAboutThemePage
                               ? "leading-7"
@@ -2358,6 +2459,7 @@ Constituted By **All India Council for Technical Education, New Delhi**
                         value={section.content.text}
                         path={`sections[${index}].content.text`}
                         pageId={pageId}
+                        sectionTitle={section.title}
                         className={
                           isAdmissionsThemePage || isAboutThemePage
                             ? "leading-7"

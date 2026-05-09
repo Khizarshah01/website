@@ -93,6 +93,26 @@ const withDepartmentTab = (route, tab) => {
   return `${normalizedRoute}${separator}tab=${encodeURIComponent(tab)}`;
 };
 
+const UG_PROJECTS_DEPARTMENT_TABS = {
+  "/departments/cse": "ug-projects",
+  "/departments/electrical": "projects",
+  "/departments/entc": "projects",
+  "/departments/it": "projects",
+  "/departments/mechanical": "student-projects",
+  "/departments/mba": "projects",
+};
+
+const withUgProjectsDepartmentTab = (route) =>
+  withDepartmentTab(route, UG_PROJECTS_DEPARTMENT_TABS[normalizeText(route)] || "projects");
+
+const NISP_DOCUMENT_URLS = {
+  policy: "/documents/research/nisp/sgiarc-tbi-nisp.pdf",
+  mhrdPolicy: "/documents/research/nisp/mhrd-nisp-policy.pdf",
+  expertCommittee: "/documents/research/nisp/nisp-expert-committee.pdf",
+  firstMeeting: "/documents/research/nisp/nisp-1st-meeting-policy.pdf",
+  secondMeeting: "/documents/research/nisp/nisp-2nd-meeting-policy.pdf",
+};
+
 const publicationEntry = (publication) =>
   [
     `**${normalizeText(publication.year)} - ${normalizeText(publication.title)}**`,
@@ -547,7 +567,7 @@ The projects reflect the application of engineering principles and emerging tech
           slugify(`ug-projects-${department.shortName}`),
           normalizeText(department.name),
           `
-**Department Page:** [View ${normalizeText(department.shortName)} Department](${department.route})
+**Department Page:** [View ${normalizeText(department.shortName)} Department](${withUgProjectsDepartmentTab(department.route)})
 
 ${department.batches
   .map(
@@ -574,7 +594,7 @@ Shri Sant Gajanan Maharaj College of Engineering, Shegaon is a recognized resear
 - Registered scholars: **${totalScholars}**
 - Total seats: **${totalSeats}**
 - Vacant seats: **${totalSeats - totalScholars}**
-- [Download Detailed Ph.D. Enrollment PDF](https://www.ssgmce.ac.in/uploads/pdf/PhD%20Enrollment%20in%20Research%20Centres-Updated-Aug-24.pdf)
+- [Download Detailed Ph.D. Enrollment PDF](/documents/research/phd/phd-enrollment-in-research-centres-updated-aug-24.pdf)
         `,
         1,
       ),
@@ -725,12 +745,9 @@ ${objectives
         "nisp-documents",
         "Policy Documents",
         `
-${policyDocs
-  .map(
-    (document) =>
-      `- **${normalizeText(document.title)}**: ${normalizeText(document.subtitle)} [View PDF](${document.url})`,
-  )
-  .join("\n")}
+- **NISP Policy and Procedures**: SGIARC-TBI - Institute-level innovation & startup policy framework [View PDF](${NISP_DOCUMENT_URLS.policy})
+- **MHRD NISP Policy**: Ministry of Education - National Innovation and Startup Policy document [View PDF](${NISP_DOCUMENT_URLS.mhrdPolicy})
+- **NISP Expert Committee**: Composition and details of the NISP Expert Committee [View PDF](${NISP_DOCUMENT_URLS.expertCommittee})
         `,
         2,
       ),
@@ -738,12 +755,8 @@ ${policyDocs
         "nisp-meetings",
         "Meeting Minutes",
         `
-${meetings
-  .map(
-    (meeting) =>
-      `- **${normalizeText(meeting.title)}**: [View PDF](${meeting.url})`,
-  )
-  .join("\n")}
+- **1st NISP Meeting**: [View PDF](${NISP_DOCUMENT_URLS.firstMeeting})
+- **2nd NISP Meeting**: [View PDF](${NISP_DOCUMENT_URLS.secondMeeting})
         `,
         3,
       ),
