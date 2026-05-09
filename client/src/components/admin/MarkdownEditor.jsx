@@ -7,7 +7,10 @@ import MarkdownIt from "markdown-it";
 import markdownItAttrs from "markdown-it-attrs";
 import apiClient from "../../utils/apiClient";
 import { useEdit } from "../../contexts/EditContext";
-import { publicationDepartmentLinks } from "../../constants/researchDepartmentLinks";
+import {
+  iprDepartmentLinks,
+  publicationDepartmentLinks,
+} from "../../constants/researchDepartmentLinks";
 import { resolveUploadedAssetUrl } from "../../utils/uploadUrls";
 import DepartmentRedirectGrid from "../research/DepartmentRedirectGrid";
 import {
@@ -353,6 +356,9 @@ const getMetaChipClass = (label = "", value = "") => {
 const isYearlyPublicationReportsSection = (title = "") =>
   /^\s*yearly(?:\s+publication)?\s+reports?\s*$/i.test(String(title || ""));
 
+const isYearlyIprReportsSection = (title = "") =>
+  /^\s*yearly\s+reports?\s*$/i.test(String(title || ""));
+
 const DepartmentLinkCard = ({ link }) => {
   if (!link) return null;
   if (isInternalAppPath(link.href)) {
@@ -521,9 +527,33 @@ const preprocessContainers = (md) => {
   return result;
 };
 
-const FacilityGridLayout = ({ markdownText, pageId = "" }) => {
+const FacilityGridLayout = ({
+  markdownText,
+  pageId = "",
+  sectionTitle = "",
+}) => {
   const cleanedMarkdownText = sanitizeResearchMarkdown(markdownText);
   const isResearchPublicationsPage = pageId === "research-publications";
+  const isResearchIprPage = pageId === "research-ipr";
+  const shouldShowPublicationDepartmentGrid =
+    isResearchPublicationsPage &&
+    String(sectionTitle || "").trim().toLowerCase() === "overview";
+  const shouldShowIprDepartmentGrid =
+    isResearchIprPage &&
+    String(sectionTitle || "").trim().toLowerCase() === "overview";
+  const departmentRedirectConfig = shouldShowPublicationDepartmentGrid
+    ? {
+        departments: publicationDepartmentLinks,
+        title: "Explore Publications by Department",
+        subtitle: "Jump directly to the publication section for any department.",
+      }
+    : shouldShowIprDepartmentGrid
+      ? {
+          departments: iprDepartmentLinks,
+          title: "Explore IPR by Department",
+          subtitle: "Jump directly to the patent and publication section for any department.",
+        }
+      : null;
   const renderMarkdown = (content) => (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
@@ -633,6 +663,10 @@ const FacilityGridLayout = ({ markdownText, pageId = "" }) => {
       ? classifiedSections.filter(
           (section) => !isYearlyPublicationReportsSection(section.title),
         )
+      : isResearchIprPage
+        ? classifiedSections.filter(
+            (section) => !isYearlyIprReportsSection(section.title),
+          )
       : classifiedSections;
     const removedYearlyReports =
       visibleSections.length !== classifiedSections.length;
@@ -672,9 +706,11 @@ const FacilityGridLayout = ({ markdownText, pageId = "" }) => {
             </section>
           ))}
 
-          {isResearchPublicationsPage && removedYearlyReports ? (
+          {departmentRedirectConfig && removedYearlyReports ? (
             <DepartmentRedirectGrid
-              departments={publicationDepartmentLinks}
+              departments={departmentRedirectConfig.departments}
+              title={departmentRedirectConfig.title}
+              subtitle={departmentRedirectConfig.subtitle}
               currentPath={departmentLink?.href || ""}
             />
           ) : null}
@@ -684,12 +720,14 @@ const FacilityGridLayout = ({ markdownText, pageId = "" }) => {
   }
 
   const docsOnly = parseDocumentCardItems(content);
-  if (isResearchPublicationsPage && docsOnly) {
+  if (departmentRedirectConfig && docsOnly) {
     return (
       <div className="space-y-4">
         <DepartmentLinkCard link={departmentLink} />
         <DepartmentRedirectGrid
-          departments={publicationDepartmentLinks}
+          departments={departmentRedirectConfig.departments}
+          title={departmentRedirectConfig.title}
+          subtitle={departmentRedirectConfig.subtitle}
           currentPath={departmentLink?.href || ""}
         />
       </div>
@@ -719,6 +757,13 @@ const FacilityGridLayout = ({ markdownText, pageId = "" }) => {
     <div className="space-y-4">
       <DepartmentLinkCard link={departmentLink} />
       {renderMarkdown(content)}
+      {departmentRedirectConfig && !departmentLink ? (
+        <DepartmentRedirectGrid
+          departments={departmentRedirectConfig.departments}
+          title={departmentRedirectConfig.title}
+          subtitle={departmentRedirectConfig.subtitle}
+        />
+      ) : null}
     </div>
   );
 };
@@ -1104,6 +1149,7 @@ const MarkdownEditor = ({
   placeholder = "Click to edit content…",
   className = "",
   pageId = "",
+  sectionTitle = "",
 }) => {
   const { data, updateData, isEditing } = useEdit();
   const textareaRef = useRef(null);
@@ -1537,7 +1583,11 @@ const MarkdownEditor = ({
     return (
       <div className={className}>
         {displayValue ? (
-          <FacilityGridLayout markdownText={displayValue} pageId={pageId} />
+          <FacilityGridLayout
+            markdownText={displayValue}
+            pageId={pageId}
+            sectionTitle={sectionTitle}
+          />
         ) : null}
       </div>
     );
@@ -1552,7 +1602,11 @@ const MarkdownEditor = ({
         title="Click to edit (Markdown supported)"
       >
         {displayValue ? (
-          <FacilityGridLayout markdownText={displayValue} pageId={pageId} />
+          <FacilityGridLayout
+            markdownText={displayValue}
+            pageId={pageId}
+            sectionTitle={sectionTitle}
+          />
         ) : (
           <span className="text-gray-400 dark:text-gray-500 italic text-sm">
             {placeholder}

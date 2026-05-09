@@ -7,6 +7,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const { noSqlInjectionGuard } = require("./middleware/nosqlGuard");
 const { streamUploadedFile } = require("./controllers/uploadController");
+const { resolveExistingDocumentPath } = require("./utils/documentPathAliases");
 const {
   getAuthCookieOptions,
   getJwtSecret,
@@ -162,6 +163,28 @@ app.use("/api/admin", protect, adminOnly, (_req, res) => {
 
 // Serve static files from uploads folder
 app.get("/uploads/:category/:filename", streamUploadedFile);
+
+const documentsRoot = path.join(__dirname, "uploads", "documents");
+
+app.use("/uploads/documents", (req, res, next) => {
+  const requestedPath = String(req.path || "").replace(/^\/+/, "");
+  const resolvedDocument = resolveExistingDocumentPath(
+    documentsRoot,
+    requestedPath,
+  );
+
+  if (!resolvedDocument?.usedLegacyAlias) {
+    return next();
+  }
+
+  const extension = path.extname(resolvedDocument.absolutePath).toLowerCase();
+  if (extension === ".pdf") {
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline");
+  }
+  res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+  return res.sendFile(resolvedDocument.absolutePath);
+});
 
 app.use(
   "/uploads",

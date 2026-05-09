@@ -4123,7 +4123,7 @@ export const defaultInnovativePractices = [
     faculty: "Dr. J. M. Patil",
     subject: "Database Management Systems",
     practice: "Power Point Presentation",
-    link: "/uploads/documents/cse_innovative/JMP_innovative.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/JMP_innovative.pdf",
   },
   {
     sn: "02",
@@ -4131,14 +4131,14 @@ export const defaultInnovativePractices = [
     subject: "Block Chain Fundamentals",
     practice:
       "Mini/Term/Short Projects (Design/Fabrication/Simulation/Software/Hardware Development)",
-    link: "/uploads/documents/cse_innovative/Dr_NMK_innovative_learning_CSE.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/Dr_NMK_innovative_learning_CSE.pdf",
   },
   {
     sn: "03",
     faculty: "C. M. Mankar",
     subject: "Theory of Computation",
     practice: "Power Point Presentation",
-    link: "/uploads/documents/cse_innovative/CMM_innovative.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/CMM_innovative.pdf",
   },
   {
     sn: "04",
@@ -4153,35 +4153,35 @@ export const defaultInnovativePractices = [
     faculty: "Dr. P. K. Bharne",
     subject: "Operating System",
     practice: "Content based question making",
-    link: "/uploads/documents/cse_innovative/PKBInnovativePracticeCSE.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/PKBInnovativePracticeCSE.pdf",
   },
   {
     sn: "06",
     faculty: "K. P. Sable",
     subject: "Data Communication & Networking",
     practice: "Learning through Survey/Case studies",
-    link: "/uploads/documents/cse_innovative/KPS_Innovative_Practice_DCN.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/KPS_Innovative_Practice_DCN.pdf",
   },
   {
     sn: "07",
     faculty: "S. B. Pagrut",
     subject: "Digital Forensics",
     practice: "New Experiment development and testing",
-    link: "/uploads/documents/cse_innovative/SBP_InnovativePractice.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/SBP_InnovativePractice.pdf",
   },
   {
     sn: "08",
     faculty: "Dr. R. A. Zamare",
     subject: "Big Data Analytics",
     practice: "Learning through Industrial visit/field work and report writing",
-    link: "/uploads/documents/cse_innovative/RAZ_Innovative_Practice_Industrial_Visit_BDA.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/RAZ_Innovative_Practice_Industrial_Visit_BDA.pdf",
   },
   {
     sn: "09",
     faculty: "P. R. Pohare",
     subject: "AI",
     practice: "Designing Quizzes",
-    link: "/uploads/documents/cse_innovative/PRP_Innovations.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/PRP_Innovations.pdf",
   },
 ];
 export const defaultAchievements = {

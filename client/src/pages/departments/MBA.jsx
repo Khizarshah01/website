@@ -184,21 +184,21 @@ const defaultMbaIndustrialVisits = [
     title: "Industrial Tour to KALASH SEEDS, Jalna",
     date: "January 2025",
     report:
-      "/uploads/documents/mba/industrial-visits/mba_iv_kalash_seeds_jan2025.pdf",
+      "/uploads/documents/departments/mba/industrial-visits/mba_iv_kalash_seeds_jan2025.pdf",
   },
   {
     sn: "02",
     title: "Experiential Study Visit to Reliance Trends, Shegaon",
     date: "January 2025",
     report:
-      "/uploads/documents/mba/industrial-visits/mba_iv_reliance_trends_jan2025.pdf",
+      "/uploads/documents/departments/mba/industrial-visits/mba_iv_reliance_trends_jan2025.pdf",
   },
   {
     sn: "03",
     title: "Experiential Study Visit to Peter England, Shegaon",
     date: "January 2025",
     report:
-      "/uploads/documents/mba/industrial-visits/mba_iv_peter_england_jan2025.pdf",
+      "/uploads/documents/departments/mba/industrial-visits/mba_iv_peter_england_jan2025.pdf",
   },
   {
     sn: "04",
@@ -206,21 +206,21 @@ const defaultMbaIndustrialVisits = [
       "Visit to AAVISHKAR Social, Cultural and Specially Abled Organization, Shegaon",
     date: "December 2024",
     report:
-      "/uploads/documents/mba/industrial-visits/mba_iv_aavishkar_dec2024.pdf",
+      "/uploads/documents/departments/mba/industrial-visits/mba_iv_aavishkar_dec2024.pdf",
   },
   {
     sn: "05",
     title: "Visit to Brahmakumari, Shegaon",
     date: "November 2024",
     report:
-      "/uploads/documents/mba/industrial-visits/mba_iv_brahmakumari_nov2024.pdf",
+      "/uploads/documents/departments/mba/industrial-visits/mba_iv_brahmakumari_nov2024.pdf",
   },
   {
     sn: "06",
     title:
       "Industrial Tour to Mahatma Gandhi Institute for Rural Industrialization (MGIRI), Wardha",
     date: "--",
-    report: "/uploads/documents/mba/industrial-visits/mba_iv_mgiri_wardha.pdf",
+    report: "/uploads/documents/departments/mba/industrial-visits/mba_iv_mgiri_wardha.pdf",
   },
   {
     sn: "07",
@@ -228,7 +228,7 @@ const defaultMbaIndustrialVisits = [
       "Industrial Tour to Super Thermal Power, Chandrapur and Anandwan, Warora",
     date: "04/02/2019 to 05/02/2019",
     report:
-      "/uploads/documents/mba/industrial-visits/mba_iv_chandrapur_warora_feb2019.pdf",
+      "/uploads/documents/departments/mba/industrial-visits/mba_iv_chandrapur_warora_feb2019.pdf",
   },
   {
     sn: "08",
@@ -236,7 +236,7 @@ const defaultMbaIndustrialVisits = [
       "Industrial Visit to Jain Irrigation and Gandhi Research Foundation, Jalgaon",
     date: "22/10/2018",
     report:
-      "/uploads/documents/mba/industrial-visits/mba_iv_jain_irrigation_jalgaon_2018.pdf",
+      "/uploads/documents/departments/mba/industrial-visits/mba_iv_jain_irrigation_jalgaon_2018.pdf",
   },
   {
     sn: "09",
@@ -326,38 +326,38 @@ const defaultMbaMous = [
     no: "1.",
     org: "Bajaj Finance Limited and Bajaj Finserv Limited",
     date: "16-June-2025",
-    report: "/uploads/documents/mba_mous/MOU_Bajaj_Finance_2025.pdf",
+    report: "/uploads/documents/departments/mba/mous/MOU_Bajaj_Finance_2025.pdf",
   },
   {
     no: "2.",
     org: "Kalash Seeds Pvt. Ltd., Mantha Road, Jalna, M.S.",
     date: "04-Jan-2025",
-    report: "/uploads/documents/mba_mous/MOU_Kalash_Seeds_2025.pdf",
+    report: "/uploads/documents/departments/mba/mous/MOU_Kalash_Seeds_2025.pdf",
   },
   {
     no: "3.",
     org: "Saturday Club Global Trust â€” Co-operation in Research and Education",
     date: "12-Jan-2024",
     report:
-      "/uploads/documents/mba_mous/MOU_Saturday_Club_Global_Trust_2024.pdf",
+      "/uploads/documents/departments/mba/mous/MOU_Saturday_Club_Global_Trust_2024.pdf",
   },
   {
     no: "4.",
     org: "Circular Angel Pvt Ltd., Mumbai â€” Research, Education and Real-time Consultancy",
     date: "13-Jan-2024",
-    report: "/uploads/documents/mba_mous/MOU_Circular_Angel_2024.pdf",
+    report: "/uploads/documents/departments/mba/mous/MOU_Circular_Angel_2024.pdf",
   },
   {
     no: "5.",
     org: "Leben Life Sciences, Akola",
     date: "17-Feb-2023",
-    report: "/uploads/documents/mba_mous/MOU_Leben_Life_Sciences_2023.pdf",
+    report: "/uploads/documents/departments/mba/mous/MOU_Leben_Life_Sciences_2023.pdf",
   },
   {
     no: "6.",
     org: "Lyceum of the Philippines University â€” Laguna",
     date: "14-July-2022",
-    report: "/uploads/documents/mba_mous/MOU_LPU_Laguna_Philippines_2022.pdf",
+    report: "/uploads/documents/departments/mba/mous/MOU_LPU_Laguna_Philippines_2022.pdf",
   },
 ];
 
@@ -420,7 +420,7 @@ const defaultMbaRankings = [
       "Indian Institutional Ranking Framework (IIRF) Top MBA Colleges in India 2025",
     linkLabel: "more details",
     linkUrl:
-      "/uploads/documents/mba_ranking/IIRF_Best_B-School_Ranking_2025.pdf",
+      "/uploads/documents/departments/mba/ranking/IIRF_Best_B-School_Ranking_2025.pdf",
     ranking:
       "Ranked 47th in the State, 111th Rank among all Private B-schools in India",
   },
@@ -430,7 +430,7 @@ const defaultMbaRankings = [
       "Indian Institutional Ranking Framework (IIRF) Top MBA Colleges in India 2024",
     linkLabel: "more details",
     linkUrl:
-      "/uploads/documents/mba_ranking/IIRF_Best_B-School_Ranking_2024.pdf",
+      "/uploads/documents/departments/mba/ranking/IIRF_Best_B-School_Ranking_2024.pdf",
     ranking:
       "Ranked 35th in the State, 108th Rank among all Private B-schools in India",
   },
@@ -440,7 +440,7 @@ const defaultMbaRankings = [
       "Indian Institutional Ranking Framework (IIRF) Top MBA Colleges in India 2023 - Survey conducted during September-October 2022",
     linkLabel: "more details",
     linkUrl:
-      "/uploads/documents/mba_ranking/IIRF_Best_B-School_Ranking_2023.pdf",
+      "/uploads/documents/departments/mba/ranking/IIRF_Best_B-School_Ranking_2023.pdf",
     ranking:
       "Ranked 30th in the West Zone, 108th Rank among all Private B-schools in India",
   },
@@ -449,7 +449,7 @@ const defaultMbaRankings = [
     survey: "Fortune India Best B-School Ranking, August-September 2022",
     linkLabel: "more details",
     linkUrl:
-      "/uploads/documents/mba_ranking/Fortune_India_Best_B-School_Ranking_2022.pdf",
+      "/uploads/documents/departments/mba/ranking/Fortune_India_Best_B-School_Ranking_2022.pdf",
     ranking:
       "Only institute from Vidarbha, Maharashtra appearing in the Fortune India Best B-School Ranking 2022",
   },
@@ -466,7 +466,7 @@ const defaultMbaRankings = [
     survey: "SSGMCE ranking in DATA QUEST T- School Employability Ranking 2021",
     linkLabel: "more details",
     linkUrl:
-      "/uploads/documents/mba_ranking/DataQuest_T-School_Ranking_2021.pdf",
+      "/uploads/documents/departments/mba/ranking/DataQuest_T-School_Ranking_2021.pdf",
     ranking:
       "Rank-73 : Private Sector\nRank - 81 : Government and private institutes",
   },
@@ -475,7 +475,7 @@ const defaultMbaRankings = [
     survey:
       "Outlook-Drshti Survey 2018 ranks DBA&R at 86th amongst Indias Top 100 Management Schools",
     linkLabel: "Click here for Details",
-    linkUrl: "/uploads/documents/mba_ranking/Outlook_Drshti_Survey_2018.pdf",
+    linkUrl: "/uploads/documents/departments/mba/ranking/Outlook_Drshti_Survey_2018.pdf",
     ranking: "Ranked 86th",
   },
   {
@@ -483,7 +483,7 @@ const defaultMbaRankings = [
     survey:
       "Business Today ranks Shegaon MBA amongst top 100 B-Schools in India",
     linkLabel: "Click here for Details",
-    linkUrl: "/uploads/documents/mba_ranking/Business_Today_Ranking_2018.pdf",
+    linkUrl: "/uploads/documents/departments/mba/ranking/Business_Today_Ranking_2018.pdf",
     ranking: "Ranked 80th",
   },
   {
@@ -491,7 +491,7 @@ const defaultMbaRankings = [
     survey:
       "HONOURED AS MANAGEMENT COLLEGE OF THE YEAR 2017 -Program Efficacy by Higher Education Review Magazine, Nov. 2017",
     linkLabel: "Click here for Details",
-    linkUrl: "/uploads/documents/mba_ranking/Higher_Education_Review_2017.pdf",
+    linkUrl: "/uploads/documents/departments/mba/ranking/Higher_Education_Review_2017.pdf",
     ranking: "",
   },
   {
@@ -499,7 +499,7 @@ const defaultMbaRankings = [
     survey:
       "Business Today-MDRA ranks DBA&R, SSGMCE, Shegaon amongst Best B-Schools of India",
     linkLabel: "Click here for Details",
-    linkUrl: "/uploads/documents/mba_ranking/BT_MDRA_Ranking_2017.pdf",
+    linkUrl: "/uploads/documents/departments/mba/ranking/BT_MDRA_Ranking_2017.pdf",
     ranking: "Ranked at 146th position",
   },
   {
@@ -644,7 +644,7 @@ const defaultMbaWorkshopPrograms = [
     coordinator: "Dr. Bilal T. Husain",
     participants: "17 students cleared",
     report:
-      "/uploads/documents/mba_workshops/workshops_Workshop_on_Microsoft_Excel.pdf",
+      "/uploads/documents/departments/mba/workshops/workshops_Workshop_on_Microsoft_Excel.pdf",
   },
   {
     id: "mba-workshop-2",
@@ -652,7 +652,7 @@ const defaultMbaWorkshopPrograms = [
     coordinator: "Prof. Wechansing Suliya",
     participants: "36 students participated",
     report:
-      "/uploads/documents/mba_workshops/workshops_Accelerated_training_and_development_program(ALDP).pdf",
+      "/uploads/documents/departments/mba/workshops/workshops_Accelerated_training_and_development_program(ALDP).pdf",
   },
   {
     id: "mba-workshop-3",
@@ -661,7 +661,7 @@ const defaultMbaWorkshopPrograms = [
     coordinator: "Dr. Bilal T. Husain",
     participants: "54 students participated",
     report:
-      "/uploads/documents/mba_workshops/workshops_International_Workshop_on_Business_Analytics_by_DBAR,_SSGMCE-Shegaon_and_Lyceum_of_the_Philippines_University-_Laguna.pdf",
+      "/uploads/documents/departments/mba/workshops/workshops_International_Workshop_on_Business_Analytics_by_DBAR,_SSGMCE-Shegaon_and_Lyceum_of_the_Philippines_University-_Laguna.pdf",
   },
   {
     id: "mba-workshop-4",
@@ -669,7 +669,7 @@ const defaultMbaWorkshopPrograms = [
     coordinator: "Dr. Mayur A. Dande",
     participants: "58 students participated",
     report:
-      "/uploads/documents/mba_workshops/workshops_Workshop_on_Holistic_Management.pdf",
+      "/uploads/documents/departments/mba/workshops/workshops_Workshop_on_Holistic_Management.pdf",
   },
   {
     id: "mba-workshop-5",
@@ -678,7 +678,7 @@ const defaultMbaWorkshopPrograms = [
       "Mr. Subhash Gore, Secretary, Saturday Club Global Trust, Akola Chapter",
     participants: "MBA Department students participated",
     report:
-      "/uploads/documents/mba_workshops/workshops_A_SESSION_ON_DIGITAL_MARKETING.pdf",
+      "/uploads/documents/departments/mba/workshops/workshops_A_SESSION_ON_DIGITAL_MARKETING.pdf",
   },
   {
     id: "mba-workshop-6",
@@ -687,7 +687,7 @@ const defaultMbaWorkshopPrograms = [
       "Mr. Subhash Gore, Saturday Club Global Trust, Akola Chapter; Mrs. Mohini Modak, Founder, Webmasterkey, Akola",
     participants: "MBA Department students participated",
     report:
-      "/uploads/documents/mba_workshops/workshops_A_SESSION_ON_WEBSITE_CREATION_AND_CREATIVE_SOCIAL_MEDIA_USE.pdf",
+      "/uploads/documents/departments/mba/workshops/workshops_A_SESSION_ON_WEBSITE_CREATION_AND_CREATIVE_SOCIAL_MEDIA_USE.pdf",
   },
 ];
 
@@ -942,14 +942,14 @@ const defaultMbaCorporateLeaderSpeaksBySession = {
       speaker: "Mrs. Sudha Murthy Ji",
       topic: "A Philanthropist Speaks on Lessons from Life",
       report:
-        "/uploads/documents/mba_corporate_leader_speaks/Session_2024-25_Mrs._Sudha_Murthy_Ji.pdf",
+        "/uploads/documents/departments/mba/corporate-leader-speaks/Session_2024-25_Mrs._Sudha_Murthy_Ji.pdf",
     },
     {
       speaker:
         "Mr. Chirag Lasod, Jain Exports, Neemuch, M.P.; Mr. Rajesh Jadhav, Founder, Surya Consumer Products, MIDC, Buldana; Mr. Soham Belokar, District Officer, PMSA Udyog, Buldana",
       topic: "Guest Talk",
       report:
-        "/uploads/documents/mba_corporate_leader_speaks/Session_2024-25_Mr._Chirag_Lasod,_Jain_Exports,_Neemuch,_M._P._Mr._Rajesh_Jadhav,_founder,_Surya_Consumer_Products,_MIDC.pdf",
+        "/uploads/documents/departments/mba/corporate-leader-speaks/Session_2024-25_Mr._Chirag_Lasod,_Jain_Exports,_Neemuch,_M._P._Mr._Rajesh_Jadhav,_founder,_Surya_Consumer_Products,_MIDC.pdf",
     },
   ],
   "Session 2020-22": [
@@ -3455,14 +3455,14 @@ const MBA = () => {
   };
 
   const MBA_RESEARCH_TEMPLATE_URLS = {
-    patents: "/uploads/documents/pride_templates/mba_patents_template.docx",
+    patents: "/uploads/documents/departments/mba/templates/mba_patents_template.docx",
     publications:
-      "/uploads/documents/pride_templates/mba_publications_template.docx",
+      "/uploads/documents/departments/mba/templates/mba_publications_template.docx",
     conferences:
-      "/uploads/documents/pride_templates/mba_conferences_template.docx",
-    books: "/uploads/documents/pride_templates/mba_books_template.docx",
+      "/uploads/documents/departments/mba/templates/mba_conferences_template.docx",
+    books: "/uploads/documents/departments/mba/templates/mba_books_template.docx",
     copyrights:
-      "/uploads/documents/pride_templates/mba_copyrights_template.docx",
+      "/uploads/documents/departments/mba/templates/mba_copyrights_template.docx",
   };
 
   const getProjectRecords = () =>
@@ -3713,7 +3713,7 @@ const MBA = () => {
     String(
       t(
         `researchReports.${year}`,
-        `/uploads/documents/mba_publications/MBA_publication_${year}.pdf`,
+        `/uploads/documents/departments/mba/publications/MBA_publication_${year}.pdf`,
       ) || "",
     ).trim();
 
@@ -3980,7 +3980,7 @@ const MBA = () => {
               updateData(`placements.details.${placementYear}`, value)
             }
             showDocImport
-            docTemplateUrl="/uploads/documents/pride_templates/cse_placement_details_template.docx"
+            docTemplateUrl="/uploads/documents/departments/shared/templates/placement_details_template.docx"
             docTemplateLabel="Download Placement Template"
             placeholder="Paste or import placement data (Markdown) here..."
           />
@@ -7050,7 +7050,7 @@ After successfully completing the course, students will be able to:
                   value={md}
                   onSave={(v) => updateData("pride.toppersMarkdown", v)}
                   showDocImport
-                  docTemplateUrl="/uploads/documents/pride_templates/mba_toppers_template.docx"
+                  docTemplateUrl="/uploads/documents/departments/mba/templates/mba_toppers_template.docx"
                   docTemplateLabel="Download Template"
                 />
               ) : (
@@ -7073,7 +7073,7 @@ After successfully completing the course, students will be able to:
                   value={md}
                   onSave={(v) => updateData("pride.alumniMarkdown", v)}
                   showDocImport
-                  docTemplateUrl="/uploads/documents/pride_templates/mba_alumni_template.docx"
+                  docTemplateUrl="/uploads/documents/departments/mba/templates/mba_alumni_template.docx"
                   docTemplateLabel="Download Template"
                 />
               ) : (
@@ -8124,7 +8124,7 @@ After successfully completing the course, students will be able to:
                       value={selectedProjectsMarkdown}
                       onSave={handleProjectMarkdownSave}
                       showDocImport
-                      docTemplateUrl="/uploads/documents/pride_templates/mba_projects_template.docx"
+                      docTemplateUrl="/uploads/documents/departments/mba/templates/mba_projects_template.docx"
                       docTemplateLabel="Download Projects Template"
                       placeholder={`UG/PG projects for ${projectYear} (GFM Markdown)...`}
                     />

@@ -1298,14 +1298,14 @@ export const defaultInnovativePractices = [
     subject: "Cloud Computing",
     practice:
       "Hands-on Cloud Lab through Virtualization and Industry Case Studies",
-    link: "/uploads/documents/it_innovative/ASM_CloudComputing_HandsOnLab.pdf",
+    link: "/uploads/documents/departments/it/innovative-practices/ASM_CloudComputing_HandsOnLab.pdf",
   },
   {
     sn: "",
     faculty: "",
     subject: "Object-Oriented Analysis and Design",
     practice: "Interactive UML Case Study through Gamified Modeling",
-    link: "/uploads/documents/it_innovative/ASM_OOAD_UMLCaseStudy.pdf",
+    link: "/uploads/documents/departments/it/innovative-practices/ASM_OOAD_UMLCaseStudy.pdf",
     rowSpanParent: false,
   },
   {
@@ -1313,14 +1313,14 @@ export const defaultInnovativePractices = [
     faculty: "Prof. P V Kale",
     subject: "Object Oriented Programming",
     practice: "Code Story Telling",
-    link: "/uploads/documents/it_innovative/PVK_OOP_CodeStoryTelling.pdf",
+    link: "/uploads/documents/departments/it/innovative-practices/PVK_OOP_CodeStoryTelling.pdf",
   },
   {
     sn: "",
     faculty: "",
     subject: "Object Oriented Programming",
     practice: "Mind Map",
-    link: "/uploads/documents/it_innovative/PVK_OOP_MindMap.pdf",
+    link: "/uploads/documents/departments/it/innovative-practices/PVK_OOP_MindMap.pdf",
     rowSpanParent: false,
   },
   {
@@ -1328,7 +1328,7 @@ export const defaultInnovativePractices = [
     faculty: "",
     subject: "Operating Systems",
     practice: "Simulation Game",
-    link: "/uploads/documents/it_innovative/PVK_OS_SimulationGame.pdf",
+    link: "/uploads/documents/departments/it/innovative-practices/PVK_OS_SimulationGame.pdf",
     rowSpanParent: false,
   },
   {
@@ -1336,7 +1336,7 @@ export const defaultInnovativePractices = [
     faculty: "Prof. A G Sharma",
     subject: "Data Science & Statistics",
     practice: "Virtual Lab for DSS",
-    link: "/uploads/documents/it_innovative/AGS_DataScience_VirtualLab.pdf",
+    link: "/uploads/documents/departments/it/innovative-practices/AGS_DataScience_VirtualLab.pdf",
   },
   {
     sn: "04",
@@ -1351,14 +1351,14 @@ export const defaultInnovativePractices = [
     faculty: "Prof. S D Padiya",
     subject: "DS GT",
     practice: "Flipped Classroom",
-    link: "/uploads/documents/it_innovative/SDP_DSGT_FlippedClassroom.pdf",
+    link: "/uploads/documents/departments/it/innovative-practices/SDP_DSGT_FlippedClassroom.pdf",
   },
   {
     sn: "",
     faculty: "",
     subject: "Compiler Design",
     practice: "Handwritten PYQ Assignment",
-    link: "/uploads/documents/it_innovative/SDP_CompilerDesign_PYQAssignment.pdf",
+    link: "/uploads/documents/departments/it/innovative-practices/SDP_CompilerDesign_PYQAssignment.pdf",
     rowSpanParent: false,
   },
   {
@@ -1366,7 +1366,7 @@ export const defaultInnovativePractices = [
     faculty: "Prof. S S Muddalkar",
     subject: "Entrepreneurship & Project Management",
     practice: "Case Study",
-    link: "/uploads/documents/it_innovative/SSM_EPM_CaseStudy.pdf",
+    link: "/uploads/documents/departments/it/innovative-practices/SSM_EPM_CaseStudy.pdf",
   },
   {
     sn: "07",
@@ -1415,7 +1415,7 @@ export const defaultInnovativePractices = [
     subject: "Software Engineering",
     practice:
       "Hands-on Experience in HR Management System using OrangeHRM (Open Source)",
-    link: "/uploads/documents/it_innovative/NNG_SE_OrangeHRM.pdf",
+    link: "/uploads/documents/departments/it/innovative-practices/NNG_SE_OrangeHRM.pdf",
     rowSpanParent: false,
   },
 ];
@@ -2843,104 +2843,104 @@ export const defaultItUgProjects = {
     {
       id: "1",
       title: "Transport Management System",
-      report: "/uploads/documents/it/ug-projects/gr_01_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_01_project_report.pdf",
     },
     {
       id: "2",
       title: "Smart Expense Tracker Application Using Naive Bayes",
-      report: "/uploads/documents/it/ug-projects/gr_02_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_02_project_report.pdf",
     },
     {
       id: "3",
       title: "VirtualCare: The Future of Virtual Healthcare",
-      report: "/uploads/documents/it/ug-projects/gr_03_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_03_project_report.pdf",
     },
     {
       id: "4",
       title: "Real Time Assistive System For Deaf And Dumb Community",
-      report: "/uploads/documents/it/ug-projects/gr_04_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_04_project_report.pdf",
     },
     {
       id: "5",
       title: "Design And Development of Warehouse Management System",
-      report: "/uploads/documents/it/ug-projects/gr_05_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_05_project_report.pdf",
     },
     {
       id: "6",
       title: "Design And Development of Warehouse Management System",
-      report: "/uploads/documents/it/ug-projects/gr_06_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_06_project_report.pdf",
     },
     {
       id: "7",
       title: "Creation GuruKool Student\u2019s Booklet",
-      report: "/uploads/documents/it/ug-projects/gr_07_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_07_project_report.pdf",
     },
     {
       id: "8",
       title: "Cryptocurrency Price Prediction using FB Prophet Model",
-      report: "/uploads/documents/it/ug-projects/gr_08_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_08_project_report.pdf",
     },
     {
       id: "9",
       title: "Bike Showroom Management System",
-      report: "/uploads/documents/it/ug-projects/gr_09_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_09_project_report.pdf",
     },
     {
       id: "10",
       title: "Restaurant Management System",
-      report: "/uploads/documents/it/ug-projects/gr_10_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_10_project_report.pdf",
     },
     {
       id: "11",
       title:
         "Epilepsy Patient Fall Detection System and Its Analysis Using Data Science",
-      report: "/uploads/documents/it/ug-projects/gr_11_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_11_project_report.pdf",
     },
     {
       id: "12",
       title:
         "Real-Time Crop Prediction and Fertilizer Recommendation System Using Machine learning and IoT",
-      report: "/uploads/documents/it/ug-projects/gr_12_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_12_project_report.pdf",
     },
     {
       id: "13",
       title: "Fitness To Do",
-      report: "/uploads/documents/it/ug-projects/gr_13_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_13_project_report.pdf",
     },
     {
       id: "14",
       title: "Sport-Strides (Sports Learning and Event System)",
-      report: "/uploads/documents/it/ug-projects/gr_14_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_14_project_report.pdf",
     },
     {
       id: "15",
       title: "Human Detection in Surveillance Video",
-      report: "/uploads/documents/it/ug-projects/gr_15_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_15_project_report.pdf",
     },
     {
       id: "16",
       title: "Student Timeline for Student Information System",
-      report: "/uploads/documents/it/ug-projects/gr_16_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_16_project_report.pdf",
     },
     {
       id: "17",
       title: "QR Based Online Food Ordering System",
-      report: "/uploads/documents/it/ug-projects/gr_17_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_17_project_report.pdf",
     },
     {
       id: "18",
       title: "Design and Development of Website for Shegaon Siddhapeeth",
-      report: "/uploads/documents/it/ug-projects/gr_18_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_18_project_report.pdf",
     },
     {
       id: "19",
       title: "Bulletin Web Application",
-      report: "/uploads/documents/it/ug-projects/gr_19_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_19_project_report.pdf",
     },
     {
       id: "20",
       title: "Android News Application",
-      report: "/uploads/documents/it/ug-projects/gr_20_project_report.pdf",
+      report: "/uploads/documents/departments/it/ug-projects/gr_20_project_report.pdf",
     },
   ],
 };

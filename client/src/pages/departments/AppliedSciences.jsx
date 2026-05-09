@@ -2707,7 +2707,7 @@ The department has three well equipped laboratories namely **Physics, Chemistry 
                 value={md}
                 onSave={(v) => updateData("pride.toppersMarkdown", v)}
                 showDocImport
-                docTemplateUrl="/uploads/documents/pride_templates/ash_toppers_template.docx"
+                docTemplateUrl="/uploads/documents/departments/applied-sciences/templates/ash_toppers_template.docx"
                 docTemplateLabel="Download Template"
               />
             ) : (

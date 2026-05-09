@@ -13,7 +13,7 @@ export const publicationDepartmentLinks = [
     cta: "View in Computer Science & Engineering",
     description:
       "Explore AI, data science, software, and computing research publications.",
-    path: "/departments/cse?tab=publications",
+    path: "/departments/cse?tab=patents",
   },
   {
     id: "electrical",
@@ -21,7 +21,7 @@ export const publicationDepartmentLinks = [
     cta: "View in Electrical Engineering",
     description:
       "Access publications in power systems, drives, renewable energy, and control.",
-    path: "/departments/electrical?tab=publications",
+    path: "/departments/electrical?tab=patents",
   },
   {
     id: "entc",
@@ -29,7 +29,7 @@ export const publicationDepartmentLinks = [
     cta: "View in Electronics & Telecommunication Engineering",
     description:
       "Review communication, embedded, VLSI, signal processing, and electronics research.",
-    path: "/departments/entc?tab=publications",
+    path: "/departments/entc?tab=patents",
   },
   {
     id: "it",
@@ -37,7 +37,7 @@ export const publicationDepartmentLinks = [
     cta: "View in Information Technology",
     description:
       "See department publication work across networks, cloud, security, and AI.",
-    path: "/departments/it?tab=publications",
+    path: "/departments/it?tab=patents",
   },
   {
     id: "mechanical",
@@ -45,7 +45,7 @@ export const publicationDepartmentLinks = [
     cta: "View in Mechanical Engineering",
     description:
       "Open department publications in thermal, design, manufacturing, and energy systems.",
-    path: "/departments/mechanical?tab=publications",
+    path: "/departments/mechanical?tab=patents",
   },
   {
     id: "mba",
@@ -53,6 +53,8 @@ export const publicationDepartmentLinks = [
     cta: "View in MBA",
     description:
       "Navigate to management research publications, journals, and academic outputs.",
-    path: "/departments/mba?tab=publications",
+    path: "/departments/mba?tab=patents",
   },
 ];
+
+export const iprDepartmentLinks = publicationDepartmentLinks;

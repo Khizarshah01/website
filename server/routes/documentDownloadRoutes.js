@@ -1,22 +1,10 @@
 const express = require("express");
-const path = require("path");
 const fs = require("fs");
+const path = require("path");
+const { resolveExistingDocumentPath } = require("../utils/documentPathAliases");
 
 const router = express.Router();
 const documentsRoot = path.resolve(__dirname, "../uploads/documents");
-
-const resolveDocumentPath = (unsafeRelativePath = "") => {
-  const normalized = String(unsafeRelativePath || "")
-    .replace(/\\/g, "/")
-    .replace(/^\/+/, "");
-  const resolvedPath = path.resolve(documentsRoot, normalized);
-
-  if (!resolvedPath.startsWith(documentsRoot)) {
-    return null;
-  }
-
-  return resolvedPath;
-};
 
 // Serve document by filename (supports nested paths like institution/administration/file.pdf)
 router.get("/download/*", (req, res) => {
@@ -28,17 +16,12 @@ router.get("/download/*", (req, res) => {
       return res.status(400).json({ error: "Filename is required" });
     }
 
-    const filePath = resolveDocumentPath(filename);
-    if (!filePath) {
+    const resolvedDocument = resolveExistingDocumentPath(documentsRoot, filename);
+    if (!resolvedDocument) {
       return res.status(400).json({ error: "Invalid document path" });
     }
 
-    // Verify file exists
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: "Document not found" });
-    }
-
-    const extension = path.extname(filePath).toLowerCase();
+    const extension = path.extname(resolvedDocument.absolutePath).toLowerCase();
     const isPdf = extension === ".pdf";
     res.setHeader(
       "Content-Type",
@@ -47,11 +30,11 @@ router.get("/download/*", (req, res) => {
     res.setHeader(
       "Content-Disposition",
       `${isPdf ? "inline" : "attachment"}; filename="${encodeURIComponent(
-        path.basename(filePath),
+        path.basename(resolvedDocument.absolutePath),
       )}"`,
     );
 
-    res.sendFile(filePath);
+    res.sendFile(resolvedDocument.absolutePath);
   } catch (error) {
     console.error("Document download error:", error);
     res.status(500).json({ error: "Failed to download document" });
@@ -62,18 +45,19 @@ router.get("/download/*", (req, res) => {
 router.get("/list/*", (req, res) => {
   try {
     const category = req.params[0] || "";
-    const dirPath = resolveDocumentPath(category);
-
-    if (!dirPath) {
+    const resolvedDocument = resolveExistingDocumentPath(documentsRoot, category);
+    if (!resolvedDocument) {
       return res.status(400).json({ error: "Invalid category path" });
     }
 
-    if (!fs.existsSync(dirPath)) {
+    if (!fs.statSync(resolvedDocument.absolutePath).isDirectory()) {
       return res.status(404).json({ error: "Category not found" });
     }
 
-    const files = fs.readdirSync(dirPath).filter((file) => file.endsWith(".pdf"));
-    res.json({ files, category });
+    const files = fs
+      .readdirSync(resolvedDocument.absolutePath)
+      .filter((file) => file.endsWith(".pdf"));
+    res.json({ files, category: resolvedDocument.relativePath });
   } catch (error) {
     console.error("List documents error:", error);
     res.status(500).json({ error: "Failed to list documents" });
