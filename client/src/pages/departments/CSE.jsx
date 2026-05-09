@@ -151,6 +151,34 @@ const getFileNameFromUrl = (value = "") => {
   return trimmed.split("/").pop()?.split("?")[0] || "";
 };
 
+const buildCseUgProjectPdfPath = (groupId, year = "2024-25") => {
+  const numericGroupId = String(groupId || "").match(/\d+/)?.[0];
+  if (!numericGroupId) return "";
+
+  return `/ug_projects/cse/Proj.Gr.-${numericGroupId.padStart(
+    2,
+    "0",
+  )}-Project_Report_${year}.pdf`;
+};
+
+const resolveCseUgProjectReportLink = (project, year) => {
+  const directLink = String(project?.link || "").trim();
+
+  if (year === "2024-25") {
+    const localPathFromId = buildCseUgProjectPdfPath(project?.id, year);
+    if (localPathFromId) return localPathFromId;
+
+    const fileName = String(
+      project?.fileName || getFileNameFromUrl(directLink),
+    ).trim();
+    if (/^Proj\.Gr\.-\d{2}-Project_Report_2024-25\.pdf$/i.test(fileName)) {
+      return `/ug_projects/cse/${fileName}`;
+    }
+  }
+
+  return directLink;
+};
+
 const extractMarkdownLinkLabel = (value = "") => {
   const markdownLinkMatch = String(value || "").match(
     /\[([^\]]+)\]\(([^)]+)\)/,
@@ -3289,7 +3317,10 @@ const CSE = () => {
   const ugProjectRecords = t("ugProjects.records", defaultUgProjects);
   const ugProjectMarkdownByYear = t("ugProjects.markdownByYear", {});
   const currentUgProjects = Array.isArray(ugProjectRecords?.[projectYear])
-    ? ugProjectRecords[projectYear]
+    ? ugProjectRecords[projectYear].map((project) => ({
+        ...project,
+        link: resolveCseUgProjectReportLink(project, projectYear),
+      }))
     : [];
   const selectedUgProjectsMarkdown =
     ugProjectMarkdownByYear?.[projectYear] ||

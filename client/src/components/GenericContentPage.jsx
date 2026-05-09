@@ -2328,6 +2328,7 @@ Constituted By **All India Council for Technical Education, New Delhi**
                         <MarkdownEditor
                           value={section.content.text}
                           path={`sections[${index}].content.text`}
+                          pageId={pageId}
                           className={
                             isAdmissionsThemePage || isAboutThemePage
                               ? "leading-7"
@@ -2356,6 +2357,7 @@ Constituted By **All India Council for Technical Education, New Delhi**
                       <MarkdownEditor
                         value={section.content.text}
                         path={`sections[${index}].content.text`}
+                        pageId={pageId}
                         className={
                           isAdmissionsThemePage || isAboutThemePage
                             ? "leading-7"
