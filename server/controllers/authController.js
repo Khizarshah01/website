@@ -1,16 +1,43 @@
 const User = require("../models/User");
+const mongoose = require("mongoose");
 const EditLog = require("../models/EditLog");
 const { generateToken } = require("../middleware/authMiddleware");
 const {
   registerLoginFailure,
   clearLoginFailures,
 } = require("../middleware/authRateLimit");
+const {
+  clearAuthCookie,
+  setAuthCookie,
+} = require("../utils/authSecurity");
 
 const isNonEmptyString = (value) => typeof value === "string" && value.trim().length > 0;
+const MIN_PASSWORD_LENGTH = 8;
 
 const normalizeEmail = (value) => {
   if (!isNonEmptyString(value)) return "";
   return value.trim().toLowerCase();
+};
+
+const normalizeName = (value) => (isNonEmptyString(value) ? value.trim() : "");
+
+const normalizeDepartment = (value) =>
+  isNonEmptyString(value) ? value.trim().toUpperCase() : "";
+
+const normalizeRole = (value) => {
+  const role = String(value || "").trim();
+  if (role === "admin") return "SuperAdmin";
+  return role || "Coordinator";
+};
+
+const isStrongEnoughPassword = (value) =>
+  isNonEmptyString(value) && value.trim().length >= MIN_PASSWORD_LENGTH;
+
+const sendUnexpectedError = (res, fallbackMessage) => {
+  return res.status(500).json({
+    success: false,
+    message: fallbackMessage,
+  });
 };
 
 const isGateValid = (accessKey) => {
@@ -49,10 +76,7 @@ const verifyGate = async (req, res) => {
       message: "Invalid admin access key",
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || "Failed to verify admin gate",
-    });
+    return sendUnexpectedError(res, "Failed to verify admin gate");
   }
 };
 
@@ -62,12 +86,14 @@ const verifyGate = async (req, res) => {
 const register = async (req, res) => {
   try {
     const { name, email, password, role, department } = req.body;
+    const normalizedName = normalizeName(name);
     const normalizedEmail = normalizeEmail(email);
+    const normalizedDepartment = normalizeDepartment(department);
 
-    if (!isNonEmptyString(name) || !normalizedEmail || !isNonEmptyString(password)) {
+    if (!normalizedName || !normalizedEmail || !isStrongEnoughPassword(password)) {
       return res.status(400).json({
         success: false,
-        message: "Name, email and password are required",
+        message: `Name, email and password are required. Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
       });
     }
 
@@ -84,8 +110,8 @@ const register = async (req, res) => {
     const userCount = await User.countDocuments();
     const isFirstUser = userCount === 0;
 
-    const userRole = isFirstUser ? "SuperAdmin" : role || "Coordinator";
-    const userDept = isFirstUser ? "All" : department || "All";
+    const userRole = isFirstUser ? "SuperAdmin" : normalizeRole(role);
+    const userDept = isFirstUser ? "All" : normalizedDepartment || "All";
 
     // Only SuperAdmin can create users after the first one
     if (!isFirstUser && (!req.user || (req.user.role !== "SuperAdmin" && req.user.role !== "admin"))) {
@@ -97,15 +123,16 @@ const register = async (req, res) => {
 
     // Create user
     const user = await User.create({
-      name,
+      name: normalizedName,
       email: normalizedEmail,
-      password,
+      password: password.trim(),
       role: userRole,
       department: userDept,
     });
 
     // Generate token
     const token = generateToken(user._id);
+    setAuthCookie(res, token);
 
     res.status(201).json({
       success: true,
@@ -120,10 +147,7 @@ const register = async (req, res) => {
     });
   } catch (error) {
     console.error("Register error:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Error registering user",
-    });
+    return sendUnexpectedError(res, "Error registering user");
   }
 };
 
@@ -196,6 +220,7 @@ const login = async (req, res) => {
 
     // Generate token
     const token = generateToken(user._id);
+    setAuthCookie(res, token);
 
     res.json({
       success: true,
@@ -210,11 +235,19 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Error logging in",
-    });
+    return sendUnexpectedError(res, "Error logging in");
   }
+};
+
+// @desc    Logout user
+// @route   POST /api/auth/logout
+// @access  Public
+const logout = async (_req, res) => {
+  clearAuthCookie(res);
+  return res.json({
+    success: true,
+    message: "Logged out successfully",
+  });
 };
 
 // @desc    Get current user
@@ -237,10 +270,7 @@ const getMe = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    return sendUnexpectedError(res, "Failed to fetch current user");
   }
 };
 
@@ -251,10 +281,13 @@ const updatePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    if (!isNonEmptyString(currentPassword) || !isNonEmptyString(newPassword)) {
+    if (
+      !isNonEmptyString(currentPassword) ||
+      !isStrongEnoughPassword(newPassword)
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Current password and new password are required",
+        message: `Current password is required and the new password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
       });
     }
 
@@ -270,7 +303,7 @@ const updatePassword = async (req, res) => {
     }
 
     // Update password
-    user.password = newPassword;
+    user.password = newPassword.trim();
     await user.save();
 
     res.json({
@@ -278,10 +311,7 @@ const updatePassword = async (req, res) => {
       message: "Password updated successfully",
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    return sendUnexpectedError(res, "Failed to update password");
   }
 };
 
@@ -295,7 +325,7 @@ const getCoordinators = async (req, res) => {
     const users = await User.find().select("-__v").sort({ createdAt: -1 });
     res.json({ success: true, data: users });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendUnexpectedError(res, "Failed to fetch coordinators");
   }
 };
 
@@ -305,12 +335,19 @@ const getCoordinators = async (req, res) => {
 const createCoordinator = async (req, res) => {
   try {
     const { name, email, password, department } = req.body;
+    const normalizedName = normalizeName(name);
     const normalizedEmail = normalizeEmail(email);
+    const normalizedDepartment = normalizeDepartment(department);
 
-    if (!isNonEmptyString(name) || !normalizedEmail || !isNonEmptyString(password) || !isNonEmptyString(department)) {
+    if (
+      !normalizedName ||
+      !normalizedEmail ||
+      !isStrongEnoughPassword(password) ||
+      !normalizedDepartment
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Name, email, password and department are required",
+        message: `Name, email, password and department are required. Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
       });
     }
 
@@ -323,11 +360,11 @@ const createCoordinator = async (req, res) => {
     }
 
     const user = await User.create({
-      name,
+      name: normalizedName,
       email: normalizedEmail,
-      password,
+      password: password.trim(),
       role: "Coordinator",
-      department,
+      department: normalizedDepartment,
     });
 
     res.status(201).json({
@@ -344,7 +381,7 @@ const createCoordinator = async (req, res) => {
     });
   } catch (error) {
     console.error("Create coordinator error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    return sendUnexpectedError(res, "Failed to create coordinator");
   }
 };
 
@@ -354,12 +391,17 @@ const createCoordinator = async (req, res) => {
 const updateCoordinator = async (req, res) => {
   try {
     const { name, email, department, isActive, password } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid user id" });
+    }
+
     const update = {};
     if (name !== undefined) {
-      if (!isNonEmptyString(name)) {
+      const normalizedName = normalizeName(name);
+      if (!normalizedName) {
         return res.status(400).json({ success: false, message: "Name must be a non-empty string" });
       }
-      update.name = name.trim();
+      update.name = normalizedName;
     }
     if (email !== undefined) {
       const normalizedEmail = normalizeEmail(email);
@@ -369,16 +411,30 @@ const updateCoordinator = async (req, res) => {
       update.email = normalizedEmail;
     }
     if (department !== undefined) {
-      if (!isNonEmptyString(department)) {
+      const normalizedDepartment = normalizeDepartment(department);
+      if (!normalizedDepartment) {
         return res.status(400).json({ success: false, message: "Department must be a non-empty string" });
       }
-      update.department = department.trim();
+      update.department = normalizedDepartment;
     }
     if (typeof isActive === "boolean") update.isActive = isActive;
 
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (update.email) {
+      const existingUser = await User.findOne({
+        email: update.email,
+        _id: { $ne: user._id },
+      });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: "User already exists with this email",
+        });
+      }
     }
 
     // Don't let SuperAdmin demote themselves
@@ -393,10 +449,10 @@ const updateCoordinator = async (req, res) => {
 
     // If password provided, update it (triggers pre-save hook for hashing)
     if (password !== undefined) {
-      if (!isNonEmptyString(password) || password.length < 6) {
-        return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
+      if (!isStrongEnoughPassword(password)) {
+        return res.status(400).json({ success: false, message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` });
       }
-      user.password = password;
+      user.password = password.trim();
     }
 
     await user.save();
@@ -413,7 +469,7 @@ const updateCoordinator = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendUnexpectedError(res, "Failed to update coordinator");
   }
 };
 
@@ -422,6 +478,10 @@ const updateCoordinator = async (req, res) => {
 // @access  SuperAdmin
 const deleteCoordinator = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid user id" });
+    }
+
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
@@ -438,13 +498,14 @@ const deleteCoordinator = async (req, res) => {
     await User.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: "User deleted successfully" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendUnexpectedError(res, "Failed to delete user");
   }
 };
 
 module.exports = {
   register,
   login,
+  logout,
   getMe,
   updatePassword,
   verifyGate,

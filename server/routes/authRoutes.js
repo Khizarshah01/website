@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   register,
   login,
+  logout,
   getMe,
   updatePassword,
   verifyGate,
@@ -21,6 +22,7 @@ const { loginRateLimit } = require("../middleware/authRateLimit");
 // Public routes
 router.post("/register", optionalProtect, register);
 router.post("/login", loginRateLimit, login);
+router.post("/logout", logout);
 router.post("/verify-gate", verifyGate);
 
 // Protected routes
