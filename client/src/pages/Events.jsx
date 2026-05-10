@@ -162,6 +162,13 @@ const Events = () => {
                   </div>
                   <div className="p-6">
                     <p className="text-gray-700 mb-4">{event.description}</p>
+                    {event.image && (
+                      <img
+                        src={event.image}
+                        alt={event.title}
+                        className="w-full h-48 object-cover mb-4 rounded"
+                      />
+                    )}
                     <div className="flex items-center text-sm text-gray-600">
                       <svg
                         className="w-5 h-5 mr-2 text-ssgmce-orange"

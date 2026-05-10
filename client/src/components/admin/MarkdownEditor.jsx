@@ -564,6 +564,10 @@ const FacilityGridLayout = ({
     </ReactMarkdown>
   );
 
+  if (pageId === "iqac-aqar") {
+    return renderMarkdown(cleanedMarkdownText);
+  }
+
   const facilityParsed = parseFacilityGridMarkdown(cleanedMarkdownText);
   if (facilityParsed) {
     return (

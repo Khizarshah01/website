@@ -31,6 +31,42 @@ const DOCUMENT_MIME_TO_EXTENSIONS = {
   "text/plain": [".txt"],
   "text/csv": [".csv"],
 };
+const UPLOAD_SCOPE_VALUES = new Set([
+  "about",
+  "nirf",
+  "academics",
+  "admissions",
+  "research",
+  "facilities",
+  "placements",
+  "iqac",
+  "documents",
+  "activities",
+  "departments",
+  "other",
+]);
+const PATH_PREFIX_TO_SCOPE = {
+  about: "about",
+  nirf: "nirf",
+  academics: "academics",
+  admissions: "admissions",
+  research: "research",
+  facilities: "facilities",
+  placements: "placements",
+  iqac: "iqac",
+  documents: "documents",
+  activities: "activities",
+  departments: "departments",
+  contact: "about",
+  news: "about",
+  notices: "academics",
+  events: "activities",
+  gallery: "activities",
+  faculty: "departments",
+  alumni: "placements",
+  recruiters: "placements",
+  testimonials: "placements",
+};
 
 const resolveUploadPath = (relativePath = "") => {
   const sanitizedRelativePath = String(relativePath || "")
@@ -60,6 +96,92 @@ const sanitizeOriginalName = (originalname = "") => {
   const safeExtension = extension.toLowerCase().replace(/[^a-z0-9.]/g, "");
 
   return `${safeBaseName}${safeExtension}`;
+};
+
+const normalizeUploadScope = (value = "") => {
+  const normalized = String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "");
+  return UPLOAD_SCOPE_VALUES.has(normalized) ? normalized : null;
+};
+
+const deriveScopeFromPageId = (pageId = "") => {
+  const normalizedPageId = String(pageId || "").trim().toLowerCase();
+  if (!normalizedPageId) return null;
+  const prefix = normalizedPageId.split("-")[0];
+  return normalizeUploadScope(PATH_PREFIX_TO_SCOPE[prefix] || prefix);
+};
+
+const deriveScopeFromPath = (pathname = "") => {
+  const cleanedPath = String(pathname || "")
+    .split("?")[0]
+    .split("#")[0]
+    .trim()
+    .toLowerCase();
+  if (!cleanedPath) return null;
+
+  const segments = cleanedPath.split("/").filter(Boolean);
+  if (!segments.length) return null;
+
+  if (
+    segments[0] === "admin" &&
+    segments[1] === "pages" &&
+    segments[2] === "editor" &&
+    segments[3]
+  ) {
+    return deriveScopeFromPageId(segments[3]);
+  }
+
+  if (segments[0] === "admin" && segments[1] === "visual" && segments[2]) {
+    return deriveScopeFromPageId(segments[2]);
+  }
+
+  if (segments[0] === "admin" && segments[1] === "edit" && segments[2]) {
+    return deriveScopeFromPageId(segments[2]);
+  }
+
+  if (segments[0] === "admin" && segments[1]) {
+    return normalizeUploadScope(PATH_PREFIX_TO_SCOPE[segments[1]] || segments[1]);
+  }
+
+  return normalizeUploadScope(PATH_PREFIX_TO_SCOPE[segments[0]] || segments[0]);
+};
+
+const deriveScopeFromReferer = (referer = "") => {
+  if (!referer) return null;
+  try {
+    const parsed = new URL(referer);
+    return deriveScopeFromPath(parsed.pathname);
+  } catch {
+    return null;
+  }
+};
+
+const resolveUploadScope = (req) => {
+  return (
+    normalizeUploadScope(req.body?.uploadCategory) ||
+    normalizeUploadScope(req.body?.uploadScope) ||
+    normalizeUploadScope(req.headers["x-upload-category"]) ||
+    deriveScopeFromPageId(req.body?.pageId) ||
+    deriveScopeFromPath(req.headers["x-upload-source-path"]) ||
+    deriveScopeFromReferer(req.headers.referer) ||
+    "other"
+  );
+};
+
+const sanitizeStoredFilename = (filename = "") => {
+  const normalized = String(filename || "")
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "");
+  if (!normalized || normalized.includes("..")) return "";
+  return normalized;
+};
+
+const buildScopedFilename = (scope, prefix, originalname) => {
+  const normalizedScope = normalizeUploadScope(scope) || "other";
+  const storedFilename = createStoredFilename(prefix, originalname);
+  return `${normalizedScope}/${storedFilename}`;
 };
 
 const createStoredFilename = (prefix, originalname) => {
@@ -217,13 +339,15 @@ const uploadSingleImage = async (req, res) => {
 
     validateUploadedFile(req.file, "image");
     const originalName = sanitizeOriginalName(req.file.originalname);
-    const filename = createStoredFilename("upload", originalName);
+    const scope = resolveUploadScope(req);
+    const filename = buildScopedFilename(scope, "upload", originalName);
     await uploadBufferToGridFS({
       buffer: req.file.buffer,
       filename,
       contentType: req.file.mimetype,
       category: "images",
       originalName,
+      scope,
     });
 
     const fileUrl = `/uploads/images/${filename}`;
@@ -283,13 +407,15 @@ const uploadSingleDocument = async (req, res) => {
 
     validateUploadedFile(req.file, "document");
     const originalName = sanitizeOriginalName(req.file.originalname);
-    const filename = createStoredFilename("document", originalName);
+    const scope = resolveUploadScope(req);
+    const filename = buildScopedFilename(scope, "document", originalName);
     await uploadBufferToGridFS({
       buffer: req.file.buffer,
       filename,
       contentType: req.file.mimetype,
       category: "documents",
       originalName,
+      scope,
     });
 
     const fileUrl = `/uploads/documents/${filename}`;
@@ -390,7 +516,7 @@ const uploadNirfPdf = async (req, res) => {
 const streamUploadedFile = async (req, res, next) => {
   try {
     const category = normalizeCategory(req.params.category);
-    const filename = req.params.filename;
+    const filename = sanitizeStoredFilename(req.params.filename);
 
     if (!category || !filename) {
       return next();

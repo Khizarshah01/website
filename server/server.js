@@ -216,7 +216,8 @@ app.use(
 );
 
 // Serve uploaded GridFS/disk files after document paths get first chance.
-app.get("/uploads/:category/:filename", streamUploadedFile);
+// Supports nested filenames like /uploads/documents/iqac/file.pdf.
+app.get("/uploads/:category/:filename(*)", streamUploadedFile);
 
 // Import Routes
 const newsRoutes = require("./routes/newsRoutes");

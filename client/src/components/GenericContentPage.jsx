@@ -36,6 +36,7 @@ import {
 import principalFallbackImage from "../assets/images/about/principal_c.png";
 import inspirationFallbackImage from "../assets/images/about/chairman_c.jpeg";
 import campusViewImage from "../assets/images/home/Campus-View.avif";
+import NAAC_DVV_TABLE_MARKDOWN from "../data/naacDvvTableMarkdown";
 
 // Map pageId prefixes to their sidebar components
 const SIDEBAR_MAP = {
@@ -143,6 +144,152 @@ const PREFETCH_GROUPS = {
     "facilities-sports-staff",
     "facilities-other",
   ],
+};
+
+const AQAR_DATA_SECTION_IDS = new Set([
+  "aqar-2023-24",
+  "aqar-2021-22",
+  "aqar-2020-21",
+  "aqar-older",
+]);
+
+const AQAR_CRITERION_SNIPPETS = Object.freeze({
+  I: "Covers curriculum planning, academic flexibility, enrichment, and structured stakeholder feedback.",
+  II: "Includes enrolment profile, student-centric teaching, internal evaluation reforms, and satisfaction survey.",
+  III: "Details research grants, innovation ecosystem, publications, extension activities, and collaborations.",
+  IV: "Documents classrooms/labs, library resources, IT infrastructure, bandwidth, and maintenance systems.",
+  V: "Summarizes scholarships, mentoring and support services, progression, placements, and co-curricular outcomes.",
+  VI: "Focuses on governance model, e-governance adoption, financial processes, and institutional quality initiatives.",
+  VII: "Presents gender equity measures, environmental practices, inclusivity, and institutional best practices.",
+});
+
+const parseMarkdownLinkCell = (cellText = "") => {
+  const trimmed = String(cellText || "").trim();
+  const match = trimmed.match(/\[([^\]]+)\]\((.+)\)/);
+  if (!match) {
+    return {
+      label: trimmed.replace(/\*\*/g, "").trim(),
+      url: "",
+    };
+  }
+
+  return {
+    label: String(match[1] || "")
+      .replace(/\*\*/g, "")
+      .trim(),
+    url: String(match[2] || "").trim(),
+  };
+};
+
+const parseMarkdownTableRows = (markdown = "") => {
+  const lines = String(markdown || "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith("|") && line.endsWith("|"));
+
+  if (lines.length < 3) return [];
+
+  const dataLines = lines.slice(2);
+  return dataLines
+    .map((line) =>
+      line
+        .slice(1, -1)
+        .split("|")
+        .map((cell) => cell.trim()),
+    )
+    .filter((cells) => cells.some((cell) => cell.length > 0));
+};
+
+const resolveAqarTitle = (sectionId, firstCell, index) => {
+  const clean = String(firstCell || "")
+    .replace(/\*\*/g, "")
+    .trim();
+  if (sectionId === "aqar-older" && clean) {
+    return `AQAR Report ${clean}`;
+  }
+  return clean || `Document ${index + 1}`;
+};
+
+const resolveAqarSnippet = (title, url, sectionTitle) => {
+  const normalizedTitle = String(title || "").toLowerCase();
+  const normalizedSectionTitle = String(sectionTitle || "").trim();
+
+  if (normalizedTitle.includes("aqar report")) {
+    return `Complete yearly status report for ${normalizedSectionTitle}, including Part A institutional data and Part B criterion-wise evidence.`;
+  }
+
+  if (normalizedTitle.includes("extended profile")) {
+    return `Part A data set for ${normalizedSectionTitle} with institutional profile and preparedness details.`;
+  }
+
+  const criterionMatch = title.match(/criterion\s+([ivx]+)/i);
+  if (criterionMatch) {
+    const key = criterionMatch[1].toUpperCase();
+    const base = AQAR_CRITERION_SNIPPETS[key];
+    if (base) return `AQAR ${normalizedSectionTitle}: ${base}`;
+  }
+
+  if (url.toLowerCase().endsWith(".pdf")) {
+    return `Archived AQAR report document for ${normalizedSectionTitle}.`;
+  }
+
+  return `Linked AQAR supporting document for ${normalizedSectionTitle}.`;
+};
+
+const getAqarReportCards = (section = {}) => {
+  const sectionId = String(section.sectionId || "");
+  const markdown = section?.content?.text;
+  if (!AQAR_DATA_SECTION_IDS.has(sectionId) || !markdown) return [];
+
+  const rows = parseMarkdownTableRows(markdown);
+  return rows.map((cells, index) => {
+    const firstCell = cells[0] || "";
+    const secondCell = cells[1] || "";
+    const linkCandidate = parseMarkdownLinkCell(secondCell || firstCell);
+    const url = linkCandidate.url;
+    const title = resolveAqarTitle(sectionId, firstCell, index);
+    return {
+      id: `${sectionId}-${index}-${title}`,
+      title,
+      url,
+      snippet: resolveAqarSnippet(title, url, section.title),
+    };
+  });
+};
+
+const getAqarItems = (section = {}) => {
+  const sectionId = String(section.sectionId || "");
+  if (!AQAR_DATA_SECTION_IDS.has(sectionId)) return [];
+
+  const savedItems = section?.content?.items;
+  if (Array.isArray(savedItems) && savedItems.length) return savedItems;
+  return getAqarReportCards(section);
+};
+
+const buildAqarMarkdownFromItems = (items = [], sectionTitle = "") => {
+  if (!Array.isArray(items) || !items.length) return "";
+
+  return items
+    .map((item, index) => {
+      const rawTitle = String(item?.title || "").trim();
+      const title =
+        /^\d{4}-\d{2}$/.test(rawTitle) &&
+        sectionTitle.toLowerCase().includes("previous")
+          ? `AQAR Report ${rawTitle}`
+          : rawTitle || `Document ${index + 1}`;
+      const url = String(item?.url || "").trim();
+      const detail = String(
+        item?.snippet || resolveAqarSnippet(title, url, sectionTitle),
+      ).trim();
+      const cta = url
+        ? url.toLowerCase().endsWith(".pdf")
+          ? `[Download PDF ↗](${url})`
+          : `[Open Document ↗](${url})`
+        : "Unavailable";
+
+      return `${index + 1}. **${title}**\n   - Detail: ${detail}\n   - Document: ${cta}`;
+    })
+    .join("\n\n");
 };
 
 const getStorageCacheKey = (pageId) =>
@@ -521,6 +668,7 @@ const GenericContentPage = ({ pageId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const lastAutoScrolledPageRef = useRef(null);
+  const naacDvvInitializedRef = useRef(false);
   const [isPrincipalMessageExpanded, setIsPrincipalMessageExpanded] =
     useState(false);
   const [isGlanceIntroExpanded, setIsGlanceIntroExpanded] = useState(false);
@@ -552,6 +700,51 @@ const GenericContentPage = ({ pageId }) => {
     pageId?.startsWith("facilities-") &&
     !pageId?.startsWith("facilities-admin-office-") &&
     pageId !== "facilities-administrative-office";
+
+  useEffect(() => {
+    naacDvvInitializedRef.current = false;
+  }, [pageId]);
+
+  useEffect(() => {
+    if (!isEditing || pageId !== "iqac-aqar") return;
+    if (!sections.length) return;
+
+    sections.forEach((section, index) => {
+      if (!AQAR_DATA_SECTION_IDS.has(section?.sectionId)) return;
+
+      const currentText = String(section?.content?.text || "").trim();
+      if (currentText && /^\s*1\.\s+/m.test(currentText)) return;
+
+      const items = getAqarItems(section);
+      const nextMarkdown = buildAqarMarkdownFromItems(items, section.title);
+      if (!nextMarkdown) return;
+
+      updateData(`sections[${index}].content.text`, nextMarkdown);
+    });
+  }, [isEditing, pageId, sections, updateData]);
+
+  useEffect(() => {
+    if (!isEditing || pageId !== "iqac-naac") return;
+    if (naacDvvInitializedRef.current) return;
+    if (!sections.length) return;
+
+    const docsSectionIndex = sections.findIndex(
+      (section) => section?.sectionId === "naac-docs",
+    );
+    if (docsSectionIndex === -1) return;
+
+    const existingTable = String(
+      sections[docsSectionIndex]?.content?.dvvTable || "",
+    ).trim();
+    if (!existingTable) {
+      updateData(
+        `sections[${docsSectionIndex}].content.dvvTable`,
+        NAAC_DVV_TABLE_MARKDOWN,
+      );
+    }
+
+    naacDvvInitializedRef.current = true;
+  }, [isEditing, pageId, sections, updateData]);
 
   useEffect(() => {
     // When rendered inside VisualPageEditor the data is already loaded into
@@ -906,7 +1099,9 @@ Constituted By **All India Council for Technical Education, New Delhi**
   };
 
   const isLikelyNameColumnHeader = (header = "") => {
-    const normalizedHeader = String(header || "").toLowerCase().trim();
+    const normalizedHeader = String(header || "")
+      .toLowerCase()
+      .trim();
     return (
       normalizedHeader.includes("name") ||
       normalizedHeader.includes("authorit") ||
@@ -1513,16 +1708,18 @@ Constituted By **All India Council for Technical Education, New Delhi**
   };
 
   const renderAboutVisionPage = () => {
-        const getVisionMissionIcon = (title = "") => {
-          const normalizedTitle = String(title).toLowerCase();
-          if (normalizedTitle.includes("vision")) {
-            return <FaBullseye className="text-ssgmce-orange" aria-hidden="true" />;
-          }
-          if (normalizedTitle.includes("mission")) {
-            return <FaHandshake className="text-ssgmce-orange" aria-hidden="true" />;
-          }
-          return null;
-        };
+    const getVisionMissionIcon = (title = "") => {
+      const normalizedTitle = String(title).toLowerCase();
+      if (normalizedTitle.includes("vision")) {
+        return <FaBullseye className="text-ssgmce-orange" aria-hidden="true" />;
+      }
+      if (normalizedTitle.includes("mission")) {
+        return (
+          <FaHandshake className="text-ssgmce-orange" aria-hidden="true" />
+        );
+      }
+      return null;
+    };
 
     const visionHeading = String(
       displayPage.pageTitle || "Vision-Mission, Core Values & Goals",
@@ -2468,6 +2665,24 @@ Constituted By **All India Council for Technical Education, New Delhi**
                       />
                     )}
 
+                    {pageId === "iqac-naac" &&
+                      section.type === "markdown" &&
+                      section.sectionId === "naac-docs" && (
+                        <div className="mt-6">
+                          <h4 className="text-base font-semibold text-ssgmce-blue mb-3">
+                            DVV Clarification Details
+                          </h4>
+                          <MarkdownEditor
+                            value={
+                              section?.content?.dvvTable ||
+                              NAAC_DVV_TABLE_MARKDOWN
+                            }
+                            path={`sections[${index}].content.dvvTable`}
+                            pageId={pageId}
+                          />
+                        </div>
+                      )}
+
                     {/* Stats Section */}
                     {section.type === "stats" && section.content.stats && (
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -3055,7 +3270,7 @@ Constituted By **All India Council for Technical Education, New Delhi**
             )}
 
             {/* Add Markdown Section button for facility pages in edit mode */}
-            {isEditing && pageId?.startsWith("facilities-") && (
+            {isEditing && (
               <div className="flex justify-center py-6">
                 <button
                   onClick={() => {

@@ -130,13 +130,12 @@ const VisualPageEditor = () => {
   /** Admin creates a brand-new empty page in the DB */
   const handleCreatePage = async () => {
     const token = localStorage.getItem("adminToken");
-    if (!token) {
-      setError("You must be logged in as admin to create a page.");
-      return;
-    }
     setCreating(true);
     try {
       const { pageTitle, category, route } = derivePageMeta(pageId);
+      const config = token
+        ? { headers: { Authorization: `Bearer ${token}` } }
+        : {};
       const res = await apiClient.post(
         "/api/pages",
         {
@@ -148,7 +147,7 @@ const VisualPageEditor = () => {
           sections: [],
           template: "generic",
         },
-        { headers: { Authorization: `Bearer ${token}` } },
+        config,
       );
       if (res.data.success) {
         setInitialData(res.data.data);
