@@ -1137,15 +1137,8 @@ const EnTC = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -1251,14 +1244,8 @@ const EnTC = () => {
     setMouReportErrors((prev) => ({ ...prev, [uploadKey]: "" }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const mous = getEntcMous();
         persistEntcMous(
@@ -1484,14 +1471,8 @@ const EnTC = () => {
     setResearchReportErrors((prev) => ({ ...prev, [uploadKey]: "" }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
       if (!response.data.fileUrl)
         throw new Error("Upload did not return a file URL.");
       updateData(`researchReports.${year}`, response.data.fileUrl);
@@ -2146,14 +2127,8 @@ const EnTC = () => {
     setUploadingFiles((prev) => ({ ...prev, [uploadKey]: true }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const key = `templateData.curriculum.${section}`;
         const defaults =
@@ -2367,17 +2342,10 @@ const EnTC = () => {
 
   const deleteNewsletterFileIfNeeded = async (link) => {
     const deletablePath = getDeletableUploadPath(link);
-    if (!deletablePath) return;
-
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+    if (!deletablePath) return;
 
     try {
-      await apiClient.delete("/upload/file", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
+      await apiClient.delete("/upload/file", { params: {
           path: deletablePath,
         },
       });
@@ -2446,15 +2414,8 @@ const EnTC = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -2622,15 +2583,8 @@ const EnTC = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -2752,17 +2706,10 @@ const EnTC = () => {
 
   const deleteAchievementFileIfNeeded = async (link) => {
     const deletablePath = getAchievementDeletableUploadPath(link);
-    if (!deletablePath) return;
-
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+    if (!deletablePath) return;
 
     try {
-      await apiClient.delete("/upload/file", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
+      await apiClient.delete("/upload/file", { params: {
           path: deletablePath,
         },
       });
@@ -2801,15 +2748,8 @@ const EnTC = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("image", file);
+      const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -9751,3 +9691,5 @@ const parseEntcActivitiesMarkdown = (markdown = "") => {
 };
 
 export default EnTC;
+
+

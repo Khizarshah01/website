@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useState, useMemo, useRef } from "react";
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 import apiClient from "../utils/apiClient";
 import GenericPage from "./GenericPage";
 import PlacementSidebar from "./PlacementSidebar";

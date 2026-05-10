@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 import { useEdit } from "../../contexts/EditContext";
 import { FaPencilAlt, FaCheck, FaTimes } from "react-icons/fa";
 import RichTextEditor from "./RichTextEditor";

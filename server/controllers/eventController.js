@@ -1,5 +1,6 @@
 const Event = require("../models/Event");
 const EventCategory = require("../models/EventCategory");
+const { sendSafeError } = require("../utils/apiErrors");
 
 const DEFAULT_CATEGORIES = [
   "Technical",
@@ -127,7 +128,7 @@ const getAllEvents = async (_req, res) => {
     });
     res.json(events);
   } catch (error) {
-    res.status(500).json({ message: error.message, error: error.message });
+    sendSafeError(res, error, { message: "Event request failed" });
   }
 };
 
@@ -143,7 +144,7 @@ const getAdminEvents = async (_req, res) => {
     });
     res.json({ success: true, data: events });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Event request failed" });
   }
 };
 
@@ -161,7 +162,7 @@ const getUpcomingEvents = async (_req, res) => {
       .limit(10);
     res.json(events);
   } catch (error) {
-    res.status(500).json({ message: error.message, error: error.message });
+    sendSafeError(res, error, { message: "Event request failed" });
   }
 };
 
@@ -170,13 +171,13 @@ const getUpcomingEvents = async (_req, res) => {
 // @access  Public
 const getEventById = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findOne({ _id: req.params.id, isActive: true });
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
     res.json(event);
   } catch (error) {
-    res.status(500).json({ message: error.message, error: error.message });
+    sendSafeError(res, error, { message: "Event request failed" });
   }
 };
 
@@ -197,7 +198,11 @@ const createEvent = async (req, res) => {
     const event = await Event.create(payload);
     res.status(201).json(event);
   } catch (error) {
-    res.status(400).json({ message: error.message, error: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Event request failed",
+      validationMessage: "Invalid event request data",
+    });
   }
 };
 
@@ -226,7 +231,11 @@ const updateEvent = async (req, res) => {
 
     res.json(event);
   } catch (error) {
-    res.status(400).json({ message: error.message, error: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Event request failed",
+      validationMessage: "Invalid event request data",
+    });
   }
 };
 
@@ -241,7 +250,7 @@ const deleteEvent = async (req, res) => {
     }
     res.json({ message: "Event deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message, error: error.message });
+    sendSafeError(res, error, { message: "Event request failed" });
   }
 };
 
@@ -257,7 +266,7 @@ const getEventCategories = async (_req, res) => {
     });
     res.json({ success: true, data: categories });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Event request failed" });
   }
 };
 
@@ -273,7 +282,7 @@ const getAdminEventCategories = async (_req, res) => {
     });
     res.json({ success: true, data: categories });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Event request failed" });
   }
 };
 
@@ -305,7 +314,11 @@ const createEventCategory = async (req, res) => {
     });
     res.status(201).json({ success: true, data: category });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Event category request failed",
+      validationMessage: "Invalid event category request data",
+    });
   }
 };
 
@@ -359,7 +372,11 @@ const updateEventCategory = async (req, res) => {
 
     res.json({ success: true, data: category });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Event category request failed",
+      validationMessage: "Invalid event category request data",
+    });
   }
 };
 
@@ -396,7 +413,7 @@ const deleteEventCategory = async (req, res) => {
       message: `Category deleted. Related events moved to "${fallback.name}".`,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Event category request failed" });
   }
 };
 

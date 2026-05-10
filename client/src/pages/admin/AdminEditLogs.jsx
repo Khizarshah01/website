@@ -22,11 +22,7 @@ const AdminEditLogs = () => {
   const [resettingId, setResettingId] = useState(null);
 
   const authHeader = useCallback(
-    () => ({
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-      },
-    }),
+    () => ({}),
     []
   );
 

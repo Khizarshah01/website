@@ -38,9 +38,7 @@ const AdminAcademics = () => {
   const [pageData, setPageData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const authHeader = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
-  });
+  const authHeader = () => ({});
 
   const findPageMeta = (pageId) =>
     ACADEMICS_EDITABLE_PAGES.find((page) => page.pageId === pageId);

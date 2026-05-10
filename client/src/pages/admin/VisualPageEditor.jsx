@@ -140,13 +140,9 @@ const VisualPageEditor = () => {
 
   /** Admin creates a brand-new empty page in the DB */
   const handleCreatePage = async () => {
-    const token = localStorage.getItem("adminToken");
     setCreating(true);
     try {
       const { pageTitle, category, route } = derivePageMeta(canonicalPageId);
-      const config = token
-        ? { headers: { Authorization: `Bearer ${token}` } }
-        : {};
       const res = await apiClient.post(
         "/api/pages",
         {
@@ -158,7 +154,6 @@ const VisualPageEditor = () => {
           sections: [],
           template: "generic",
         },
-        config,
       );
       if (res.data.success) {
         setInitialData(res.data.data);

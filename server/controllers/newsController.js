@@ -1,5 +1,16 @@
 const News = require('../models/News');
 
+const sendRequestError = (res, error, fallbackStatus = 500) => {
+  const status =
+    error?.name === 'CastError' || error?.name === 'ValidationError'
+      ? 400
+      : fallbackStatus;
+  const message =
+    status === 400 ? 'Invalid news request data' : 'News request failed';
+
+  return res.status(status).json({ error: message });
+};
+
 // @desc    Get all news
 // @route   GET /api/news
 exports.getAllNews = async (req, res) => {
@@ -9,7 +20,7 @@ exports.getAllNews = async (req, res) => {
       .limit(20);
     res.json(news);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendRequestError(res, error);
   }
 };
 
@@ -23,7 +34,7 @@ exports.getNewsById = async (req, res) => {
     }
     res.json(news);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendRequestError(res, error);
   }
 };
 
@@ -34,7 +45,7 @@ exports.createNews = async (req, res) => {
     const news = await News.create(req.body);
     res.status(201).json(news);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    sendRequestError(res, error, 400);
   }
 };
 
@@ -52,7 +63,7 @@ exports.updateNews = async (req, res) => {
     }
     res.json(news);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    sendRequestError(res, error, 400);
   }
 };
 
@@ -66,6 +77,6 @@ exports.deleteNews = async (req, res) => {
     }
     res.json({ message: 'News deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendRequestError(res, error);
   }
 };

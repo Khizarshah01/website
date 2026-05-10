@@ -1,5 +1,16 @@
 const Notice = require('../models/Notice');
 
+const sendRequestError = (res, error, fallbackStatus = 500) => {
+  const status =
+    error?.name === 'CastError' || error?.name === 'ValidationError'
+      ? 400
+      : fallbackStatus;
+  const message =
+    status === 400 ? 'Invalid notice request data' : 'Notice request failed';
+
+  return res.status(status).json({ error: message });
+};
+
 // @desc    Get all notices
 // @route   GET /api/notices
 exports.getAllNotices = async (req, res) => {
@@ -9,7 +20,7 @@ exports.getAllNotices = async (req, res) => {
       .limit(30);
     res.json(notices);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendRequestError(res, error);
   }
 };
 
@@ -23,7 +34,7 @@ exports.getNoticeById = async (req, res) => {
     }
     res.json(notice);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendRequestError(res, error);
   }
 };
 
@@ -34,7 +45,7 @@ exports.createNotice = async (req, res) => {
     const notice = await Notice.create(req.body);
     res.status(201).json(notice);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    sendRequestError(res, error, 400);
   }
 };
 
@@ -52,7 +63,7 @@ exports.updateNotice = async (req, res) => {
     }
     res.json(notice);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    sendRequestError(res, error, 400);
   }
 };
 
@@ -66,6 +77,6 @@ exports.deleteNotice = async (req, res) => {
     }
     res.json({ message: 'Notice deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendRequestError(res, error);
   }
 };

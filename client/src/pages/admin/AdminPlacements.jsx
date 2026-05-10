@@ -64,9 +64,7 @@ const AdminPlacements = () => {
     fetchStats();
   }, []);
 
-  const authHeader = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
-  });
+  const authHeader = () => ({});
 
   const fetchStats = async () => {
     try {

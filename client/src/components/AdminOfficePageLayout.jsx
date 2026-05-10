@@ -8,6 +8,7 @@ import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import AdminOfficeSidebar from "./AdminOfficeSidebar";
 import { isAdminOfficeDbEnabled } from "../config/adminOfficeHybridFlags";
+import { sanitizeMarkdownHtml } from "../utils/sanitizeMarkdown";
 
 function routeToPageId(pathname = "") {
   if (pathname.startsWith("/facilities/admin-office/")) {
@@ -203,7 +204,7 @@ const AdminOfficePageLayout = ({
             rehypePlugins={[rehypeRaw]}
             components={MARKDOWN_COMPONENTS}
           >
-            {sectionText}
+            {sanitizeMarkdownHtml(sectionText)}
           </ReactMarkdown>
         ) : (
           renderComponentSection(section)

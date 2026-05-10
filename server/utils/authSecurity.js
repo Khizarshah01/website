@@ -75,17 +75,58 @@ const parseBoolean = (value, defaultValue) => {
   return String(value).trim().toLowerCase() === "true";
 };
 
+const getHostname = (value = "") => {
+  try {
+    return new URL(value).hostname;
+  } catch {
+    return String(value || "").split(":")[0];
+  }
+};
+
+const isLoopbackHost = (host = "") =>
+  /^(localhost|127(?:\.\d{1,3}){3}|\[?::1\]?)$/i.test(String(host || ""));
+
+const isLoopbackRequest = (req) => {
+  if (!req) return false;
+
+  const hostCandidates = [
+    req.hostname,
+    req.headers?.host,
+    getHostname(req.headers?.origin || ""),
+    getHostname(req.headers?.referer || ""),
+  ];
+
+  return hostCandidates.some((host) => isLoopbackHost(host));
+};
+
 const getAuthCookieName = () =>
   String(process.env.AUTH_COOKIE_NAME || DEFAULT_COOKIE_NAME).trim() ||
   DEFAULT_COOKIE_NAME;
 
-const getAuthCookieOptions = () => {
+const shouldUseSecureCookie = (req) => {
+  if (parseBoolean(process.env.AUTH_COOKIE_SECURE, false)) {
+    return true;
+  }
+
+  if (isProduction()) {
+    return true;
+  }
+
+  const allowInsecureLoopback = parseBoolean(
+    process.env.AUTH_COOKIE_ALLOW_INSECURE_LOOPBACK,
+    true,
+  );
+
+  return !(allowInsecureLoopback && isLoopbackRequest(req));
+};
+
+const getAuthCookieOptions = (req) => {
   const sameSite = String(
     process.env.AUTH_COOKIE_SAME_SITE || "strict",
   )
     .trim()
     .toLowerCase();
-  const secure = isProduction();
+  const secure = shouldUseSecureCookie(req);
 
   return {
     httpOnly: true,
@@ -141,15 +182,15 @@ const getAuthTokenFromRequest = (req) => {
   return null;
 };
 
-const setAuthCookie = (res, token) => {
-  res.cookie(getAuthCookieName(), token, getAuthCookieOptions());
+const setAuthCookie = (req, res, token) => {
+  res.cookie(getAuthCookieName(), token, getAuthCookieOptions(req));
 };
 
-const clearAuthCookie = (res) => {
+const clearAuthCookie = (req, res) => {
   res.clearCookie(getAuthCookieName(), {
     httpOnly: true,
-    secure: getAuthCookieOptions().secure,
-    sameSite: getAuthCookieOptions().sameSite,
+    secure: getAuthCookieOptions(req).secure,
+    sameSite: getAuthCookieOptions(req).sameSite,
     path: "/",
   });
 };

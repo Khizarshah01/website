@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useRef } from "react";
 import apiClient from "../../utils/apiClient";
@@ -1497,15 +1497,8 @@ const Mechanical = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -1599,15 +1592,8 @@ const Mechanical = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("image", file);
+      const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -1706,14 +1692,8 @@ const Mechanical = () => {
     setMouReportErrors((prev) => ({ ...prev, [uploadKey]: "" }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const mous = getMechMous();
         persistMechMous(
@@ -2127,17 +2107,10 @@ const Mechanical = () => {
 
   const deleteNewsletterFileIfNeeded = async (link) => {
     const deletablePath = getDeletableUploadPath(link);
-    if (!deletablePath) return;
-
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+    if (!deletablePath) return;
 
     try {
-      await apiClient.delete("/upload/file", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
+      await apiClient.delete("/upload/file", { params: {
           path: deletablePath,
         },
       });
@@ -2206,15 +2179,8 @@ const Mechanical = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -2392,17 +2358,10 @@ const Mechanical = () => {
 
   const deleteAchievementFileIfNeeded = async (link) => {
     const deletablePath = getAchievementDeletableUploadPath(link);
-    if (!deletablePath) return;
-
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+    if (!deletablePath) return;
 
     try {
-      await apiClient.delete("/upload/file", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
+      await apiClient.delete("/upload/file", { params: {
           path: deletablePath,
         },
       });
@@ -2441,15 +2400,8 @@ const Mechanical = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("image", file);
+      const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -2854,14 +2806,8 @@ const Mechanical = () => {
     setUploadingFiles((prev) => ({ ...prev, [uploadKey]: true }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const key = `templateData.curriculum.${section}`;
         const defaults =
@@ -3501,7 +3447,7 @@ const Mechanical = () => {
                   (item, i) => (
                     <div key={i} className="flex items-start gap-4">
                       <div className="mt-1 text-ssgmce-orange text-2xl flex-shrink-0">
-                        ➤
+                        ?
                       </div>
                       <div className="text-lg text-gray-700 leading-relaxed font-medium flex-1">
                         <MarkdownEditor
@@ -3530,7 +3476,7 @@ const Mechanical = () => {
                           className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                           title="Remove item"
                         >
-                          ✕
+                          ?
                         </button>
                       )}
                     </div>
@@ -3562,7 +3508,7 @@ const Mechanical = () => {
               >
                 {t("mission", defaultMission).map((item, i) => (
                   <div key={i} className="flex items-start gap-4">
-                    <div className="mt-1 text-ssgmce-orange text-xl">➤</div>
+                    <div className="mt-1 text-ssgmce-orange text-xl">?</div>
                     <div className="text-gray-700 w-full">
                       <MarkdownEditor
                         value={item}
@@ -3586,7 +3532,7 @@ const Mechanical = () => {
                         className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                         title="Remove item"
                       >
-                          ✕
+                          ?
                       </button>
                     )}
                   </div>
@@ -3640,7 +3586,7 @@ const Mechanical = () => {
               >
                 {t("peo", defaultPeo).map((item, i) => (
                   <div key={i} className="flex items-start gap-4">
-                    <div className="mt-1 text-ssgmce-orange text-xl">➤</div>
+                    <div className="mt-1 text-ssgmce-orange text-xl">?</div>
                     <div className="text-gray-700 leading-relaxed font-medium w-full">
                       <MarkdownEditor
                         value={item}
@@ -3664,7 +3610,7 @@ const Mechanical = () => {
                         className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                         title="Remove item"
                       >
-                          ✕
+                          ?
                       </button>
                     )}
                   </div>
@@ -3693,7 +3639,7 @@ const Mechanical = () => {
               >
                 {t("pso", defaultPso).map((item, i) => (
                   <div key={i} className="flex items-start gap-4">
-                    <div className="mt-1 text-ssgmce-orange text-xl">➤</div>
+                    <div className="mt-1 text-ssgmce-orange text-xl">?</div>
                     <div className="w-full">
                       <strong className="text-gray-900 block mb-1 text-base">
                         <EditableText
@@ -3731,7 +3677,7 @@ const Mechanical = () => {
                         className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                         title="Remove item"
                       >
-                          ✕
+                          ?
                       </button>
                     )}
                   </div>
@@ -3808,7 +3754,7 @@ const Mechanical = () => {
                               className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                               title="Remove item"
                             >
-                          ✕
+                          ?
                             </button>
                           )}
                         </div>
@@ -3820,8 +3766,8 @@ const Mechanical = () => {
                   className="text-ssgmce-blue hover:text-ssgmce-orange font-medium text-sm transition-colors"
                 >
                   {showAllPos
-                    ? "Read Less ▲"
-                    : `Read More ▼ (${t("po", defaultPo).length - 4} more)`}
+                    ? "Read Less ?"
+                    : `Read More ? (${t("po", defaultPo).length - 4} more)`}
                 </button>
                 {isEditing && (
                   <button
@@ -4628,7 +4574,7 @@ After successfully completing the course, students will be able to:
                                     className="text-xs text-green-700 bg-green-100 border border-green-300 rounded px-1.5 py-0.5 truncate max-w-[160px] font-medium"
                                     title={item.fileName}
                                   >
-                                    ✅ {item.fileName}
+                                    ? {item.fileName}
                                   </span>
                                 )}
                               </div>
@@ -4788,7 +4734,7 @@ After successfully completing the course, students will be able to:
                                     className="text-xs text-green-700 bg-green-100 border border-green-300 rounded px-1.5 py-0.5 truncate max-w-[160px] font-medium"
                                     title={item.fileName}
                                   >
-                                    ✅ {item.fileName}
+                                    ? {item.fileName}
                                   </span>
                                 )}
                               </div>
@@ -5618,22 +5564,22 @@ After successfully completing the course, students will be able to:
               {[
                 {
                   name: "SAE India",
-                  icon: "🏎️",
+                  icon: "???",
                   desc: "Society of Automotive Engineers",
                 },
                 {
                   name: "ISTE Chapter",
-                  icon: "🔧",
+                  icon: "??",
                   desc: "Indian Society for Technical Education",
                 },
                 {
                   name: "IEI Chapter",
-                  icon: "⚙️",
+                  icon: "??",
                   desc: "Institution of Engineers India",
                 },
                 {
                   name: "IEEE Chapter",
-                  icon: "⚡",
+                  icon: "?",
                   desc: "Institute of Electrical and Electronics Engineers",
                 },
               ].map((club, i) => (
@@ -8433,7 +8379,7 @@ After successfully completing the course, students will be able to:
                                   </a>
                                 </div>
                               ) : (
-                                <span className="text-gray-400 text-xs">—</span>
+                                <span className="text-gray-400 text-xs">�</span>
                               )}
                             </td>
                           </tr>
@@ -9420,3 +9366,5 @@ const parseMechanicalActivitiesMarkdown = (markdown = "") => {
 };
 
 export default Mechanical;
+
+

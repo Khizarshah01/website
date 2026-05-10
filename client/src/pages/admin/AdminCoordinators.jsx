@@ -37,11 +37,7 @@ const AdminCoordinators = () => {
     fetchUsers();
   }, []);
 
-  const authHeader = () => ({
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-    },
-  });
+  const authHeader = () => ({});
 
   const fetchUsers = async () => {
     try {

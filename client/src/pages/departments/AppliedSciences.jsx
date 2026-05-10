@@ -1304,15 +1304,8 @@ const AppliedSciences = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
 
       const uploadedUrl = response.data.fileUrl || response.data.url;
       const uploadedName = response.data.originalName || file.name;
@@ -3707,3 +3700,5 @@ The department has three well equipped laboratories namely **Physics, Chemistry 
 
 export { APPLIED_DEFAULT_FACULTY };
 export default AppliedSciences;
+
+

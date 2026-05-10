@@ -1,5 +1,6 @@
 const GalleryItem = require("../models/GalleryItem");
 const GalleryCategory = require("../models/GalleryCategory");
+const { sendSafeError } = require("../utils/apiErrors");
 
 const DEFAULT_CATEGORIES = [
   "Campus",
@@ -94,7 +95,7 @@ const getGalleryItems = async (_req, res) => {
     });
     res.json({ success: true, data: items });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Gallery request failed" });
   }
 };
 
@@ -110,7 +111,7 @@ const getAdminGalleryItems = async (_req, res) => {
     });
     res.json({ success: true, data: items });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Gallery request failed" });
   }
 };
 
@@ -133,7 +134,11 @@ const createGalleryItem = async (req, res) => {
     const item = await GalleryItem.create(payload);
     res.status(201).json({ success: true, data: item });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Gallery request failed",
+      validationMessage: "Invalid gallery request data",
+    });
   }
 };
 
@@ -166,7 +171,11 @@ const updateGalleryItem = async (req, res) => {
 
     res.json({ success: true, data: item });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Gallery request failed",
+      validationMessage: "Invalid gallery request data",
+    });
   }
 };
 
@@ -183,7 +192,7 @@ const deleteGalleryItem = async (req, res) => {
     }
     res.json({ success: true, message: "Gallery item deleted." });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Gallery request failed" });
   }
 };
 
@@ -199,7 +208,7 @@ const getGalleryCategories = async (_req, res) => {
     });
     res.json({ success: true, data: categories });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Gallery request failed" });
   }
 };
 
@@ -215,7 +224,7 @@ const getAdminGalleryCategories = async (_req, res) => {
     });
     res.json({ success: true, data: categories });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Gallery request failed" });
   }
 };
 
@@ -247,7 +256,11 @@ const createGalleryCategory = async (req, res) => {
     });
     res.status(201).json({ success: true, data: category });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Gallery category request failed",
+      validationMessage: "Invalid gallery category request data",
+    });
   }
 };
 
@@ -301,7 +314,11 @@ const updateGalleryCategory = async (req, res) => {
 
     res.json({ success: true, data: category });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Gallery category request failed",
+      validationMessage: "Invalid gallery category request data",
+    });
   }
 };
 
@@ -338,7 +355,7 @@ const deleteGalleryCategory = async (req, res) => {
       message: `Category deleted. Related images moved to "${fallback.name}".`,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Gallery category request failed" });
   }
 };
 

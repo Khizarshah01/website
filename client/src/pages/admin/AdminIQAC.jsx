@@ -65,9 +65,7 @@ const AdminIQAC = () => {
     fetchDocuments();
   }, []);
 
-  const authHeader = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
-  });
+  const authHeader = () => ({});
 
   const fetchDocuments = async () => {
     try {
@@ -104,12 +102,7 @@ const AdminIQAC = () => {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await apiClient.post("/upload/file", fd, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await apiClient.post("/upload/file", fd);
       const fileUrl = res.data?.fileUrl || res.data?.url;
       if (!fileUrl) throw new Error("Upload URL missing");
 

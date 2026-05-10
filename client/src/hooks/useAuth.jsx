@@ -3,6 +3,7 @@ import apiClient from "../utils/apiClient";
 import {
   clearStoredAuth,
   getStoredAdminUser,
+  purgeLegacyAdminToken,
   setStoredAdminUser,
 } from "../utils/authStorage";
 
@@ -15,11 +16,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Initialize auth state from localStorage
+  // Initialize auth state from the HTTP-only cookie session and cached user profile.
   useEffect(() => {
     let isMounted = true;
 
     const initializeAuth = async () => {
+      purgeLegacyAdminToken();
       const savedUser = getStoredAdminUser();
       if (savedUser && isMounted) {
         setUser(savedUser);

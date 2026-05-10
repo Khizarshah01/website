@@ -63,49 +63,91 @@ const allowedOrigins = Array.from(
 const isLocalDevOrigin = (origin = "") =>
   /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(String(origin || ""));
 
+const isAllowedBrowserOrigin = (origin = "") => {
+  if (!origin) return true;
+  return allowedOrigins.includes(origin) || isLocalDevOrigin(origin);
+};
+
+const csrfOriginGuard = (req, res, next) => {
+  if (!req.path.startsWith("/api/")) return next();
+  if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return next();
+
+  const origin = String(req.headers.origin || "").trim();
+  const referer = String(req.headers.referer || "").trim();
+
+  if (origin && !isAllowedBrowserOrigin(origin)) {
+    return res.status(403).json({
+      success: false,
+      message: "Request origin is not allowed.",
+    });
+  }
+
+  if (!origin && referer) {
+    try {
+      const refererOrigin = new URL(referer).origin;
+      if (!isAllowedBrowserOrigin(refererOrigin)) {
+        return res.status(403).json({
+          success: false,
+          message: "Request origin is not allowed.",
+        });
+      }
+    } catch {
+      return res.status(403).json({
+        success: false,
+        message: "Invalid request origin.",
+      });
+    }
+  }
+
+  return next();
+};
+
 // ===== SECURITY: Rate Limiting =====
-const isDev = process.env.NODE_ENV !== "production";
+const isProductionEnv = process.env.NODE_ENV === "production";
 
 if (!process.env.NODE_ENV) {
   console.warn(
-    "[WARN] NODE_ENV is not set. Treating server as development; rate limiters are disabled. Set NODE_ENV=production in production.",
+    "[WARN] NODE_ENV is not set. Treating server as development; production limits are relaxed but still enabled.",
   );
 }
 
 // Authentication rate limiter - prevent brute force attacks
 const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minute window
-  max: isDev ? 0 : 20,
+  max: isProductionEnv ? 20 : 100,
   message: { error: "Too many auth attempts. Please try again later." },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  skip: (req) => isDev || req.method === "GET",
+  skip: (req) => req.method === "GET",
 });
 
 // General API rate limiter - protect against DoS
 const apiRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minute window
-  max: isDev ? 0 : 500,
+  max: isProductionEnv ? 500 : 2000,
   message: { error: "Too many requests. Please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => isDev || req.method === "GET",
+  skip: (req) => req.method === "GET",
 });
 
 // Upload rate limiter - prevent abuse of file upload endpoint
 const uploadRateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour window
-  max: isDev ? 0 : 100,
+  max: isProductionEnv ? 100 : 300,
   message: {
     error: "Upload limit reached. Please wait before uploading more files.",
   },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: () => isDev,
 });
 
 const securityHeaders = (req, res, next) => {
-  const authCookieOptions = getAuthCookieOptions();
+  const authCookieOptions = getAuthCookieOptions(req);
+  const scriptSrc =
+    process.env.NODE_ENV === "production"
+      ? "script-src 'self'"
+      : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
   const cspDirectives = [
     "default-src 'self'",
     "base-uri 'self'",
@@ -114,7 +156,7 @@ const securityHeaders = (req, res, next) => {
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https:",
     "style-src 'self' 'unsafe-inline' https:",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    scriptSrc,
     `connect-src 'self' ${allowedOrigins.join(" ")} ${
       authCookieOptions.secure ? "https:" : "http:"
     } ws: wss:`,
@@ -142,23 +184,29 @@ const securityHeaders = (req, res, next) => {
 
 // Middleware
 app.use(securityHeaders);
-app.use(helmet()); // Comprehensive security headers (HSTS, CSP, X-Frame-Options, etc.)
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  }),
+); // Keep Helmet defaults without emitting a second CSP header.
+app.use(csrfOriginGuard);
 app.use("/api/", apiRateLimiter); // Apply general API rate limiting only to API routes
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (
-        !origin ||
-        allowedOrigins.includes(origin) ||
-        isLocalDevOrigin(origin)
-      ) {
+      if (isAllowedBrowserOrigin(origin)) {
         return callback(null, true);
       }
       return callback(new Error("Origin not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Upload-Category",
+      "X-Upload-Source-Path",
+    ],
   }),
 );
 const jsonBodyParser = express.json({ limit: "10mb", strict: false });
@@ -307,7 +355,11 @@ app.use((err, req, res, next) => {
     });
   }
 
-  console.error(err.stack);
+  if (process.env.NODE_ENV === "production") {
+    console.error(err.message);
+  } else {
+    console.error(err.stack || err);
+  }
 
   // Handle multer errors
   if (err.code === "LIMIT_FILE_SIZE") {

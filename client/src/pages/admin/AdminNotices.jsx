@@ -40,10 +40,7 @@ const AdminNotices = () => {
     fetchNotices();
   }, []);
 
-  const authHeader = () => {
-    const token = localStorage.getItem("adminToken");
-    return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-  };
+  const authHeader = () => ({});
 
   const fetchNotices = async () => {
     try {
@@ -74,12 +71,7 @@ const AdminNotices = () => {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await apiClient.post("/upload/file", fd, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await apiClient.post("/upload/file", fd);
       const fileUrl = res.data?.fileUrl || res.data?.url;
       if (!fileUrl) throw new Error("Upload URL missing");
       setFormData((prev) => ({ ...prev, fileUrl }));

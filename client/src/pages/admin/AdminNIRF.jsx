@@ -59,9 +59,7 @@ const AdminNIRF = () => {
     fetchEntries();
   }, []);
 
-  const authHeader = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
-  });
+  const authHeader = () => ({});
 
   const fetchEntries = async () => {
     try {
@@ -87,12 +85,7 @@ const AdminNIRF = () => {
     try {
       const fd = new FormData();
       fd.append("pdf", file);
-      const res = await apiClient.post("/upload/nirf-pdf", fd, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await apiClient.post("/upload/nirf-pdf", fd);
       setFormData((f) => ({ ...f, reportUrl: res.data.fileUrl }));
       setUploadedFileName(file.name);
     } catch (err) {

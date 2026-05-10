@@ -128,11 +128,7 @@ const AdminResearch = () => {
     USER_TO_RESEARCH_DEPT[userDepartment] || userDepartment;
 
   const authHeader = useCallback(
-    () => ({
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-      },
-    }),
+    () => ({}),
     []
   );
 

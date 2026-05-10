@@ -4,6 +4,7 @@ const {
   resolveCanonicalPageId,
   getRelatedPageIds,
 } = require("../utils/pageIdAliases");
+const { sendSafeError } = require("../utils/apiErrors");
 const departmentPages = [
   {
     pageId: "departments-cse",
@@ -2133,10 +2134,7 @@ const getAllPages = async (req, res) => {
       data: pages,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    sendSafeError(res, error, { message: "Page content request failed" });
   }
 };
 
@@ -2200,10 +2198,7 @@ const getPageById = async (req, res) => {
       data: responsePage,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    sendSafeError(res, error, { message: "Page content request failed" });
   }
 };
 
@@ -2248,10 +2243,7 @@ const createPage = async (req, res) => {
       data: page,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    sendSafeError(res, error, { message: "Page content request failed" });
   }
 };
 
@@ -2399,10 +2391,7 @@ const updatePage = async (req, res) => {
       data: page,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    sendSafeError(res, error, { message: "Page content request failed" });
   }
 };
 
@@ -2427,10 +2416,7 @@ const deletePage = async (req, res) => {
       message: "Page deleted successfully",
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    sendSafeError(res, error, { message: "Page content request failed" });
   }
 };
 
@@ -2456,10 +2442,7 @@ const seedAboutPages = async (req, res) => {
       data: seedData.map((p) => ({ pageId: p.pageId, pageTitle: p.pageTitle })),
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    sendSafeError(res, error, { message: "Page content request failed" });
   }
 };
 
@@ -2507,10 +2490,7 @@ const seedAllNavPages = async (req, res) => {
     });
   } catch (error) {
     console.error("Error seeding nav pages:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    sendSafeError(res, error, { message: "Page content request failed" });
   }
 };
 
@@ -2572,7 +2552,7 @@ const getEditLogs = async (req, res) => {
 
     res.json({ success: true, data: logs });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Page content request failed" });
   }
 };
 
@@ -2643,7 +2623,7 @@ const resetPageToVersion = async (req, res) => {
       data: page,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Page content request failed" });
   }
 };
 

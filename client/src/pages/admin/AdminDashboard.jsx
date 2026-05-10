@@ -116,10 +116,7 @@ const AdminDashboard = () => {
     if (seeding) return;
     setSeeding(true);
     try {
-      const token = localStorage.getItem("adminToken");
-      const res = await apiClient.post("/pages/seed-all", {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.post("/pages/seed-all", {});
       if (res.data.success) {
         alert(res.data.message);
         fetchDashboardData();

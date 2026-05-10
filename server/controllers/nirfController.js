@@ -1,4 +1,5 @@
 const NIRF = require("../models/NIRF");
+const { sendSafeError } = require("../utils/apiErrors");
 
 // @desc    Get all NIRF data
 // @route   GET /api/nirf
@@ -134,9 +135,10 @@ const createNIRF = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating NIRF entry:", error);
-    res.status(400).json({
-      success: false,
-      message: error.message,
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "NIRF request failed",
+      validationMessage: "Invalid NIRF request data",
     });
   }
 };
@@ -164,9 +166,10 @@ const updateNIRF = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating NIRF entry:", error);
-    res.status(400).json({
-      success: false,
-      message: error.message,
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "NIRF request failed",
+      validationMessage: "Invalid NIRF request data",
     });
   }
 };
@@ -287,10 +290,7 @@ const seedNIRF = async (req, res) => {
     });
   } catch (error) {
     console.error("Error seeding NIRF data:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    sendSafeError(res, error, { message: "NIRF request failed" });
   }
 };
 

@@ -51,9 +51,7 @@ const AdminRecruiters = () => {
     fetchRecruiters();
   }, []);
 
-  const authHeader = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
-  });
+  const authHeader = () => ({});
 
   const fetchRecruiters = async () => {
     try {
@@ -76,12 +74,7 @@ const AdminRecruiters = () => {
     try {
       setUploading(true);
       setError("");
-      const res = await apiClient.post("/upload/image", fd, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await apiClient.post("/upload/image", fd);
       const uploadedUrl = res.data?.fileUrl || res.data?.url || "";
       if (!uploadedUrl) {
         throw new Error("Upload response did not include a file URL.");

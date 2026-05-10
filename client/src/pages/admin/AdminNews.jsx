@@ -50,15 +50,10 @@ const AdminNews = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("adminToken");
       if (editingId) {
-        await apiClient.put(`/news/${editingId}`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await apiClient.put(`/news/${editingId}`, formData);
       } else {
-        await apiClient.post("/news", formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await apiClient.post("/news", formData);
       }
       fetchNews();
       setShowForm(false);
@@ -85,10 +80,7 @@ const AdminNews = () => {
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this news item?")) return;
     try {
-      const token = localStorage.getItem("adminToken");
-      await apiClient.delete(`/news/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.delete(`/news/${id}`);
       fetchNews();
     } catch (err) {
       logUnexpectedError("Error deleting news:", err);

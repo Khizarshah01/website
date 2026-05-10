@@ -1304,15 +1304,8 @@ const Electrical = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -1411,15 +1404,8 @@ const Electrical = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("image", file);
+      const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -1531,14 +1517,8 @@ const Electrical = () => {
     setMouReportErrors((prev) => ({ ...prev, [uploadKey]: "" }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const mous = getElectricalMous();
         persistElectricalMous(
@@ -1813,14 +1793,8 @@ const Electrical = () => {
     setResearchReportErrors((prev) => ({ ...prev, [uploadKey]: "" }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
       if (!response.data.fileUrl)
         throw new Error("Upload did not return a file URL.");
       updateData(`templateData.researchReports.${year}`, response.data.fileUrl);
@@ -2464,14 +2438,8 @@ const Electrical = () => {
     setUploadingFiles((prev) => ({ ...prev, [uploadKey]: true }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         // Batch all three fields in a single update to avoid stale state race condition
         const current = JSON.parse(
@@ -2607,17 +2575,10 @@ const Electrical = () => {
 
   const deleteNewsletterFileIfNeeded = async (link) => {
     const deletablePath = getDeletableUploadPath(link);
-    if (!deletablePath) return;
-
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+    if (!deletablePath) return;
 
     try {
-      await apiClient.delete("/upload/file", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
+      await apiClient.delete("/upload/file", { params: {
           path: deletablePath,
         },
       });
@@ -2686,15 +2647,8 @@ const Electrical = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -2813,17 +2767,10 @@ const Electrical = () => {
 
   const deleteAchievementFileIfNeeded = async (link) => {
     const deletablePath = getAchievementDeletableUploadPath(link);
-    if (!deletablePath) return;
-
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+    if (!deletablePath) return;
 
     try {
-      await apiClient.delete("/upload/file", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
+      await apiClient.delete("/upload/file", { params: {
           path: deletablePath,
         },
       });
@@ -2857,15 +2804,8 @@ const Electrical = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("image", file);
+      const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -10320,3 +10260,5 @@ const parseElectricalActivitiesMarkdown = (markdown = "") => {
 };
 
 export default Electrical;
+
+

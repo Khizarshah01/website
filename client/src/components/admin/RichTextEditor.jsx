@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactQuill, { Quill } from "react-quill-new";
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 import "react-quill-new/dist/quill.snow.css";
 import "./RichTextEditor.css";
 import { useEdit } from "../../contexts/EditContext";
@@ -77,6 +77,10 @@ const RichTextEditor = ({
   const [currentValue, setCurrentValue] = useState(displayValue || "");
   const [localEditing, setLocalEditing] = useState(false);
   const quillRef = useRef(null);
+  const sanitizeRichText = (html) =>
+    DOMPurify.sanitize(String(html || ""), {
+      USE_PROFILES: { html: true },
+    });
 
   // Sync state with props/context
   useEffect(() => {
@@ -84,11 +88,13 @@ const RichTextEditor = ({
   }, [displayValue]);
 
   const handleSave = () => {
+    const sanitizedValue = sanitizeRichText(currentValue);
     if (onSave) {
-      onSave(currentValue);
+      onSave(sanitizedValue);
     } else if (path) {
-      updateData(path, currentValue);
+      updateData(path, sanitizedValue);
     }
+    setCurrentValue(sanitizedValue);
     setLocalEditing(false);
   };
 

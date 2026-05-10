@@ -330,11 +330,11 @@ server/
 
 ### 3. **Authentication**
 
-- JWT-based authentication with tokens stored in localStorage
+- JWT-based authentication using HTTP-only cookies instead of browser token storage
 - Admin login/register functionality
 - Role-based access control (Admin, SuperAdmin, Coordinator)
 - Protected API routes with `authMiddleware`
-- Token refresh mechanism
+- Session verification through protected API middleware
 
 ### 4. **File Management**
 
@@ -355,7 +355,7 @@ server/
 
 ### Prerequisites
 
-- **Node.js 16+** and **npm 8+**
+- **Node.js 20.19.0+** compatible with Vite 7 (`^20.19.0 || >=22.12.0`) and **npm 10+**
 - **MongoDB** (local or Atlas account)
 - **Git**
 
@@ -392,8 +392,8 @@ npm install
 PORT=5000
 NODE_ENV=development
 MONGODB_URI=mongodb://localhost:27017/ssgmce
-JWT_SECRET=your-random-jwt-secret-here
-ADMIN_JWT_SECRET=your-random-admin-jwt-secret-here
+JWT_SECRET=your-strong-random-jwt-secret-at-least-32-characters
+ADMIN_GATE_TOKEN=your-strong-random-admin-entry-token
 CORS_ORIGIN=http://localhost:3000
 ADMIN_AUTO_SEED=true
 ```
@@ -444,8 +444,8 @@ Credentials (if seeded):
 | `PORT`             | `5000`                             | Server port                          |
 | `NODE_ENV`         | `development`                      | Environment (development/production) |
 | `MONGODB_URI`      | `mongodb://localhost:27017/ssgmce` | MongoDB connection string            |
-| `JWT_SECRET`       | Required                           | JWT secret for public auth           |
-| `ADMIN_JWT_SECRET` | Required                           | JWT secret for admin auth            |
+| `JWT_SECRET`       | Required                           | Strong JWT cookie signing secret     |
+| `ADMIN_GATE_TOKEN` | Required for gated admin entry     | Admin entry gate token               |
 | `CORS_ORIGIN`      | `http://localhost:3000`            | Allowed frontend URL                 |
 | `ADMIN_AUTO_SEED`  | `true`                             | Auto-seed DB on startup              |
 | `ADMIN_EMAIL`      | `admin@example.com`                | Initial admin email                  |
@@ -468,7 +468,7 @@ All APIs are prefixed with `/api`. The backend uses centralized error handling a
 ```
 POST   /api/auth/login           → Login with email/password
 POST   /api/auth/register        → Register new admin user
-POST   /api/auth/verify          → Verify JWT token
+POST   /api/auth/verify          → Verify active cookie session
 ```
 
 ### Content Routes (Protected)
@@ -616,8 +616,8 @@ git push -u origin main
    PORT=5000
    NODE_ENV=production
    MONGODB_URI=mongodb+srv://...
-   JWT_SECRET=<strong-random-string>
-   ADMIN_JWT_SECRET=<strong-random-string>
+   JWT_SECRET=<strong-random-string-at-least-32-characters>
+   ADMIN_GATE_TOKEN=<strong-random-admin-entry-token>
    CORS_ORIGIN=<your-vercel-url>
    ```
 5. Deploy → Note backend URL (e.g., `https://ssgmce-backend.onrender.com`)
@@ -745,7 +745,7 @@ git push origin main
    ```bash
    cd server && node scripts/createAdmin.js
    ```
-4. Clear browser localStorage: `localStorage.clear()`
+4. Clear the browser session by logging out, then retry login with a fresh HTTP-only cookie session.
 
 ### Build Fails
 

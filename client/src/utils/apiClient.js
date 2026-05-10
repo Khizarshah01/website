@@ -1,6 +1,6 @@
 import axios from "axios";
 import API_BASE_URL from "../config/api";
-import { clearStoredAuth } from "./authStorage";
+import { clearStoredAuth, purgeLegacyAdminToken } from "./authStorage";
 
 /**
  * Centralized Axios Instance
@@ -109,6 +109,16 @@ const deriveUploadCategoryFromPath = (pathname = "") => {
 // Keep legacy token headers from breaking cookie-based auth, and let the
 // browser add multipart boundaries for FormData uploads.
 apiClient.interceptors.request.use((config) => {
+  purgeLegacyAdminToken();
+
+  if (config.allowBearerAuth !== true) {
+    if (typeof config.headers?.delete === "function") {
+      config.headers.delete("Authorization");
+    } else if (config.headers) {
+      delete config.headers.Authorization;
+    }
+  }
+
   const authHeader = config.headers?.Authorization;
   if (
     typeof authHeader === "string" &&

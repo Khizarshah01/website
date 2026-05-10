@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 import {
   FaFilePdf,
   FaDownload,
@@ -182,22 +182,14 @@ const NIRFRanking = () => {
     }));
     try {
       const fd = new FormData();
-      fd.append("pdf", file);
-      const token = localStorage.getItem("adminToken");
-      const uploadRes = await apiClient.post("/upload/nirf-pdf", fd, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      const fileUrl = uploadRes.data.fileUrl;
-      const authHdr = { headers: { Authorization: `Bearer ${token}` } };
+      fd.append("pdf", file);
+      const uploadRes = await apiClient.post("/upload/nirf-pdf", fd);
+      const fileUrl = uploadRes.data.fileUrl;
       const existingId = nirfEntryIds[key];
       if (existingId) {
         await apiClient.put(
           `/nirf/admin/${existingId}`,
           { reportUrl: fileUrl },
-          authHdr,
         );
       } else {
         const createRes = await apiClient.post(
@@ -208,7 +200,6 @@ const NIRFRanking = () => {
             reportUrl: fileUrl,
             isActive: true,
           },
-          authHdr,
         );
         setNirfEntryIds((m) => ({ ...m, [key]: createRes.data.data._id }));
       }
@@ -533,3 +524,5 @@ const NIRFRanking = () => {
 };
 
 export default NIRFRanking;
+
+

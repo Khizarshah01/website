@@ -3,6 +3,7 @@ import apiClient from "../../utils/apiClient";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import { sanitizeMarkdownHtml } from "../../utils/sanitizeMarkdown";
 import {
   FaFilePdf,
   FaFileWord,
@@ -149,16 +150,10 @@ const DocImportModal = ({ onClose }) => {
     setAdded(false);
 
     try {
-      const token = localStorage.getItem("adminToken");
       const formData = new FormData();
       formData.append("document", file);
 
-      const res = await apiClient.post("/convert/document", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await apiClient.post("/convert/document", formData);
 
       if (res.data.success) {
         setResult(res.data);
@@ -326,7 +321,7 @@ const DocImportModal = ({ onClose }) => {
                     rehypePlugins={[rehypeRaw]}
                     components={PREVIEW_COMPONENTS}
                   >
-                    {result.markdown}
+                    {sanitizeMarkdownHtml(result.markdown)}
                   </ReactMarkdown>
                 </div>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">

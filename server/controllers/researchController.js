@@ -7,6 +7,7 @@ const {
 } = require("../models/Research");
 const { verifyDocDepartment } = require("../middleware/authMiddleware");
 const { toResearchDept } = require("../utils/departmentMap");
+const { sendSafeError } = require("../utils/apiErrors");
 
 // ── Helper ──────────────────────────────────────────────────────────
 const isCoordinator = (user) =>
@@ -90,7 +91,7 @@ const getPublications = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSafeError(res, error, { message: "Research request failed" });
   }
 };
 
@@ -105,7 +106,7 @@ const getPublication = async (req, res) => {
     }
     res.json(publication);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSafeError(res, error, { message: "Research request failed" });
   }
 };
 
@@ -118,7 +119,11 @@ const createPublication = async (req, res) => {
     const publication = await Publication.create(req.body);
     res.status(201).json(publication);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Research request failed",
+      validationMessage: "Invalid research request data",
+    });
   }
 };
 
@@ -143,7 +148,11 @@ const updatePublication = async (req, res) => {
     );
     res.json(publication);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Research request failed",
+      validationMessage: "Invalid research request data",
+    });
   }
 };
 
@@ -161,7 +170,7 @@ const deletePublication = async (req, res) => {
     await Publication.findByIdAndDelete(req.params.id);
     res.json({ message: "Publication deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSafeError(res, error, { message: "Research request failed" });
   }
 };
 
@@ -204,7 +213,7 @@ const getPatents = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSafeError(res, error, { message: "Research request failed" });
   }
 };
 
@@ -217,7 +226,11 @@ const createPatent = async (req, res) => {
     const patent = await Patent.create(req.body);
     res.status(201).json(patent);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Research request failed",
+      validationMessage: "Invalid research request data",
+    });
   }
 };
 
@@ -241,7 +254,11 @@ const updatePatent = async (req, res) => {
     });
     res.json(patent);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Research request failed",
+      validationMessage: "Invalid research request data",
+    });
   }
 };
 
@@ -259,7 +276,7 @@ const deletePatent = async (req, res) => {
     await Patent.findByIdAndDelete(req.params.id);
     res.json({ message: "Patent deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSafeError(res, error, { message: "Research request failed" });
   }
 };
 
@@ -302,7 +319,7 @@ const getFundedProjects = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSafeError(res, error, { message: "Research request failed" });
   }
 };
 
@@ -315,7 +332,11 @@ const createFundedProject = async (req, res) => {
     const project = await FundedProject.create(req.body);
     res.status(201).json(project);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Research request failed",
+      validationMessage: "Invalid research request data",
+    });
   }
 };
 
@@ -340,7 +361,11 @@ const updateFundedProject = async (req, res) => {
     );
     res.json(project);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Research request failed",
+      validationMessage: "Invalid research request data",
+    });
   }
 };
 
@@ -358,7 +383,7 @@ const deleteFundedProject = async (req, res) => {
     await FundedProject.findByIdAndDelete(req.params.id);
     res.json({ message: "Project deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSafeError(res, error, { message: "Research request failed" });
   }
 };
 
@@ -381,7 +406,7 @@ const getResearchAreas = async (req, res) => {
     const areas = await ResearchArea.find(filter).sort({ name: 1 });
     res.json(areas);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSafeError(res, error, { message: "Research request failed" });
   }
 };
 
@@ -394,7 +419,11 @@ const createResearchArea = async (req, res) => {
     const area = await ResearchArea.create(req.body);
     res.status(201).json(area);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Research request failed",
+      validationMessage: "Invalid research request data",
+    });
   }
 };
 
@@ -418,7 +447,11 @@ const updateResearchArea = async (req, res) => {
     });
     res.json(area);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Research request failed",
+      validationMessage: "Invalid research request data",
+    });
   }
 };
 
@@ -454,7 +487,7 @@ const getInnovations = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSafeError(res, error, { message: "Research request failed" });
   }
 };
 
@@ -466,7 +499,11 @@ const createInnovation = async (req, res) => {
     const innovation = await Innovation.create(req.body);
     res.status(201).json(innovation);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Research request failed",
+      validationMessage: "Invalid research request data",
+    });
   }
 };
 
@@ -485,7 +522,11 @@ const updateInnovation = async (req, res) => {
     }
     res.json(innovation);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Research request failed",
+      validationMessage: "Invalid research request data",
+    });
   }
 };
 
@@ -500,7 +541,7 @@ const deleteInnovation = async (req, res) => {
     }
     res.json({ message: "Innovation deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSafeError(res, error, { message: "Research request failed" });
   }
 };
 
@@ -546,7 +587,7 @@ const getResearchStats = async (req, res) => {
       totalFunding: totalFunding[0]?.total || 0,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSafeError(res, error, { message: "Research request failed" });
   }
 };
 
@@ -934,7 +975,7 @@ const seedResearchData = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    sendSafeError(res, error, { message: "Research request failed" });
   }
 };
 

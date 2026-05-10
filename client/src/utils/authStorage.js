@@ -33,6 +33,7 @@ const safeStorage = {
 };
 
 export const getStoredAdminUser = () => {
+  safeStorage.removeLocalItem(LEGACY_TOKEN_KEY);
   const rawValue = safeStorage.getSessionItem(ADMIN_USER_KEY);
   if (!rawValue) return null;
 
@@ -45,12 +46,17 @@ export const getStoredAdminUser = () => {
 };
 
 export const setStoredAdminUser = (user) => {
+  safeStorage.removeLocalItem(LEGACY_TOKEN_KEY);
   if (!user) {
     safeStorage.removeSessionItem(ADMIN_USER_KEY);
     return;
   }
 
   safeStorage.setSessionItem(ADMIN_USER_KEY, JSON.stringify(user));
+};
+
+export const purgeLegacyAdminToken = () => {
+  safeStorage.removeLocalItem(LEGACY_TOKEN_KEY);
 };
 
 export const clearStoredAuth = () => {

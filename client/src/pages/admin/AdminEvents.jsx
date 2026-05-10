@@ -90,10 +90,7 @@ const AdminEvents = () => {
   const [filterCategory, setFilterCategory] = useState("All");
   const fileInputRef = useRef(null);
 
-  const authHeader = () => {
-    const token = localStorage.getItem("adminToken");
-    return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-  };
+  const authHeader = () => ({});
 
   const sortedCategories = useMemo(
     () => [...categories].sort(sortByOrder),
@@ -243,12 +240,7 @@ const AdminEvents = () => {
     try {
       setUploading(true);
       setError("");
-      const res = await apiClient.post("/upload/image", fd, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await apiClient.post("/upload/image", fd);
       const uploadedUrl = res.data?.fileUrl || res.data?.url || "";
       if (!uploadedUrl) throw new Error("Upload URL missing.");
       setEventForm((currentForm) => ({ ...currentForm, image: uploadedUrl }));

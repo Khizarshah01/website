@@ -194,7 +194,7 @@ const register = async (req, res) => {
 
     // Generate token
     const token = generateToken(user._id);
-    setAuthCookie(res, token);
+    setAuthCookie(req, res, token);
 
     res.status(201).json({
       success: true,
@@ -204,7 +204,6 @@ const register = async (req, res) => {
         email: user.email,
         role: user.role,
         department: user.department,
-        token,
       },
     });
   } catch (error) {
@@ -322,7 +321,7 @@ const login = async (req, res) => {
 
     // Generate token
     const token = generateToken(user._id);
-    setAuthCookie(res, token);
+    setAuthCookie(req, res, token);
 
     res.json({
       success: true,
@@ -332,7 +331,6 @@ const login = async (req, res) => {
         email: user.email,
         role: user.role,
         department: user.department,
-        token,
       },
     });
   } catch (error) {
@@ -349,7 +347,7 @@ const logout = async (req, res) => {
   if (token) {
     blacklistToken(token);
   }
-  clearAuthCookie(res);
+  clearAuthCookie(req, res);
   return res.json({
     success: true,
     message: "Logged out successfully",

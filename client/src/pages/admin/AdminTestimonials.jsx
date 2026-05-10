@@ -40,9 +40,7 @@ const AdminTestimonials = () => {
     fetchTestimonials();
   }, []);
 
-  const authHeader = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` },
-  });
+  const authHeader = () => ({});
 
   const fetchTestimonials = async () => {
     try {
@@ -63,12 +61,7 @@ const AdminTestimonials = () => {
     try {
       setUploading(true);
       setError("");
-      const res = await apiClient.post("/upload/image", fd, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await apiClient.post("/upload/image", fd);
       setFormData((f) => ({ ...f, photoUrl: res.data.fileUrl }));
     } catch {
       setError("Photo upload failed. Ensure the file is an image under 5MB.");

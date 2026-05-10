@@ -12,6 +12,7 @@ import {
   publicationDepartmentLinks,
 } from "../../constants/researchDepartmentLinks";
 import { resolveUploadedAssetUrl } from "../../utils/uploadUrls";
+import { sanitizeMarkdownHtml } from "../../utils/sanitizeMarkdown";
 import DepartmentRedirectGrid from "../research/DepartmentRedirectGrid";
 import {
   FaCheck,
@@ -560,7 +561,7 @@ const FacilityGridLayout = ({
       rehypePlugins={[rehypeRaw]}
       components={MD_COMPONENTS}
     >
-      {preprocessContainers(content)}
+      {sanitizeMarkdownHtml(preprocessContainers(content))}
     </ReactMarkdown>
   );
 
@@ -1509,13 +1510,7 @@ const MarkdownEditor = ({
     try {
       const formData = new FormData();
       formData.append("image", file);
-      const token = localStorage.getItem("adminToken");
-      const res = await apiClient.post("/upload/image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await apiClient.post("/upload/image", formData);
       const url = res.data.fileUrl || res.data.url;
       if (url) {
         setPendingImageUrl(url);
@@ -1538,13 +1533,7 @@ const MarkdownEditor = ({
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const token = localStorage.getItem("adminToken");
-      const res = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await apiClient.post("/upload/file", formData);
       const url = res.data.fileUrl || res.data.url;
       const name = res.data.originalName || file.name;
       if (url) insertAtCursor(`\n[📄 ${name}](${url})\n`);

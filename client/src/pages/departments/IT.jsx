@@ -1183,15 +1183,8 @@ const IT = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -1285,15 +1278,8 @@ const IT = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("image", file);
+      const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -1388,14 +1374,8 @@ const IT = () => {
     setMouReportErrors((prev) => ({ ...prev, [uploadKey]: "" }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const mous = getItMous();
         persistItMous(
@@ -1630,15 +1610,8 @@ const IT = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -2073,7 +2046,7 @@ const IT = () => {
 
   const getPlacementMarkdown = (year) => {
     const records = placementRecordsByYear[year] || [];
-    const header = `## Placement Record — ${year}`;
+    const header = `## Placement Record ï¿½ ${year}`;
     const intro =
       year === currentPlacementYear
         ? "*Placements still in progress for the current academic year.*\n\n"
@@ -2116,7 +2089,7 @@ const IT = () => {
   };
 
   const placementRecordsToMarkdown = (year, records) => {
-    const header = `## Placement Record — ${year}`;
+    const header = `## Placement Record ï¿½ ${year}`;
     const intro =
       year === currentPlacementYear
         ? "*Placements still in progress for the current academic year.*\n\n"
@@ -2333,17 +2306,10 @@ const IT = () => {
 
   const deleteNewsletterFileIfNeeded = async (link) => {
     const deletablePath = getDeletableUploadPath(link);
-    if (!deletablePath) return;
-
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+    if (!deletablePath) return;
 
     try {
-      await apiClient.delete("/upload/file", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
+      await apiClient.delete("/upload/file", { params: {
           path: deletablePath,
         },
       });
@@ -2412,15 +2378,8 @@ const IT = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -2591,17 +2550,10 @@ const IT = () => {
 
   const deleteAchievementFileIfNeeded = async (link) => {
     const deletablePath = getAchievementDeletableUploadPath(link);
-    if (!deletablePath) return;
-
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+    if (!deletablePath) return;
 
     try {
-      await apiClient.delete("/upload/file", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
+      await apiClient.delete("/upload/file", { params: {
           path: deletablePath,
         },
       });
@@ -2640,15 +2592,8 @@ const IT = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
-
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("image", file);
+      const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
         throw new Error("Upload did not return a file URL.");
@@ -2909,14 +2854,8 @@ const IT = () => {
     setUploadingFiles((prev) => ({ ...prev, [uploadKey]: true }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      const token = localStorage.getItem("adminToken");
-      const response = await apiClient.post("/upload/file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      formData.append("file", file);
+      const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const key = `templateData.curriculum.${section}`;
         const defaults = DEFAULT_CURRICULUM_BE;
@@ -4019,7 +3958,7 @@ After successful completion of the course, students will be able to:
 
 1. Understand the definitions and fundamental concepts of entrepreneurship and start-ups
 2. Understand the role of a business plan in guiding the implementation of business ideas
-3. Understand the company’s organization structure and its role in effective management. Course Name: Environmental Science Course Code: 3SH208VE
+3. Understand the companyï¿½s organization structure and its role in effective management. Course Name: Environmental Science Course Code: 3SH208VE
 4. Understand the multidisciplinary nature of environment and Renewable and non-renewable resources
 5. Understand natural environment and its relationship with human activities
 6. Understand the basic concepts and problems and follow sustainable development practices`,
@@ -4067,7 +4006,7 @@ After successful completion of the course, students will be able to:
 2. Apply synchronization and deadlock-related issues
 3. Investigate memory management techniques
 
-### 4IT215VS Computer Skills – I
+### 4IT215VS Computer Skills ï¿½ I
 
 After successful completion of the course, students will be able to:
 
@@ -4245,7 +4184,7 @@ After successful completion of the course, students will be able to:
 5. Apply knowledge of signals, transmission media, and error detection and correction techniques in data communication
 6. Illustrate the building blocks and functioning of a digital communication system
 
-### 6IT09 Computer Skill Lab – IV
+### 6IT09 Computer Skill Lab ï¿½ IV
 
 After successful completion of the course, students will be able to:
 
@@ -8348,7 +8287,7 @@ After successful completion of the course, students will be able to:
                 <div className="bg-gradient-to-r from-ssgmce-blue to-blue-700 text-white p-4">
                   <h4 className="text-lg font-bold flex items-center gap-2">
                     <FaBook className="text-ssgmce-orange" />
-                    UG Projects – {ugProjectYear}
+                    UG Projects ï¿½ {ugProjectYear}
                   </h4>
                 </div>
                 <div className="overflow-x-auto">
@@ -8392,7 +8331,7 @@ After successful completion of the course, students will be able to:
                                   <FaExternalLinkAlt className="text-xs" /> View
                                 </a>
                               ) : (
-                                <span className="text-gray-400 text-xs">—</span>
+                                <span className="text-gray-400 text-xs">ï¿½</span>
                               )}
                             </td>
                           )}
@@ -9021,3 +8960,5 @@ const parseItActivitiesMarkdown = (markdown = "") => {
 };
 
 export default IT;
+
+

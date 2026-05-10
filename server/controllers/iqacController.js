@@ -1,6 +1,7 @@
-﻿const IQACMember = require("../models/IQACMember");
+const IQACMember = require("../models/IQACMember");
 const IQACDocument = require("../models/IQACDocument");
 const IQACNews = require("../models/IQACNews");
+const { sendSafeError } = require("../utils/apiErrors");
 
 // ==================== MEMBERS ====================
 
@@ -13,7 +14,7 @@ const getMembers = async (req, res) => {
     });
     res.json({ success: true, data: members });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "IQAC request failed" });
   }
 };
 
@@ -23,7 +24,7 @@ const getAllMembers = async (req, res) => {
     const members = await IQACMember.find().sort({ order: 1 });
     res.json({ success: true, data: members });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "IQAC request failed" });
   }
 };
 
@@ -34,7 +35,11 @@ const addMember = async (req, res) => {
     await member.save();
     res.status(201).json({ success: true, data: member });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "IQAC request failed",
+      validationMessage: "Invalid IQAC request data",
+    });
   }
 };
 
@@ -51,7 +56,11 @@ const updateMember = async (req, res) => {
         .json({ success: false, message: "Member not found" });
     res.json({ success: true, data: member });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "IQAC request failed",
+      validationMessage: "Invalid IQAC request data",
+    });
   }
 };
 
@@ -65,7 +74,7 @@ const deleteMember = async (req, res) => {
         .json({ success: false, message: "Member not found" });
     res.json({ success: true, message: "Member deleted" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "IQAC request failed" });
   }
 };
 
@@ -84,7 +93,7 @@ const getDocuments = async (req, res) => {
     });
     res.json({ success: true, data: documents });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "IQAC request failed" });
   }
 };
 
@@ -97,7 +106,7 @@ const getAllDocuments = async (req, res) => {
     });
     res.json({ success: true, data: documents });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "IQAC request failed" });
   }
 };
 
@@ -108,7 +117,11 @@ const addDocument = async (req, res) => {
     await document.save();
     res.status(201).json({ success: true, data: document });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "IQAC request failed",
+      validationMessage: "Invalid IQAC request data",
+    });
   }
 };
 
@@ -126,7 +139,11 @@ const updateDocument = async (req, res) => {
         .json({ success: false, message: "Document not found" });
     res.json({ success: true, data: document });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "IQAC request failed",
+      validationMessage: "Invalid IQAC request data",
+    });
   }
 };
 
@@ -140,7 +157,7 @@ const deleteDocument = async (req, res) => {
         .json({ success: false, message: "Document not found" });
     res.json({ success: true, message: "Document deleted" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "IQAC request failed" });
   }
 };
 
@@ -158,7 +175,7 @@ const getNews = async (req, res) => {
       .limit(10);
     res.json({ success: true, data: news });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "IQAC request failed" });
   }
 };
 
@@ -168,7 +185,7 @@ const getAllNews = async (req, res) => {
     const news = await IQACNews.find().sort({ createdAt: -1 });
     res.json({ success: true, data: news });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "IQAC request failed" });
   }
 };
 
@@ -179,7 +196,11 @@ const addNews = async (req, res) => {
     await news.save();
     res.status(201).json({ success: true, data: news });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "IQAC request failed",
+      validationMessage: "Invalid IQAC request data",
+    });
   }
 };
 
@@ -196,7 +217,11 @@ const updateNews = async (req, res) => {
         .json({ success: false, message: "News not found" });
     res.json({ success: true, data: news });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "IQAC request failed",
+      validationMessage: "Invalid IQAC request data",
+    });
   }
 };
 
@@ -210,7 +235,7 @@ const deleteNews = async (req, res) => {
         .json({ success: false, message: "News not found" });
     res.json({ success: true, message: "News deleted" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "IQAC request failed" });
   }
 };
 
@@ -441,7 +466,7 @@ const seedIQACData = async (req, res) => {
 
     res.json({ success: true, message: "IQAC data seeded successfully!" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "IQAC request failed" });
   }
 };
 

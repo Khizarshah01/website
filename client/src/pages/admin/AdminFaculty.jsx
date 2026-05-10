@@ -45,11 +45,7 @@ const AdminFaculty = () => {
     fetchFaculty();
   }, [filterDept]);
 
-  const authHeader = () => ({
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-    },
-  });
+  const authHeader = () => ({});
 
   const fetchFaculty = async () => {
     try {

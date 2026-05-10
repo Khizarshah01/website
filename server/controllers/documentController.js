@@ -1,12 +1,31 @@
 const Document = require("../models/Document");
+const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const {
   getAuthTokenFromRequest,
   getJwtSecret,
 } = require("../utils/authSecurity");
 const { isTokenBlacklisted } = require("../utils/tokenBlacklist");
+const { sendSafeError } = require("../utils/apiErrors");
 
 const JWT_SECRET = getJwtSecret();
+
+const getActiveRequestUser = async (req) => {
+  const token = getAuthTokenFromRequest(req);
+  if (!token || isTokenBlacklisted(token)) {
+    return null;
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    return User.findById(decoded.id).select("_id role isActive");
+  } catch {
+    return null;
+  }
+};
+
+const isAdminUser = (user) =>
+  user && user.isActive && ["admin", "SuperAdmin"].includes(user.role);
 
 // @desc    Get all active documents
 // @route   GET /api/documents
@@ -20,7 +39,7 @@ const getAllDocuments = async (req, res) => {
     });
     res.json({ success: true, data: documents });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Document request failed" });
   }
 };
 
@@ -41,7 +60,7 @@ const getCategoryStats = async (req, res) => {
     ]);
     res.json({ success: true, data: stats });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Document request failed" });
   }
 };
 
@@ -57,7 +76,7 @@ const getDocumentsByCategory = async (req, res) => {
     }).sort({ order: 1, uploadDate: -1 });
     res.json({ success: true, data: documents });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Document request failed" });
   }
 };
 
@@ -73,35 +92,34 @@ const getDocumentById = async (req, res) => {
         .json({ success: false, message: "Document not found" });
     }
 
-    if (document.isPrivate || document.accessLevel === "admin") {
-      const token = getAuthTokenFromRequest(req);
-      if (!token) {
+    const requiresAuth =
+      !document.isActive ||
+      document.isPrivate ||
+      document.accessLevel === "admin";
+
+    if (requiresAuth) {
+      const user = await getActiveRequestUser(req);
+      if (!user?.isActive) {
         return res.status(401).json({
           success: false,
           message: "Authentication required.",
         });
       }
 
-      if (isTokenBlacklisted(token)) {
-        return res.status(401).json({
-          success: false,
-          message: "Session expired. Please log in again.",
-        });
-      }
-
-      try {
-        jwt.verify(token, JWT_SECRET);
-      } catch (_error) {
+      if (
+        (!document.isActive || document.accessLevel === "admin") &&
+        !isAdminUser(user)
+      ) {
         return res.status(403).json({
           success: false,
-          message: "Invalid or expired token.",
+          message: "Access denied.",
         });
       }
     }
 
     res.json({ success: true, data: document });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Document request failed" });
   }
 };
 
@@ -110,19 +128,35 @@ const getDocumentById = async (req, res) => {
 // @access  Public
 const incrementDownload = async (req, res) => {
   try {
-    const document = await Document.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { downloadCount: 1 } },
-      { new: true },
-    );
+    const document = await Document.findById(req.params.id);
     if (!document) {
       return res
         .status(404)
         .json({ success: false, message: "Document not found" });
     }
+
+    const requiresAdmin = !document.isActive || document.accessLevel === "admin";
+    if (requiresAdmin || document.isPrivate) {
+      const user = await getActiveRequestUser(req);
+      if (!user?.isActive) {
+        return res.status(401).json({
+          success: false,
+          message: "Authentication required.",
+        });
+      }
+      if (requiresAdmin && !isAdminUser(user)) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied.",
+        });
+      }
+    }
+
+    document.downloadCount += 1;
+    await document.save();
     res.json({ success: true, data: document });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Document request failed" });
   }
 };
 
@@ -137,7 +171,7 @@ const getAllDocumentsAdmin = async (req, res) => {
     });
     res.json({ success: true, data: documents });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Document request failed" });
   }
 };
 
@@ -149,7 +183,11 @@ const createDocument = async (req, res) => {
     const document = await Document.create(req.body);
     res.status(201).json({ success: true, data: document });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Document request failed",
+      validationMessage: "Invalid document request data",
+    });
   }
 };
 
@@ -170,7 +208,11 @@ const updateDocument = async (req, res) => {
     }
     res.json({ success: true, data: document });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Document request failed",
+      validationMessage: "Invalid document request data",
+    });
   }
 };
 
@@ -187,7 +229,7 @@ const deleteDocument = async (req, res) => {
     }
     res.json({ success: true, message: "Document deleted successfully" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Document request failed" });
   }
 };
 
@@ -238,7 +280,7 @@ const seedDocuments = async (req, res) => {
       message: "Sample documents seeded successfully",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Document request failed" });
   }
 };
 

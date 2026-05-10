@@ -1,5 +1,16 @@
 const Department = require('../models/Department');
 
+const sendRequestError = (res, error, fallbackStatus = 500) => {
+  const status =
+    error?.name === 'CastError' || error?.name === 'ValidationError'
+      ? 400
+      : fallbackStatus;
+  const message =
+    status === 400 ? 'Invalid department request data' : 'Department request failed';
+
+  return res.status(status).json({ error: message });
+};
+
 // @desc    Get all departments
 // @route   GET /api/departments
 exports.getAllDepartments = async (req, res) => {
@@ -7,7 +18,7 @@ exports.getAllDepartments = async (req, res) => {
     const departments = await Department.find({ isActive: true }).sort({ name: 1 });
     res.json(departments);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendRequestError(res, error);
   }
 };
 
@@ -21,7 +32,7 @@ exports.getDepartmentById = async (req, res) => {
     }
     res.json(department);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendRequestError(res, error);
   }
 };
 
@@ -38,7 +49,7 @@ exports.getDepartmentByCode = async (req, res) => {
     }
     res.json(department);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendRequestError(res, error);
   }
 };
 
@@ -49,7 +60,7 @@ exports.createDepartment = async (req, res) => {
     const department = await Department.create(req.body);
     res.status(201).json(department);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    sendRequestError(res, error, 400);
   }
 };
 
@@ -67,7 +78,7 @@ exports.updateDepartment = async (req, res) => {
     }
     res.json(department);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    sendRequestError(res, error, 400);
   }
 };
 
@@ -81,6 +92,6 @@ exports.deleteDepartment = async (req, res) => {
     }
     res.json({ message: 'Department deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendRequestError(res, error);
   }
 };

@@ -6,7 +6,7 @@ Express + MongoDB API server for the SSGMCE college website.
 
 ```bash
 npm install
-cp .env.example .env    # fill in MONGODB_URI, JWT_SECRET, ADMIN_JWT_SECRET
+cp .env.example .env    # fill in MONGODB_URI, JWT_SECRET, ADMIN_GATE_TOKEN
 npm start               # or: npm run dev (nodemon)
 ```
 
@@ -59,8 +59,8 @@ See `.env.example`:
 PORT=5000
 NODE_ENV=development
 MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/<db>
-JWT_SECRET=<random-string>
-ADMIN_JWT_SECRET=<random-string>
+JWT_SECRET=<strong-random-secret-at-least-32-characters>
+ADMIN_GATE_TOKEN=<strong-random-admin-entry-token>
 ```
 
 ## API Routes
@@ -69,7 +69,7 @@ All prefixed with `/api`:
 
 | Route | Auth | Description |
 |-------|------|-------------|
-| `/api/auth` | — | Login, register, verify token |
+| `/api/auth` | Public entrypoints + HTTP-only cookie session | Login, register, verify session |
 | `/api/pages` | Read: public, Write: admin | CMS page content by pageId |
 | `/api/departments` | Read: public, Write: admin | Department CRUD |
 | `/api/faculty` | Read: public, Write: admin | Faculty CRUD |

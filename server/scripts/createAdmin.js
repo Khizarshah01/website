@@ -11,15 +11,26 @@ const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
 
 const syncAdminUser = async () => {
   try {
-    const adminEmail = normalizeEmail(
-      process.env.ADMIN_EMAIL || "webteam@ssgmce.ac.in",
-    );
-    const adminPassword = String(process.env.ADMIN_PASSWORD || "Gaj*1234").trim();
+    const adminEmail = normalizeEmail(process.env.ADMIN_EMAIL);
+    const adminPassword = String(process.env.ADMIN_PASSWORD || "").trim();
     const adminName = String(process.env.ADMIN_NAME || "Web Team").trim();
+    const mongoUri = String(
+      process.env.MONGODB_URI || process.env.MONGODB_DIRECT_URI || "",
+    ).trim();
 
-    await mongoose.connect(
-      process.env.MONGODB_URI || "mongodb://localhost:27017/ssgmce",
-    );
+    if (!adminEmail) {
+      throw new Error("ADMIN_EMAIL is required.");
+    }
+
+    if (!adminPassword) {
+      throw new Error("ADMIN_PASSWORD is required.");
+    }
+
+    if (!mongoUri) {
+      throw new Error("MONGODB_URI or MONGODB_DIRECT_URI is required.");
+    }
+
+    await mongoose.connect(mongoUri);
     console.log("Connected to MongoDB");
 
     let adminUser = await User.findOne({ email: adminEmail }).select("+password");

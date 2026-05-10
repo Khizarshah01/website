@@ -2,6 +2,7 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 const {
   DOCUMENTS_ROOT,
   resolveDocumentPath,
@@ -31,7 +32,12 @@ const normalizeFirstPathSegment = (requestedPath = "") =>
     ?.trim()
     .toLowerCase() || "";
 
-const ensureProtectedPathAccess = (req, res, requestedPath = "") => {
+const setProtectedDocumentHeaders = (res) => {
+  res.setHeader("Cache-Control", "private, no-store, max-age=0");
+  res.setHeader("Pragma", "no-cache");
+};
+
+const ensureProtectedPathAccess = async (req, res, requestedPath = "") => {
   const firstSegment = normalizeFirstPathSegment(requestedPath);
   const isProtected = PROTECTED_PATHS.has(firstSegment);
   const isPublic = PUBLIC_PATHS.has(firstSegment);
@@ -47,21 +53,30 @@ const ensureProtectedPathAccess = (req, res, requestedPath = "") => {
   }
 
   if (isTokenBlacklisted(token)) {
+    setProtectedDocumentHeaders(res);
     res.status(401).json({ error: "Session expired. Please log in again." });
     return false;
   }
 
   try {
-    jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.id).select("_id isActive");
+    if (!user || !user.isActive) {
+      setProtectedDocumentHeaders(res);
+      res.status(403).json({ error: "Account is inactive or no longer exists." });
+      return false;
+    }
+
     return true;
   } catch (_error) {
+    setProtectedDocumentHeaders(res);
     res.status(403).json({ error: "Invalid or expired token." });
     return false;
   }
 };
 
 // Serve document by filename (supports nested paths like institution/administration/file.pdf)
-router.get("/download/*", (req, res) => {
+router.get("/download/*", async (req, res) => {
   try {
     // Get the filename from params (params[0] contains the * match)
     const filename = req.params[0];
@@ -70,7 +85,7 @@ router.get("/download/*", (req, res) => {
       return res.status(400).json({ error: "Filename is required" });
     }
 
-    if (!ensureProtectedPathAccess(req, res, filename)) {
+    if (!(await ensureProtectedPathAccess(req, res, filename))) {
       return;
     }
 
@@ -100,10 +115,10 @@ router.get("/download/*", (req, res) => {
 });
 
 // List documents in a category
-router.get("/list/*", (req, res) => {
+router.get("/list/*", async (req, res) => {
   try {
     const category = req.params[0] || "";
-    if (!ensureProtectedPathAccess(req, res, category)) {
+    if (!(await ensureProtectedPathAccess(req, res, category))) {
       return;
     }
 
@@ -128,10 +143,10 @@ router.get("/list/*", (req, res) => {
 
 // Serve structured documents by nested path, with legacy aliases as fallback.
 // Example: GET /api/documents/departments/cse/syllabus/file.pdf
-router.get("/*", (req, res) => {
+router.get("/*", async (req, res) => {
   try {
     const requestedPath = req.params[0] || "";
-    if (!ensureProtectedPathAccess(req, res, requestedPath)) {
+    if (!(await ensureProtectedPathAccess(req, res, requestedPath))) {
       return;
     }
 

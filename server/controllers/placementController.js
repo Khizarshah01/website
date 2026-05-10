@@ -2,6 +2,7 @@ const PlacementStat = require("../models/PlacementStat");
 const Recruiter = require("../models/Recruiter");
 const Testimonial = require("../models/Testimonial");
 const AlumniHighlight = require("../models/AlumniHighlight");
+const { sendSafeError } = require("../utils/apiErrors");
 
 // @desc    Get all placement data (public)
 // @route   GET /api/placements/public
@@ -23,7 +24,7 @@ const getPlacementData = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Placement request failed" });
   }
 };
 
@@ -33,7 +34,7 @@ const getStats = async (req, res) => {
     const stats = await PlacementStat.find({}).sort({ academicYear: -1 });
     res.json({ success: true, data: stats });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Placement request failed" });
   }
 };
 
@@ -42,7 +43,11 @@ const createStat = async (req, res) => {
     const stat = await PlacementStat.create(req.body);
     res.status(201).json({ success: true, data: stat });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Placement request failed",
+      validationMessage: "Invalid placement request data",
+    });
   }
 };
 
@@ -55,7 +60,11 @@ const updateStat = async (req, res) => {
     );
     res.json({ success: true, data: stat });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Placement request failed",
+      validationMessage: "Invalid placement request data",
+    });
   }
 };
 
@@ -64,7 +73,7 @@ const deleteStat = async (req, res) => {
     await PlacementStat.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: "Stat deleted" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Placement request failed" });
   }
 };
 
@@ -74,7 +83,7 @@ const getRecruiters = async (req, res) => {
     const recruiters = await Recruiter.find({}).sort({ order: 1 });
     res.json({ success: true, data: recruiters });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Placement request failed" });
   }
 };
 
@@ -83,7 +92,11 @@ const createRecruiter = async (req, res) => {
     const recruiter = await Recruiter.create(req.body);
     res.status(201).json({ success: true, data: recruiter });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Placement request failed",
+      validationMessage: "Invalid placement request data",
+    });
   }
 };
 
@@ -96,7 +109,11 @@ const updateRecruiter = async (req, res) => {
     );
     res.json({ success: true, data: recruiter });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Placement request failed",
+      validationMessage: "Invalid placement request data",
+    });
   }
 };
 
@@ -105,7 +122,7 @@ const deleteRecruiter = async (req, res) => {
     await Recruiter.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: "Recruiter deleted" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Placement request failed" });
   }
 };
 
@@ -115,7 +132,7 @@ const getAlumni = async (req, res) => {
     const alumni = await AlumniHighlight.find({}).sort({ order: 1, createdAt: -1 });
     res.json({ success: true, data: alumni });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Placement request failed" });
   }
 };
 
@@ -124,7 +141,11 @@ const createAlumni = async (req, res) => {
     const alumni = await AlumniHighlight.create(req.body);
     res.status(201).json({ success: true, data: alumni });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Placement request failed",
+      validationMessage: "Invalid placement request data",
+    });
   }
 };
 
@@ -137,7 +158,11 @@ const updateAlumni = async (req, res) => {
     );
     res.json({ success: true, data: alumni });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Placement request failed",
+      validationMessage: "Invalid placement request data",
+    });
   }
 };
 
@@ -146,7 +171,7 @@ const deleteAlumni = async (req, res) => {
     await AlumniHighlight.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: "Alumni deleted" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Placement request failed" });
   }
 };
 
@@ -156,7 +181,7 @@ const getTestimonials = async (req, res) => {
     const testimonials = await Testimonial.find({}).sort({ createdAt: -1 });
     res.json({ success: true, data: testimonials });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Placement request failed" });
   }
 };
 
@@ -165,7 +190,11 @@ const createTestimonial = async (req, res) => {
     const testimonial = await Testimonial.create(req.body);
     res.status(201).json({ success: true, data: testimonial });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Placement request failed",
+      validationMessage: "Invalid placement request data",
+    });
   }
 };
 
@@ -178,7 +207,11 @@ const updateTestimonial = async (req, res) => {
     );
     res.json({ success: true, data: testimonial });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    sendSafeError(res, error, {
+      fallbackStatus: 400,
+      message: "Placement request failed",
+      validationMessage: "Invalid placement request data",
+    });
   }
 };
 
@@ -187,7 +220,7 @@ const deleteTestimonial = async (req, res) => {
     await Testimonial.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: "Testimonial deleted" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Placement request failed" });
   }
 };
 
@@ -306,7 +339,7 @@ const seedPlacementData = async (req, res) => {
 
     res.json({ success: true, message: "Placement data seeded successfully" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    sendSafeError(res, error, { message: "Placement request failed" });
   }
 };
 
