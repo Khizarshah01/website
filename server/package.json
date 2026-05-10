@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "admin:sync": "node scripts/createAdmin.js",
     "seed:admin-office": "node scripts/seedAdminOfficePages.js",
     "seed:admin-office:overwrite": "node scripts/seedAdminOfficePages.js --overwrite"
   },

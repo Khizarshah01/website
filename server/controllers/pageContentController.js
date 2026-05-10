@@ -1,5 +1,9 @@
 const PageContent = require("../models/PageContent");
 const EditLog = require("../models/EditLog");
+const {
+  resolveCanonicalPageId,
+  getRelatedPageIds,
+} = require("../utils/pageIdAliases");
 const departmentPages = [
   {
     pageId: "departments-cse",
@@ -2141,7 +2145,26 @@ const getAllPages = async (req, res) => {
 // @access  Public
 const getPageById = async (req, res) => {
   try {
-    const page = await PageContent.findOne({ pageId: req.params.pageId });
+    const requestedPageId = String(req.params.pageId || "").trim().toLowerCase();
+    const canonicalPageId = resolveCanonicalPageId(requestedPageId);
+    const relatedPageIds = getRelatedPageIds(requestedPageId);
+    const pages = await PageContent.find({
+      pageId: { $in: relatedPageIds.length ? relatedPageIds : [requestedPageId] },
+    });
+    const canonicalPage = pages.find((entry) => entry.pageId === canonicalPageId);
+    const requestedPage = pages.find((entry) => entry.pageId === requestedPageId);
+    const mostRecentlyUpdatedPage = [...pages].sort(
+      (left, right) =>
+        new Date(right.updatedAt || 0).getTime() -
+        new Date(left.updatedAt || 0).getTime(),
+    )[0];
+    const page =
+      requestedPageId === canonicalPageId
+        ? canonicalPage || mostRecentlyUpdatedPage
+        : requestedPage ||
+          canonicalPage ||
+          mostRecentlyUpdatedPage ||
+          requestedPage;
 
     if (!page) {
       return res.status(404).json({
@@ -2164,9 +2187,17 @@ const getPageById = async (req, res) => {
       }
     }
 
+    const responsePage =
+      page.pageId === canonicalPageId
+        ? page
+        : {
+            ...page.toObject(),
+            pageId: canonicalPageId,
+          };
+
     res.json({
       success: true,
-      data: page,
+      data: responsePage,
     });
   } catch (error) {
     res.status(500).json({
@@ -2240,7 +2271,15 @@ const DEPT_TO_PAGEID = {
 
 const updatePage = async (req, res) => {
   try {
-    const page = await PageContent.findOne({ pageId: req.params.pageId });
+    const requestedPageId = String(req.params.pageId || "").trim().toLowerCase();
+    const canonicalPageId = resolveCanonicalPageId(requestedPageId);
+    const relatedPageIds = getRelatedPageIds(requestedPageId);
+    const pages = await PageContent.find({
+      pageId: { $in: relatedPageIds.length ? relatedPageIds : [requestedPageId] },
+    });
+    const page =
+      pages.find((entry) => entry.pageId === canonicalPageId) ||
+      pages.find((entry) => entry.pageId === requestedPageId);
 
     if (!page) {
       return res.status(404).json({

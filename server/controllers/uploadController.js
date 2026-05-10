@@ -68,6 +68,45 @@ const PATH_PREFIX_TO_SCOPE = {
   testimonials: "placements",
 };
 
+const shouldFallbackToLocalStorage = (error) =>
+  error?.code === 8000 ||
+  error?.codeName === "AtlasError" ||
+  String(error?.message || "").toLowerCase().includes("space quota");
+
+const ensureLocalUploadDirectory = (category, filename) => {
+  const uploadDir = path.resolve(
+    __dirname,
+    "..",
+    "uploads",
+    category,
+    path.dirname(filename),
+  );
+  fs.mkdirSync(uploadDir, { recursive: true });
+  return path.join(uploadDir, path.basename(filename));
+};
+
+const writeBufferToLocalUploads = ({
+  buffer,
+  filename,
+  category,
+}) => {
+  const normalizedCategory = normalizeCategory(category);
+  if (!normalizedCategory) {
+    throw new Error("Invalid upload category.");
+  }
+
+  const sanitizedFilename = sanitizeStoredFilename(filename);
+  if (!sanitizedFilename) {
+    throw new Error("Invalid upload filename.");
+  }
+
+  const filePath = ensureLocalUploadDirectory(
+    normalizedCategory,
+    sanitizedFilename,
+  );
+  fs.writeFileSync(filePath, buffer);
+};
+
 const resolveUploadPath = (relativePath = "") => {
   const sanitizedRelativePath = String(relativePath || "")
     .replace(/^\/+/, "")
@@ -341,14 +380,29 @@ const uploadSingleImage = async (req, res) => {
     const originalName = sanitizeOriginalName(req.file.originalname);
     const scope = resolveUploadScope(req);
     const filename = buildScopedFilename(scope, "upload", originalName);
-    await uploadBufferToGridFS({
-      buffer: req.file.buffer,
-      filename,
-      contentType: req.file.mimetype,
-      category: "images",
-      originalName,
-      scope,
-    });
+    try {
+      await uploadBufferToGridFS({
+        buffer: req.file.buffer,
+        filename,
+        contentType: req.file.mimetype,
+        category: "images",
+        originalName,
+        scope,
+      });
+    } catch (storageError) {
+      if (!shouldFallbackToLocalStorage(storageError)) {
+        throw storageError;
+      }
+
+      console.warn(
+        "[UPLOAD] GridFS unavailable or over quota. Falling back to local disk storage for image upload.",
+      );
+      writeBufferToLocalUploads({
+        buffer: req.file.buffer,
+        filename,
+        category: "images",
+      });
+    }
 
     const fileUrl = `/uploads/images/${filename}`;
     res.status(200).json({
@@ -409,14 +463,29 @@ const uploadSingleDocument = async (req, res) => {
     const originalName = sanitizeOriginalName(req.file.originalname);
     const scope = resolveUploadScope(req);
     const filename = buildScopedFilename(scope, "document", originalName);
-    await uploadBufferToGridFS({
-      buffer: req.file.buffer,
-      filename,
-      contentType: req.file.mimetype,
-      category: "documents",
-      originalName,
-      scope,
-    });
+    try {
+      await uploadBufferToGridFS({
+        buffer: req.file.buffer,
+        filename,
+        contentType: req.file.mimetype,
+        category: "documents",
+        originalName,
+        scope,
+      });
+    } catch (storageError) {
+      if (!shouldFallbackToLocalStorage(storageError)) {
+        throw storageError;
+      }
+
+      console.warn(
+        "[UPLOAD] GridFS unavailable or over quota. Falling back to local disk storage for document upload.",
+      );
+      writeBufferToLocalUploads({
+        buffer: req.file.buffer,
+        filename,
+        category: "documents",
+      });
+    }
 
     const fileUrl = `/uploads/documents/${filename}`;
     res.status(200).json({
@@ -492,13 +561,28 @@ const uploadNirfPdf = async (req, res) => {
     validateUploadedFile(req.file, "document");
     const originalName = sanitizeOriginalName(req.file.originalname);
     const filename = createStoredFilename("nirf", originalName);
-    await uploadBufferToGridFS({
-      buffer: req.file.buffer,
-      filename,
-      contentType: req.file.mimetype,
-      category: "nirf",
-      originalName,
-    });
+    try {
+      await uploadBufferToGridFS({
+        buffer: req.file.buffer,
+        filename,
+        contentType: req.file.mimetype,
+        category: "nirf",
+        originalName,
+      });
+    } catch (storageError) {
+      if (!shouldFallbackToLocalStorage(storageError)) {
+        throw storageError;
+      }
+
+      console.warn(
+        "[UPLOAD] GridFS unavailable or over quota. Falling back to local disk storage for NIRF upload.",
+      );
+      writeBufferToLocalUploads({
+        buffer: req.file.buffer,
+        filename,
+        category: "nirf",
+      });
+    }
     const fileUrl = `/uploads/nirf/${filename}`;
     res.status(200).json({
       success: true,

@@ -18,6 +18,7 @@ import AppliedSciences from "../../pages/departments/AppliedSciences";
 import NIRFRankingPage from "../../pages/NIRFRanking";
 import { goBackOrFallback } from "../../utils/navigation";
 import { getErrorMessage, logUnexpectedError } from "../../utils/apiErrors";
+import { resolveCanonicalPageId } from "../../utils/pageIdAliases";
 
 // Map User-model department codes → the pageId the coordinator owns
 const DEPT_TO_PAGEID = {
@@ -65,6 +66,7 @@ const VisualPageEditor = () => {
   const { isCoordinator, userDepartment } = useAuth();
   const { theme, setTheme } = useTheme();
   const prevThemeRef = useRef(theme);
+  const canonicalPageId = resolveCanonicalPageId(pageId);
   const [initialData, setInitialData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -80,18 +82,27 @@ const VisualPageEditor = () => {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (!pageId || !canonicalPageId || pageId === canonicalPageId) return;
+
+    navigate(`/admin/visual/${canonicalPageId}${location.search || ""}`, {
+      replace: true,
+      state: location.state,
+    });
+  }, [canonicalPageId, location.search, location.state, navigate, pageId]);
+
   // Coordinators may only edit their own department page
   if (isCoordinator && userDepartment !== "All") {
     const allowed = DEPT_TO_PAGEID[userDepartment];
-    if (!allowed || pageId !== allowed) {
+    if (!allowed || canonicalPageId !== allowed) {
       return <Navigate to={ADMIN_ROUTE_PREFIX} replace />;
     }
   }
 
-  if (pageId?.startsWith("academics-")) {
+  if (canonicalPageId?.startsWith("academics-")) {
     return (
       <Navigate
-        to={`/admin/academics?pageId=${pageId}`}
+        to={`/admin/academics?pageId=${canonicalPageId}`}
         state={location.state}
         replace
       />
@@ -100,13 +111,13 @@ const VisualPageEditor = () => {
 
   useEffect(() => {
     const fetchPageData = async () => {
-      if (!pageId) return;
+      if (!canonicalPageId) return;
 
       setLoading(true);
       setPageNotFound(false);
       setError(null);
       try {
-        const res = await apiClient.get(`/pages/${pageId}`);
+        const res = await apiClient.get(`/pages/${canonicalPageId}`);
         if (res.data.success) {
           setInitialData(res.data.data);
         } else {
@@ -125,21 +136,21 @@ const VisualPageEditor = () => {
     };
 
     fetchPageData();
-  }, [pageId]);
+  }, [canonicalPageId]);
 
   /** Admin creates a brand-new empty page in the DB */
   const handleCreatePage = async () => {
     const token = localStorage.getItem("adminToken");
     setCreating(true);
     try {
-      const { pageTitle, category, route } = derivePageMeta(pageId);
+      const { pageTitle, category, route } = derivePageMeta(canonicalPageId);
       const config = token
         ? { headers: { Authorization: `Bearer ${token}` } }
         : {};
       const res = await apiClient.post(
         "/api/pages",
         {
-          pageId,
+          pageId: canonicalPageId,
           pageTitle,
           pageDescription: "",
           route,
@@ -183,7 +194,7 @@ const VisualPageEditor = () => {
           </h2>
           <p className="text-gray-600 mb-6">
             {pageNotFound
-              ? `The page "${pageId}" does not exist yet. You can create it now as an empty page and start adding content.`
+              ? `The page "${canonicalPageId}" does not exist yet. You can create it now as an empty page and start adding content.`
               : error}
           </p>
           {pageNotFound && (
@@ -207,7 +218,7 @@ const VisualPageEditor = () => {
   }
 
   const renderContent = () => {
-    if (pageId === "nirf-ranking") {
+    if (canonicalPageId === "nirf-ranking") {
       return <NIRFRankingPage />;
     }
     if (initialData?.template === "department") {
@@ -227,14 +238,14 @@ const VisualPageEditor = () => {
         case "departments-applied-sciences":
           return <AppliedSciences />;
         default:
-          return <GenericContentPage pageId={pageId} />;
+          return <GenericContentPage pageId={canonicalPageId} />;
       }
     }
-    return <GenericContentPage pageId={pageId} />;
+    return <GenericContentPage pageId={canonicalPageId} />;
   };
 
   return (
-    <EditProvider initialData={initialData} pageId={pageId}>
+    <EditProvider initialData={initialData} pageId={canonicalPageId}>
       {/* 
         We render the toolbar OUTSIDE the content flow so it overlays.
         This preserves the exact CSS of the page.

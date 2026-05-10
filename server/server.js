@@ -459,7 +459,11 @@ connectToMongo()
 
     // Run seeding in background so startup is not blocked.
     initializeDatabase()
-      .then(() => console.log("[OK] Database initialized"))
+      .then((initialized) => {
+        if (initialized) {
+          console.log("[OK] Database initialized");
+        }
+      })
       .catch((error) => console.error("[ERROR] DB init error:", error));
   })
   .catch((err) => {

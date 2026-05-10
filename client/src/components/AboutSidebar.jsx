@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaInfoCircle } from 'react-icons/fa';
 import { useEdit } from '../contexts/EditContext';
 import MobileSidebarToggle from './MobileSidebarToggle';
+import { resolveCanonicalPageId } from '../utils/pageIdAliases';
 
 const links = [
   { name: 'SSGMCE At Glance', path: '/about' },
@@ -24,9 +25,9 @@ const ABOUT_PATH_TO_PAGE_ID = {
   '/about/principal': 'about-principal',
   '/about/structure': 'about-structure',
   '/about/governing': 'about-governing',
-  '/about/directors': 'about-board',
+  '/about/directors': 'about-directors',
   '/about/committees': 'about-committees',
-  '/contact': 'about-contact',
+  '/contact': 'contact-us',
 };
 
 const AboutSidebar = ({ sections }) => {
@@ -34,7 +35,10 @@ const AboutSidebar = ({ sections }) => {
   const navigate = useNavigate();
   const { isEditing } = useEdit();
 
-  const pathToPageId = (path) => ABOUT_PATH_TO_PAGE_ID[path] || path.replace(/^\//, '').replace(/\//g, '-');
+  const pathToPageId = (path) =>
+    resolveCanonicalPageId(
+      ABOUT_PATH_TO_PAGE_ID[path] || path.replace(/^\//, '').replace(/\//g, '-')
+    );
 
   const handleScroll = (e, id) => {
     e.preventDefault();

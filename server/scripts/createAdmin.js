@@ -3,45 +3,64 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const path = require("path");
-const User = require("./models/User");
+const User = require("../models/User");
 
-// Load env variables
-dotenv.config({ path: path.join(__dirname, ".env") });
+dotenv.config({ path: path.join(__dirname, "..", "..", ".env") });
 
-const createAdminUser = async () => {
+const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
+
+const syncAdminUser = async () => {
   try {
-    // Connect to MongoDB
+    const adminEmail = normalizeEmail(
+      process.env.ADMIN_EMAIL || "webteam@ssgmce.ac.in",
+    );
+    const adminPassword = String(process.env.ADMIN_PASSWORD || "Gaj*1234").trim();
+    const adminName = String(process.env.ADMIN_NAME || "Web Team").trim();
+
     await mongoose.connect(
       process.env.MONGODB_URI || "mongodb://localhost:27017/ssgmce",
     );
-    console.log("✓ Connected to MongoDB");
+    console.log("Connected to MongoDB");
 
-    // Check if admin user already exists
-    const adminExists = await User.findOne({ email: process.env.ADMIN_EMAIL });
+    let adminUser = await User.findOne({ email: adminEmail }).select("+password");
 
-    if (adminExists) {
-      console.log("✓ Admin user already exists");
+    if (!adminUser) {
+      adminUser = await User.findOne({ role: "SuperAdmin" })
+        .sort({ createdAt: 1 })
+        .select("+password");
+    }
+
+    if (adminUser) {
+      adminUser.name = adminName;
+      adminUser.email = adminEmail;
+      adminUser.password = adminPassword;
+      adminUser.role = "SuperAdmin";
+      adminUser.department = "All";
+      adminUser.isActive = true;
+      await adminUser.save();
+
+      console.log("Admin user updated successfully");
+      console.log("Email:", adminUser.email);
+      console.log("Role:", adminUser.role);
       process.exit(0);
     }
 
-    // Create admin user
     const admin = await User.create({
-      name: process.env.ADMIN_NAME || "Admin",
-      email: process.env.ADMIN_EMAIL || "admin@ssgmce.com",
-      password: process.env.ADMIN_PASSWORD || "password123",
+      name: adminName,
+      email: adminEmail,
+      password: adminPassword,
       role: "SuperAdmin",
       department: "All",
     });
 
-    console.log("✓ Admin user created successfully!");
-    console.log("  Email:", admin.email);
-    console.log("  Role:", admin.role);
-
+    console.log("Admin user created successfully");
+    console.log("Email:", admin.email);
+    console.log("Role:", admin.role);
     process.exit(0);
   } catch (error) {
-    console.error("✗ Error creating admin user:", error.message);
+    console.error("Error syncing admin user:", error.message);
     process.exit(1);
   }
 };
 
-createAdminUser();
+syncAdminUser();

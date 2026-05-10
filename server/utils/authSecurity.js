@@ -1,4 +1,6 @@
 const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
 
 const DEFAULT_COOKIE_NAME = "ssgmce_admin_session";
 const DEFAULT_COOKIE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
@@ -12,6 +14,7 @@ const WEAK_SECRET_VALUES = new Set([
 ]);
 
 let cachedRuntimeSecret;
+const DEV_SECRET_FILE = path.resolve(__dirname, "..", ".dev-jwt-secret");
 
 const getNodeEnv = () => String(process.env.NODE_ENV || "development").trim();
 
@@ -21,6 +24,31 @@ const getConfiguredJwtSecret = () => String(process.env.JWT_SECRET || "").trim()
 
 const isWeakSecret = (secret) =>
   !secret || secret.length < 32 || WEAK_SECRET_VALUES.has(secret.toLowerCase());
+
+const getPersistentDevJwtSecret = () => {
+  if (cachedRuntimeSecret) {
+    return cachedRuntimeSecret;
+  }
+
+  try {
+    const existingSecret = fs.readFileSync(DEV_SECRET_FILE, "utf8").trim();
+    if (existingSecret.length >= 32) {
+      cachedRuntimeSecret = existingSecret;
+      return cachedRuntimeSecret;
+    }
+  } catch {
+    // File does not exist yet; generate it below.
+  }
+
+  cachedRuntimeSecret = crypto.randomBytes(48).toString("hex");
+  try {
+    fs.writeFileSync(DEV_SECRET_FILE, cachedRuntimeSecret, { encoding: "utf8" });
+  } catch {
+    // If writing fails, still return the in-memory value for this process.
+  }
+
+  return cachedRuntimeSecret;
+};
 
 const getJwtSecret = () => {
   const configuredSecret = getConfiguredJwtSecret();
@@ -35,14 +63,11 @@ const getJwtSecret = () => {
     );
   }
 
-  if (!cachedRuntimeSecret) {
-    cachedRuntimeSecret = crypto.randomBytes(48).toString("hex");
-    console.warn(
-      "[WARN] Using an in-memory development JWT secret because JWT_SECRET is missing or weak.",
-    );
-  }
-
-  return cachedRuntimeSecret;
+  const devSecret = getPersistentDevJwtSecret();
+  console.warn(
+    "[WARN] Using a persistent local development JWT secret because JWT_SECRET is missing or weak.",
+  );
+  return devSecret;
 };
 
 const parseBoolean = (value, defaultValue) => {

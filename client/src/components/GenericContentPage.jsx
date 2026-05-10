@@ -21,6 +21,13 @@ import EditableSection from "./admin/EditableSection";
 import MarkdownEditor from "./admin/MarkdownEditor";
 import { useEdit } from "../contexts/EditContext";
 import {
+  PAGE_CACHE_TTL_MS,
+  getCachedPageEntry,
+  getPageRequestCache,
+  readSessionCachedPageEntry,
+  setCachedPageEntry,
+} from "../utils/pageCache";
+import {
   getErrorMessage,
   isNotFoundError,
   logUnexpectedError,
@@ -58,9 +65,6 @@ const SIDEBAR_MAP = {
   "about-": AboutSidebar,
 };
 
-const PAGE_CACHE_TTL_MS = 5 * 60 * 1000;
-const pageDataCache = new Map();
-const pageRequestCache = new Map();
 const LEGACY_PHD_ENROLLMENT_URL =
   "https://www.ssgmce.ac.in/uploads/pdf/PhD%20Enrollment%20in%20Research%20Centres-Updated-Aug-24.pdf";
 const LOCAL_PHD_ENROLLMENT_URL =
@@ -147,6 +151,9 @@ const PREFETCH_GROUPS = {
     "facilities-other",
   ],
 };
+
+const ABOUT_STRUCTURE_FALLBACK_IMAGE_URL =
+  "/uploads/images/about/organization-structure.jpg";
 
 const AQAR_DATA_SECTION_IDS = new Set([
   "aqar-2023-24",
@@ -294,9 +301,6 @@ const buildAqarMarkdownFromItems = (items = [], sectionTitle = "") => {
     .join("\n\n");
 };
 
-const getStorageCacheKey = (pageId) =>
-  `ssgmce-page-cache:${String(pageId || "").toLowerCase()}`;
-
 const normalizeLegacyPageData = (pageId, pageData) => {
   if (!pageData || String(pageId || "").toLowerCase() !== "research-phd") {
     if (
@@ -366,13 +370,8 @@ const getCachedPageData = (pageId) => {
   const normalizedPageId = String(pageId || "").toLowerCase();
   if (!normalizedPageId) return null;
 
-  const cached = pageDataCache.get(normalizedPageId);
+  const cached = getCachedPageEntry(normalizedPageId, PAGE_CACHE_TTL_MS);
   if (!cached) return null;
-
-  if (Date.now() - cached.timestamp > PAGE_CACHE_TTL_MS) {
-    pageDataCache.delete(normalizedPageId);
-    return null;
-  }
 
   return normalizeLegacyPageData(normalizedPageId, cached.data);
 };
@@ -383,43 +382,21 @@ const setCachedPageData = (pageId, data) => {
 
   const normalizedData = normalizeLegacyPageData(normalizedPageId, data);
 
-  const entry = {
+  setCachedPageEntry(normalizedPageId, {
     data: normalizedData,
     timestamp: Date.now(),
-  };
-  pageDataCache.set(normalizedPageId, entry);
-
-  try {
-    sessionStorage.setItem(
-      getStorageCacheKey(normalizedPageId),
-      JSON.stringify(entry),
-    );
-  } catch {
-    // Ignore storage quota/unavailable errors to avoid breaking page rendering.
-  }
+  });
 };
 
 const readSessionCachedPageData = (pageId) => {
   const normalizedPageId = String(pageId || "").toLowerCase();
   if (!normalizedPageId) return null;
 
-  try {
-    const raw = sessionStorage.getItem(getStorageCacheKey(normalizedPageId));
-    if (!raw) return null;
-
-    const parsed = JSON.parse(raw);
-    if (!parsed?.timestamp || !parsed?.data) return null;
-
-    if (Date.now() - parsed.timestamp > PAGE_CACHE_TTL_MS) {
-      sessionStorage.removeItem(getStorageCacheKey(normalizedPageId));
-      return null;
-    }
-
-    pageDataCache.set(normalizedPageId, parsed);
-    return normalizeLegacyPageData(normalizedPageId, parsed.data);
-  } catch {
-    return null;
-  }
+  const parsed = readSessionCachedPageEntry(
+    normalizedPageId,
+    PAGE_CACHE_TTL_MS,
+  );
+  return parsed ? normalizeLegacyPageData(normalizedPageId, parsed.data) : null;
 };
 
 const fetchPageById = async (pageId) => {
@@ -427,6 +404,8 @@ const fetchPageById = async (pageId) => {
   if (!normalizedPageId) {
     throw new Error("Invalid page id");
   }
+
+  const pageRequestCache = getPageRequestCache();
 
   if (pageRequestCache.has(normalizedPageId)) {
     return pageRequestCache.get(normalizedPageId);
@@ -468,6 +447,19 @@ const getNeighborPrefetchIds = (pageId) => {
     if (group[currentIdx - i]) neighbors.push(group[currentIdx - i]);
   }
   return neighbors;
+};
+
+const getSectionImageFallback = (pageId, section = {}, sectionIndex = 0) => {
+  const normalizedPageId = String(pageId || "").toLowerCase();
+  if (
+    normalizedPageId === "about-structure" &&
+    section?.type === "image" &&
+    sectionIndex === 0
+  ) {
+    return ABOUT_STRUCTURE_FALLBACK_IMAGE_URL;
+  }
+
+  return "";
 };
 
 /* ─── IQAC Accordion helper ─── */
@@ -3116,6 +3108,11 @@ Constituted By **All India Council for Technical Education, New Delhi**
                       <figure className="my-6">
                         <EditableImage
                           value={section.content.url}
+                          fallbackSrc={getSectionImageFallback(
+                            pageId,
+                            section,
+                            index,
+                          )}
                           path={`sections[${index}].content.url`}
                           className="rounded-lg max-w-full h-auto shadow-md mx-auto"
                           alt={section.content.alt || section.title}

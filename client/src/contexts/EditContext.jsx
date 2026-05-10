@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useRef, useState } from "react";
 import apiClient from "../utils/apiClient";
+import { getRelatedPageIds } from "../utils/pageIdAliases";
+import { clearCachedPageEntry, setCachedPageEntry } from "../utils/pageCache";
 
 const EditContext = createContext();
 
@@ -109,7 +111,20 @@ export const EditProvider = ({ children, pageId, initialData = {} }) => {
       );
 
       if (response.data.success) {
-        savedDataRef.current = data;
+        const savedPageData = response.data.data || data;
+        const relatedPageIds = getRelatedPageIds(pageId);
+        const cacheIds = relatedPageIds.length ? relatedPageIds : [pageId];
+
+        cacheIds.forEach((relatedPageId) => {
+          clearCachedPageEntry(relatedPageId);
+          setCachedPageEntry(relatedPageId, {
+            data: savedPageData,
+            timestamp: Date.now(),
+          });
+        });
+
+        savedDataRef.current = savedPageData;
+        setData(savedPageData);
         setHasChanges(false);
         setHistory([]);
         return { success: true };

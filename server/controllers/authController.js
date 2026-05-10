@@ -89,6 +89,11 @@ const sendUnexpectedError = (res, fallbackMessage) => {
   });
 };
 
+const isStorageQuotaError = (error) =>
+  error?.code === 8000 ||
+  error?.codeName === "AtlasError" ||
+  String(error?.message || "").toLowerCase().includes("space quota");
+
 const isGateValid = (accessKey) => {
   const gateToken = String(process.env.ADMIN_GATE_TOKEN || "").trim();
   if (!gateToken) return true;
@@ -237,7 +242,11 @@ const login = async (req, res) => {
 
     if (!user) {
       recordFailedAttempt(normalizedEmail);
-      await registerLoginFailure(req, normalizedEmail);
+      try {
+        await registerLoginFailure(req, normalizedEmail);
+      } catch (rateLimitError) {
+        console.error("Login failure tracking failed:", rateLimitError.message);
+      }
       return res.status(401).json({
         success: false,
         message: "Invalid credentials",
@@ -247,7 +256,11 @@ const login = async (req, res) => {
     // Check if account is active
     if (!user.isActive) {
       recordFailedAttempt(normalizedEmail);
-      await registerLoginFailure(req, normalizedEmail);
+      try {
+        await registerLoginFailure(req, normalizedEmail);
+      } catch (rateLimitError) {
+        console.error("Login failure tracking failed:", rateLimitError.message);
+      }
       return res.status(401).json({
         success: false,
         message: "Account is deactivated. Contact administrator.",
@@ -258,18 +271,36 @@ const login = async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       recordFailedAttempt(normalizedEmail);
-      await registerLoginFailure(req, normalizedEmail);
+      try {
+        await registerLoginFailure(req, normalizedEmail);
+      } catch (rateLimitError) {
+        console.error("Login failure tracking failed:", rateLimitError.message);
+      }
       return res.status(401).json({
         success: false,
         message: "Invalid credentials",
       });
     }
 
-    // Update last login
-    user.lastLogin = new Date();
-    await user.save({ validateBeforeSave: false });
+    // Non-essential login bookkeeping should not block sign-in when Atlas is
+    // temporarily unable to accept writes (for example storage quota reached).
+    try {
+      user.lastLogin = new Date();
+      await user.save({ validateBeforeSave: false });
+    } catch (writeError) {
+      if (!isStorageQuotaError(writeError)) {
+        throw writeError;
+      }
+    }
+
     clearAttempts(normalizedEmail);
-    await clearLoginFailures(req, normalizedEmail);
+    try {
+      await clearLoginFailures(req, normalizedEmail);
+    } catch (clearError) {
+      if (!isStorageQuotaError(clearError)) {
+        console.error("Login failure cleanup skipped:", clearError.message);
+      }
+    }
 
     // Log the login event (non-blocking)
     try {
@@ -284,7 +315,9 @@ const login = async (req, res) => {
         summary: `${user.role} ${user.name || user.email} (${user.department || "All"}) logged in`,
       });
     } catch (logErr) {
-      console.error("Login log failed:", logErr.message);
+      if (!isStorageQuotaError(logErr)) {
+        console.error("Login log failed:", logErr.message);
+      }
     }
 
     // Generate token
