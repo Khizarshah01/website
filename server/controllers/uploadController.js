@@ -1,6 +1,7 @@
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 const {
   normalizeCategory,
   uploadBufferToGridFS,
@@ -12,6 +13,60 @@ const {
 
 const IMAGE_MAX_SIZE_BYTES = 20 * 1024 * 1024;
 const DOCUMENT_MAX_SIZE_BYTES = 50 * 1024 * 1024;
+const ALLOWED_IMAGE_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+]);
+const ALLOWED_IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
+const DOCUMENT_MIME_TO_EXTENSIONS = {
+  "application/pdf": [".pdf"],
+  "application/msword": [".doc"],
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+  "application/vnd.ms-excel": [".xls"],
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+  "application/vnd.ms-powerpoint": [".ppt"],
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
+  "text/plain": [".txt"],
+  "text/csv": [".csv"],
+};
+const UPLOAD_SCOPE_VALUES = new Set([
+  "about",
+  "nirf",
+  "academics",
+  "admissions",
+  "research",
+  "facilities",
+  "placements",
+  "iqac",
+  "documents",
+  "activities",
+  "departments",
+  "other",
+]);
+const PATH_PREFIX_TO_SCOPE = {
+  about: "about",
+  nirf: "nirf",
+  academics: "academics",
+  admissions: "admissions",
+  research: "research",
+  facilities: "facilities",
+  placements: "placements",
+  iqac: "iqac",
+  documents: "documents",
+  activities: "activities",
+  departments: "departments",
+  contact: "about",
+  news: "about",
+  notices: "academics",
+  events: "activities",
+  gallery: "activities",
+  faculty: "departments",
+  alumni: "placements",
+  recruiters: "placements",
+  testimonials: "placements",
+};
 
 const resolveUploadPath = (relativePath = "") => {
   const sanitizedRelativePath = String(relativePath || "")
@@ -32,24 +87,211 @@ const resolveUploadPath = (relativePath = "") => {
   return resolvedPath;
 };
 
+const sanitizeOriginalName = (originalname = "") => {
+  const baseName = path.basename(String(originalname || ""));
+  const extension = path.extname(baseName);
+  const nameWithoutExtension = path.basename(baseName, extension);
+  const safeBaseName =
+    nameWithoutExtension.replace(/[^a-zA-Z0-9_-]/g, "-").slice(0, 80) || "file";
+  const safeExtension = extension.toLowerCase().replace(/[^a-z0-9.]/g, "");
+
+  return `${safeBaseName}${safeExtension}`;
+};
+
+const normalizeUploadScope = (value = "") => {
+  const normalized = String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "");
+  return UPLOAD_SCOPE_VALUES.has(normalized) ? normalized : null;
+};
+
+const deriveScopeFromPageId = (pageId = "") => {
+  const normalizedPageId = String(pageId || "").trim().toLowerCase();
+  if (!normalizedPageId) return null;
+  const prefix = normalizedPageId.split("-")[0];
+  return normalizeUploadScope(PATH_PREFIX_TO_SCOPE[prefix] || prefix);
+};
+
+const deriveScopeFromPath = (pathname = "") => {
+  const cleanedPath = String(pathname || "")
+    .split("?")[0]
+    .split("#")[0]
+    .trim()
+    .toLowerCase();
+  if (!cleanedPath) return null;
+
+  const segments = cleanedPath.split("/").filter(Boolean);
+  if (!segments.length) return null;
+
+  if (
+    segments[0] === "admin" &&
+    segments[1] === "pages" &&
+    segments[2] === "editor" &&
+    segments[3]
+  ) {
+    return deriveScopeFromPageId(segments[3]);
+  }
+
+  if (segments[0] === "admin" && segments[1] === "visual" && segments[2]) {
+    return deriveScopeFromPageId(segments[2]);
+  }
+
+  if (segments[0] === "admin" && segments[1] === "edit" && segments[2]) {
+    return deriveScopeFromPageId(segments[2]);
+  }
+
+  if (segments[0] === "admin" && segments[1]) {
+    return normalizeUploadScope(PATH_PREFIX_TO_SCOPE[segments[1]] || segments[1]);
+  }
+
+  return normalizeUploadScope(PATH_PREFIX_TO_SCOPE[segments[0]] || segments[0]);
+};
+
+const deriveScopeFromReferer = (referer = "") => {
+  if (!referer) return null;
+  try {
+    const parsed = new URL(referer);
+    return deriveScopeFromPath(parsed.pathname);
+  } catch {
+    return null;
+  }
+};
+
+const resolveUploadScope = (req) => {
+  return (
+    normalizeUploadScope(req.body?.uploadCategory) ||
+    normalizeUploadScope(req.body?.uploadScope) ||
+    normalizeUploadScope(req.headers["x-upload-category"]) ||
+    deriveScopeFromPageId(req.body?.pageId) ||
+    deriveScopeFromPath(req.headers["x-upload-source-path"]) ||
+    deriveScopeFromReferer(req.headers.referer) ||
+    "other"
+  );
+};
+
+const sanitizeStoredFilename = (filename = "") => {
+  const normalized = String(filename || "")
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "");
+  if (!normalized || normalized.includes("..")) return "";
+  return normalized;
+};
+
+const buildScopedFilename = (scope, prefix, originalname) => {
+  const normalizedScope = normalizeUploadScope(scope) || "other";
+  const storedFilename = createStoredFilename(prefix, originalname);
+  return `${normalizedScope}/${storedFilename}`;
+};
+
 const createStoredFilename = (prefix, originalname) => {
   const safePrefix =
     String(prefix || "file")
       .toLowerCase()
       .replace(/[^a-z0-9_-]/g, "") || "file";
-  const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-  return `${safePrefix}-${uniqueSuffix}${path.extname(originalname || "")}`;
+  const uniqueSuffix = crypto.randomBytes(16).toString("hex");
+  return `${safePrefix}-${uniqueSuffix}${path.extname(
+    sanitizeOriginalName(originalname),
+  )}`;
 };
 
-// File filter - accepts images and PDFs
-const fileFilter = (req, file, cb) => {
+const getExtension = (file = {}) =>
+  path.extname(sanitizeOriginalName(file.originalname || "")).toLowerCase();
+
+const imageLooksValid = (buffer = Buffer.alloc(0), mimeType = "") => {
+  if (!Buffer.isBuffer(buffer) || buffer.length < 4) {
+    return false;
+  }
+
   if (
-    file.mimetype.startsWith("image/") ||
-    file.mimetype === "application/pdf"
+    mimeType === "image/jpeg" &&
+    buffer[0] === 0xff &&
+    buffer[1] === 0xd8 &&
+    buffer[2] === 0xff
+  ) {
+    return true;
+  }
+
+  if (
+    mimeType === "image/png" &&
+    buffer.subarray(0, 8).equals(
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    )
+  ) {
+    return true;
+  }
+
+  if (
+    mimeType === "image/gif" &&
+    ["GIF87a", "GIF89a"].includes(buffer.subarray(0, 6).toString("ascii"))
+  ) {
+    return true;
+  }
+
+  if (
+    mimeType === "image/webp" &&
+    buffer.subarray(0, 4).toString("ascii") === "RIFF" &&
+    buffer.subarray(8, 12).toString("ascii") === "WEBP"
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
+const fileLooksLikePdf = (buffer = Buffer.alloc(0)) =>
+  Buffer.isBuffer(buffer) && buffer.subarray(0, 5).toString("ascii") === "%PDF-";
+
+const validateUploadedFile = (file, mode) => {
+  const extension = getExtension(file);
+
+  if (mode === "image") {
+    if (
+      !ALLOWED_IMAGE_MIME_TYPES.has(file.mimetype) ||
+      !ALLOWED_IMAGE_EXTENSIONS.has(extension)
+    ) {
+      throw new Error("Only JPG, PNG, WEBP, and GIF image files are allowed.");
+    }
+
+    if (!imageLooksValid(file.buffer, file.mimetype)) {
+      throw new Error("Uploaded image content does not match the file type.");
+    }
+    return;
+  }
+
+  const allowedExtensions = DOCUMENT_MIME_TO_EXTENSIONS[file.mimetype] || [];
+  if (!allowedExtensions.includes(extension)) {
+    throw new Error("Invalid file type. The file extension does not match the uploaded document type.");
+  }
+
+  if (file.mimetype === "application/pdf" && !fileLooksLikePdf(file.buffer)) {
+    throw new Error("Uploaded PDF content does not match the file type.");
+  }
+};
+
+const sendUploadError = (res, error, fallbackMessage) => {
+  const isValidationError =
+    typeof error?.message === "string" &&
+    (error.message.includes("allowed") ||
+      error.message.includes("does not match") ||
+      error.message.includes("Invalid file type"));
+
+  return res.status(isValidationError ? 400 : 500).json({
+    success: false,
+    message: isValidationError ? error.message : fallbackMessage,
+  });
+};
+
+// File filter - accepts images only
+const fileFilter = (req, file, cb) => {
+  const extension = getExtension(file);
+  if (
+    ALLOWED_IMAGE_MIME_TYPES.has(file.mimetype) &&
+    ALLOWED_IMAGE_EXTENSIONS.has(extension)
   ) {
     cb(null, true);
   } else {
-    cb(new Error("Only image and PDF files are allowed!"), false);
+    cb(new Error("Only JPG, PNG, WEBP, and GIF image files are allowed."), false);
   }
 };
 
@@ -64,18 +306,9 @@ const upload = multer({
 
 // --- Document / file upload ---
 const documentFilter = (req, file, cb) => {
-  const allowed = [
-    "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "application/vnd.ms-powerpoint",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    "text/plain",
-    "text/csv",
-  ];
-  if (allowed.includes(file.mimetype)) {
+  const extension = getExtension(file);
+  const allowedExtensions = DOCUMENT_MIME_TO_EXTENSIONS[file.mimetype] || [];
+  if (allowedExtensions.includes(extension)) {
     cb(null, true);
   } else {
     cb(
@@ -104,13 +337,17 @@ const uploadSingleImage = async (req, res) => {
         .json({ success: false, message: "No file uploaded" });
     }
 
-    const filename = createStoredFilename("upload", req.file.originalname);
+    validateUploadedFile(req.file, "image");
+    const originalName = sanitizeOriginalName(req.file.originalname);
+    const scope = resolveUploadScope(req);
+    const filename = buildScopedFilename(scope, "upload", originalName);
     await uploadBufferToGridFS({
       buffer: req.file.buffer,
       filename,
       contentType: req.file.mimetype,
       category: "images",
-      originalName: req.file.originalname,
+      originalName,
+      scope,
     });
 
     const fileUrl = `/uploads/images/${filename}`;
@@ -123,13 +360,7 @@ const uploadSingleImage = async (req, res) => {
     });
   } catch (error) {
     console.error("Upload error:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "File upload failed",
-        error: error.message,
-      });
+    return sendUploadError(res, error, "File upload failed");
   }
 };
 
@@ -174,13 +405,17 @@ const uploadSingleDocument = async (req, res) => {
         .json({ success: false, message: "No file uploaded" });
     }
 
-    const filename = createStoredFilename("document", req.file.originalname);
+    validateUploadedFile(req.file, "document");
+    const originalName = sanitizeOriginalName(req.file.originalname);
+    const scope = resolveUploadScope(req);
+    const filename = buildScopedFilename(scope, "document", originalName);
     await uploadBufferToGridFS({
       buffer: req.file.buffer,
       filename,
       contentType: req.file.mimetype,
       category: "documents",
-      originalName: req.file.originalname,
+      originalName,
+      scope,
     });
 
     const fileUrl = `/uploads/documents/${filename}`;
@@ -190,13 +425,11 @@ const uploadSingleDocument = async (req, res) => {
       url: fileUrl,
       fileUrl: fileUrl,
       filename,
-      originalName: req.file.originalname,
+      originalName,
     });
   } catch (error) {
     console.error("Document upload error:", error);
-    res
-      .status(500)
-      .json({ message: "File upload failed", error: error.message });
+    return sendUploadError(res, error, "File upload failed");
   }
 };
 
@@ -256,13 +489,15 @@ const uploadNirfPdf = async (req, res) => {
         .status(400)
         .json({ success: false, message: "No file uploaded" });
     }
-    const filename = `nirf-${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(req.file.originalname)}`;
+    validateUploadedFile(req.file, "document");
+    const originalName = sanitizeOriginalName(req.file.originalname);
+    const filename = createStoredFilename("nirf", originalName);
     await uploadBufferToGridFS({
       buffer: req.file.buffer,
       filename,
       contentType: req.file.mimetype,
       category: "nirf",
-      originalName: req.file.originalname,
+      originalName,
     });
     const fileUrl = `/uploads/nirf/${filename}`;
     res.status(200).json({
@@ -274,16 +509,14 @@ const uploadNirfPdf = async (req, res) => {
     });
   } catch (error) {
     console.error("NIRF PDF upload error:", error);
-    res
-      .status(500)
-      .json({ message: "File upload failed", error: error.message });
+    return sendUploadError(res, error, "File upload failed");
   }
 };
 
 const streamUploadedFile = async (req, res, next) => {
   try {
     const category = normalizeCategory(req.params.category);
-    const filename = req.params.filename;
+    const filename = sanitizeStoredFilename(req.params.filename);
 
     if (!category || !filename) {
       return next();
@@ -311,7 +544,10 @@ const streamUploadedFile = async (req, res, next) => {
       res.setHeader("Content-Type", fileDoc.contentType);
     }
     if (fileDoc.metadata?.originalName) {
-      const disposition = category === "images" ? "inline" : "inline";
+      const disposition =
+        category === "images" || fileDoc.contentType === "application/pdf"
+          ? "inline"
+          : "attachment";
       res.setHeader(
         "Content-Disposition",
         `${disposition}; filename="${encodeURIComponent(fileDoc.metadata.originalName)}"`,

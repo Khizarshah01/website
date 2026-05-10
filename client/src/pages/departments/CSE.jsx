@@ -151,6 +151,34 @@ const getFileNameFromUrl = (value = "") => {
   return trimmed.split("/").pop()?.split("?")[0] || "";
 };
 
+const buildCseUgProjectPdfPath = (groupId, year = "2024-25") => {
+  const numericGroupId = String(groupId || "").match(/\d+/)?.[0];
+  if (!numericGroupId) return "";
+
+  return `/ug_projects/cse/Proj.Gr.-${numericGroupId.padStart(
+    2,
+    "0",
+  )}-Project_Report_${year}.pdf`;
+};
+
+const resolveCseUgProjectReportLink = (project, year) => {
+  const directLink = String(project?.link || "").trim();
+
+  if (year === "2024-25") {
+    const localPathFromId = buildCseUgProjectPdfPath(project?.id, year);
+    if (localPathFromId) return localPathFromId;
+
+    const fileName = String(
+      project?.fileName || getFileNameFromUrl(directLink),
+    ).trim();
+    if (/^Proj\.Gr\.-\d{2}-Project_Report_2024-25\.pdf$/i.test(fileName)) {
+      return `/ug_projects/cse/${fileName}`;
+    }
+  }
+
+  return directLink;
+};
+
 const extractMarkdownLinkLabel = (value = "") => {
   const markdownLinkMatch = String(value || "").match(
     /\[([^\]]+)\]\(([^)]+)\)/,
@@ -294,7 +322,7 @@ const defaultIndustrialVisits = [
     date: "20 March 2025",
     students: "62",
     report:
-      "/uploads/documents/cse_industrial_visits/CSE_Industry_Visit_Report_2024-25.pdf",
+      "/uploads/documents/departments/cse/industrial-visits/CSE_Industry_Visit_Report_2024-25.pdf",
   },
   {
     sn: "01",
@@ -303,7 +331,7 @@ const defaultIndustrialVisits = [
     date: "23/01/2024",
     students: "58",
     report:
-      "/uploads/documents/cse_industrial_visits/VNIT_Field_Visit_CSE_Dept_1.pdf",
+      "/uploads/documents/departments/cse/industrial-visits/VNIT_Field_Visit_CSE_Dept_1.pdf",
   },
   {
     sn: "02",
@@ -388,73 +416,73 @@ const defaultMous = [
     no: "1.",
     org: "Bharat Software Solutions, Pune",
     date: "05-Apr-2025",
-    report: "/uploads/documents/cse_mous/MOU_Bharat_Software_2025.pdf",
+    report: "/uploads/documents/departments/cse/mous/MOU_Bharat_Software_2025.pdf",
   },
   {
     no: "2.",
     org: "TRUSCHOLAR ASSET CHAIN TECHNILLIGENCE PVT LTD, AMRAVATI",
     date: "05-APR-2025",
-    report: "/uploads/documents/cse_mous/MOU_Truscholar_2025.pdf",
+    report: "/uploads/documents/departments/cse/mous/MOU_Truscholar_2025.pdf",
   },
   {
     no: "3.",
     org: "PRAGMATYC GLOBEL PVT LTD, NAGPUR",
     date: "05-APR-2025",
-    report: "/uploads/documents/cse_mous/MOU_Pragmatyc_2025.pdf",
+    report: "/uploads/documents/departments/cse/mous/MOU_Pragmatyc_2025.pdf",
   },
   {
     no: "4.",
     org: "MoU With Intel Unnati",
     date: "29-MAR-2025",
-    report: "/uploads/documents/cse_mous/MOU_Intel_Unnati_2025.pdf",
+    report: "/uploads/documents/departments/cse/mous/MOU_Intel_Unnati_2025.pdf",
   },
   {
     no: "5.",
     org: "MoU With J-Navodaya Unnat Bharat",
     date: "05-MAR-2025",
-    report: "/uploads/documents/cse_mous/MOU_J_Navodaya_Unnat_Bharat_2025.pdf",
+    report: "/uploads/documents/departments/cse/mous/MOU_J_Navodaya_Unnat_Bharat_2025.pdf",
   },
   {
     no: "6.",
     org: "Bharat Software Solutions, Pune",
     date: "21-Dec-2023",
-    report: "/uploads/documents/cse_mous/MOU_Bharat_Software_2023.pdf",
+    report: "/uploads/documents/departments/cse/mous/MOU_Bharat_Software_2023.pdf",
   },
   {
     no: "7.",
     org: "MITU Skillologies, Pune",
     date: "18-Dec-2023",
-    report: "/uploads/documents/cse_mous/MOU_MITU_Skillologies_2023.pdf",
+    report: "/uploads/documents/departments/cse/mous/MOU_MITU_Skillologies_2023.pdf",
   },
   {
     no: "8.",
     org: "TrueScholar Consulting Pvt Ltd, Nagpur",
     date: "06-Jun-2022",
-    report: "/uploads/documents/cse_mous/MOU_TrueScholar_2022.pdf",
+    report: "/uploads/documents/departments/cse/mous/MOU_TrueScholar_2022.pdf",
   },
   {
     no: "9.",
     org: "Opine Group, Pune",
     date: "28-Nov-2019",
-    report: "/uploads/documents/cse_mous/MOU_Opine_Group_2019.pdf",
+    report: "/uploads/documents/departments/cse/mous/MOU_Opine_Group_2019.pdf",
   },
   {
     no: "10.",
     org: "e-Zest Solutions Limited, Pune",
     date: "10-Oct-2019",
-    report: "/uploads/documents/cse_mous/MOU_eZest_2019.pdf",
+    report: "/uploads/documents/departments/cse/mous/MOU_eZest_2019.pdf",
   },
   {
     no: "11.",
     org: "IBM Career Education, Pune",
     date: "07-Feb-2019",
-    report: "/uploads/documents/cse_mous/MOU_IBM_2019.pdf",
+    report: "/uploads/documents/departments/cse/mous/MOU_IBM_2019.pdf",
   },
   {
     no: "12.",
     org: "Pi R Square Pvt. Ltd., Pune",
     date: "15-Dec-2018",
-    report: "/uploads/documents/cse_mous/MOU_PiRSquare_2018.pdf",
+    report: "/uploads/documents/departments/cse/mous/MOU_PiRSquare_2018.pdf",
   },
 ];
 
@@ -880,11 +908,11 @@ const RESEARCH_FROM_MARKDOWN = {
 };
 
 const RESEARCH_TEMPLATE_URLS = {
-  patents: "/uploads/documents/pride_templates/cse_patents_template.docx",
+  patents: "/uploads/documents/departments/cse/templates/cse_patents_template.docx",
   publications:
-    "/uploads/documents/pride_templates/cse_publications_template.docx",
-  copyrights: "/uploads/documents/pride_templates/cse_copyrights_template.docx",
-  books: "/uploads/documents/pride_templates/cse_books_template.docx",
+    "/uploads/documents/departments/cse/templates/cse_publications_template.docx",
+  copyrights: "/uploads/documents/departments/cse/templates/cse_copyrights_template.docx",
+  books: "/uploads/documents/departments/cse/templates/cse_books_template.docx",
 };
 
 const hasIncorrectIndustrialVisitsSignature = (text = "") => {
@@ -2172,7 +2200,7 @@ const CSE = () => {
               updateData(`templateData.placements.details.${placementYear}`, v)
             }
             showDocImport
-            docTemplateUrl="/uploads/documents/pride_templates/cse_placement_details_template.docx"
+            docTemplateUrl="/uploads/documents/departments/shared/templates/placement_details_template.docx"
             docTemplateLabel="Download Placement Template"
             placeholder="Paste or import placement data (Markdown) here..."
           />
@@ -2189,13 +2217,13 @@ const CSE = () => {
       label: "NEP Scheme",
       link: "#",
       fileName: "NEP_Scheme.pdf",
-      fileUrl: "/uploads/documents/cse-syllabus/NEP_Scheme.pdf",
+      fileUrl: "/uploads/documents/departments/cse/syllabus/NEP_Scheme.pdf",
     },
     {
       label: "Scheme",
       link: "#",
       fileName: "Scheme_CSE.pdf",
-      fileUrl: "/uploads/documents/cse-syllabus/Scheme_CSE.pdf",
+      fileUrl: "/uploads/documents/departments/cse/syllabus/Scheme_CSE.pdf",
     },
     {
       label:
@@ -2203,14 +2231,14 @@ const CSE = () => {
       link: "#",
       fileName: "Revised_Syllabus_CSE_1st-8th_Sem_Notification_121_2023.pdf",
       fileUrl:
-        "/uploads/documents/cse-syllabus/Revised_Syllabus_CSE_1st-8th_Sem_Notification_121_2023.pdf",
+        "/uploads/documents/departments/cse/syllabus/Revised_Syllabus_CSE_1st-8th_Sem_Notification_121_2023.pdf",
     },
     {
       label: "Syllabus Second Year (3rd & 4th Sem)",
       link: "#",
       fileName: "Syllabus_Second_Year_3rd_4th_Sem.pdf",
       fileUrl:
-        "/uploads/documents/cse-syllabus/Syllabus_Second_Year_3rd_4th_Sem.pdf",
+        "/uploads/documents/departments/cse/syllabus/Syllabus_Second_Year_3rd_4th_Sem.pdf",
     },
     {
       label:
@@ -2218,7 +2246,7 @@ const CSE = () => {
       link: "#",
       fileName: "Syllabus_UHV_Ethics_Sem_IV_NEP.pdf",
       fileUrl:
-        "/uploads/documents/cse-syllabus/Syllabus_UHV_Ethics_Sem_IV_NEP.pdf",
+        "/uploads/documents/departments/cse/syllabus/Syllabus_UHV_Ethics_Sem_IV_NEP.pdf",
     },
     {
       label:
@@ -2232,14 +2260,14 @@ const CSE = () => {
       link: "#",
       fileName: "Syllabus_Third_Year_5th_6th_Sem.pdf",
       fileUrl:
-        "/uploads/documents/cse-syllabus/Syllabus_Third_Year_5th_6th_Sem.pdf",
+        "/uploads/documents/departments/cse/syllabus/Syllabus_Third_Year_5th_6th_Sem.pdf",
     },
     {
       label: "Syllabus Final Year (7th & 8th Sem)",
       link: "#",
       fileName: "Syllabus_Final_Year_7th_8th_Sem.pdf",
       fileUrl:
-        "/uploads/documents/cse-syllabus/Syllabus_Final_Year_7th_8th_Sem.pdf",
+        "/uploads/documents/departments/cse/syllabus/Syllabus_Final_Year_7th_8th_Sem.pdf",
     },
   ];
 
@@ -2249,7 +2277,7 @@ const CSE = () => {
       link: "#",
       fileName: "Scheme_Syllabus_ME_1st_2nd_Sem.pdf",
       fileUrl:
-        "/uploads/documents/cse-syllabus/Scheme_Syllabus_ME_1st_2nd_Sem.pdf",
+        "/uploads/documents/departments/cse/syllabus/Scheme_Syllabus_ME_1st_2nd_Sem.pdf",
     },
   ];
 
@@ -3289,7 +3317,10 @@ const CSE = () => {
   const ugProjectRecords = t("ugProjects.records", defaultUgProjects);
   const ugProjectMarkdownByYear = t("ugProjects.markdownByYear", {});
   const currentUgProjects = Array.isArray(ugProjectRecords?.[projectYear])
-    ? ugProjectRecords[projectYear]
+    ? ugProjectRecords[projectYear].map((project) => ({
+        ...project,
+        link: resolveCseUgProjectReportLink(project, projectYear),
+      }))
     : [];
   const selectedUgProjectsMarkdown =
     ugProjectMarkdownByYear?.[projectYear] ||
@@ -4711,7 +4742,7 @@ const CSE = () => {
                       value={md}
                       onSave={(v) => updateData("pride.gateMarkdown", v)}
                       showDocImport
-                      docTemplateUrl="/uploads/documents/pride_templates/cse_gate_template.docx"
+                      docTemplateUrl="/uploads/documents/departments/cse/templates/cse_gate_template.docx"
                       docTemplateLabel="Download GATE Template"
                       placeholder="GATE qualified students tables (GFM Markdown)..."
                     />
@@ -4744,7 +4775,7 @@ const CSE = () => {
                       value={md}
                       onSave={(v) => updateData("pride.toppersMarkdown", v)}
                       showDocImport
-                      docTemplateUrl="/uploads/documents/pride_templates/cse_toppers_template.docx"
+                      docTemplateUrl="/uploads/documents/departments/cse/templates/cse_toppers_template.docx"
                       docTemplateLabel="Download Toppers Template"
                       placeholder="University toppers tables (GFM Markdown)..."
                     />
@@ -4776,7 +4807,7 @@ const CSE = () => {
                       value={md}
                       onSave={(v) => updateData("pride.alumniMarkdown", v)}
                       showDocImport
-                      docTemplateUrl="/uploads/documents/pride_templates/cse_alumni_template.docx"
+                      docTemplateUrl="/uploads/documents/departments/cse/templates/cse_alumni_template.docx"
                       docTemplateLabel="Download Alumni Template"
                       placeholder="Top alumni table (GFM Markdown)..."
                     />
@@ -5526,7 +5557,7 @@ const CSE = () => {
                 value={selectedUgProjectsMarkdown}
                 onSave={handleUgProjectMarkdownSave}
                 showDocImport
-                docTemplateUrl="/uploads/documents/pride_templates/cse_ug_projects_template.docx"
+                docTemplateUrl="/uploads/documents/departments/cse/templates/cse_ug_projects_template.docx"
                 docTemplateLabel="Download UG Projects Template"
                 placeholder={`UG projects for ${projectYear} (GFM Markdown)...`}
               />
@@ -6643,7 +6674,7 @@ const CSE = () => {
               value={md}
               onSave={(v) => updateData("studentProjects.markdown", v)}
               showDocImport
-              docTemplateUrl="/uploads/documents/pride_templates/cse_projects_template.docx"
+              docTemplateUrl="/uploads/documents/departments/cse/templates/cse_projects_template.docx"
               docTemplateLabel="Download Projects Template"
               placeholder="Student projects tables by year (GFM Markdown)..."
             />
@@ -6792,11 +6823,27 @@ const CSE = () => {
 
           // Prefer saved CMS data and only fall back to bundled defaults
           // when neither markdown nor stored structured data is available.
-          const parsedPractices = markdownToInnovativePractices(md);
+          const normalizePractices = (items = []) =>
+            (Array.isArray(items) ? items : [])
+              .filter((item) => {
+                const sn = String(item?.sn || "").trim();
+                if (!sn) return false;
+                if (sn === "S.N." || sn === "S.N") return false;
+                if (/^:?-+:?$/.test(sn)) return false;
+                return true;
+              })
+              .map((item) => ({
+                ...item,
+                sn: String(item?.sn || "").trim(),
+              }));
+
+          const parsedPractices = normalizePractices(
+            markdownToInnovativePractices(md),
+          );
           const practices =
             parsedPractices && parsedPractices.length > 0
               ? parsedPractices
-              : defaultPractices;
+              : normalizePractices(defaultPractices);
 
           return (
             <motion.div
@@ -6860,7 +6907,7 @@ const CSE = () => {
                       updateData("innovativePractices", parsed);
                     }}
                     showDocImport
-                    docTemplateUrl="/uploads/documents/innovative_practice_templates/cse_template.docx"
+                    docTemplateUrl="/uploads/documents/departments/cse/templates/cse_template.docx"
                     docTemplateLabel="Download Template"
                     placeholder="Innovative Practices table (GFM Markdown)..."
                   />
@@ -8083,7 +8130,7 @@ const CSE = () => {
                 value={selectedInternshipsMarkdown}
                 onSave={handleInternshipsMarkdownSave}
                 showDocImport
-                docTemplateUrl="/uploads/documents/pride_templates/cse_internships_template.docx"
+                docTemplateUrl="/uploads/documents/departments/cse/templates/cse_internships_template.docx"
                 docTemplateLabel="Download Internship Template"
                 placeholder={`Internship records for ${internshipYear} (GFM Markdown)...`}
               />

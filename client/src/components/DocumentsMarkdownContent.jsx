@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import apiClient from "../utils/apiClient";
+import { resolveDocumentUrl } from "../utils/contentUrls";
 
 const extractMarkdownFromSections = (sections = []) =>
   sections
@@ -31,7 +32,7 @@ const markdownComponents = {
   ),
   a: ({ href, children }) => (
     <a
-      href={href}
+      href={resolveDocumentUrl(href)}
       target="_blank"
       rel="noopener noreferrer"
       className="text-ssgmce-blue font-medium hover:underline"

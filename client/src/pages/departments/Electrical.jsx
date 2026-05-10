@@ -552,81 +552,81 @@ const defaultElectricalMous = [
     org: "I Robots Innovative Solutions, Pune",
     date: "05-Apr-2025",
     report:
-      "/uploads/documents/electrical_mous/MOU_IRobots_Innovative_2025.pdf",
+      "/uploads/documents/departments/electrical/mous/MOU_IRobots_Innovative_2025.pdf",
   },
   {
     no: "2.",
     org: "TATA Power Skill Development Institute (TPSDI), Shahad Mumbai",
     date: "21-Jun-2024",
-    report: "/uploads/documents/electrical_mous/MOU_TPSDI_Mumbai_2024.pdf",
+    report: "/uploads/documents/departments/electrical/mous/MOU_TPSDI_Mumbai_2024.pdf",
   },
   {
     no: "3.",
     org: "Adani Electricity Mumbai Limited, ADTPS, Dahanu",
     date: "01-Jun-2024",
     report:
-      "/uploads/documents/electrical_mous/MOU_Adani_ADTPS_Dahanu_2024.pdf",
+      "/uploads/documents/departments/electrical/mous/MOU_Adani_ADTPS_Dahanu_2024.pdf",
   },
   {
     no: "4.",
     org: "Mew Technology, Bengaluru",
     date: "04-Mar-2024",
     report:
-      "/uploads/documents/electrical_mous/MOU_Mew_Technology_Bengaluru_2024.pdf",
+      "/uploads/documents/departments/electrical/mous/MOU_Mew_Technology_Bengaluru_2024.pdf",
   },
   {
     no: "5.",
     org: "Samarthan System Private Limited, Pune",
     date: "10-Jan-2024",
     report:
-      "/uploads/documents/electrical_mous/MOU_Samarthan_System_Pune_2024.pdf",
+      "/uploads/documents/departments/electrical/mous/MOU_Samarthan_System_Pune_2024.pdf",
   },
   {
     no: "6.",
     org: "SCR Elektronics, Mumbai",
     date: "08-Feb-2023",
     report:
-      "/uploads/documents/electrical_mous/MOU_SCR_Elektronics_Mumbai_2023.pdf",
+      "/uploads/documents/departments/electrical/mous/MOU_SCR_Elektronics_Mumbai_2023.pdf",
   },
   {
     no: "7.",
     org: "Mitsubishi Electric India Private Limited",
     date: "06-Jan-2023",
     report:
-      "/uploads/documents/electrical_mous/MOU_Mitsubishi_Electric_2023.pdf",
+      "/uploads/documents/departments/electrical/mous/MOU_Mitsubishi_Electric_2023.pdf",
   },
   {
     no: "8.",
     org: "Adani Electricity Mumbai Limited, ADTPS, Dahanu",
     date: "12-Feb-2022",
     report:
-      "/uploads/documents/electrical_mous/MOU_Adani_ADTPS_Dahanu_2022.pdf",
+      "/uploads/documents/departments/electrical/mous/MOU_Adani_ADTPS_Dahanu_2022.pdf",
   },
   {
     no: "9.",
     org: "ISIE INDIA, Noida",
     date: "18-Jan-2022",
-    report: "/uploads/documents/electrical_mous/MOU_ISIE_India_Noida_2022.pdf",
+    report: "/uploads/documents/departments/electrical/mous/MOU_ISIE_India_Noida_2022.pdf",
   },
   {
     no: "10.",
     org: "VI Solutions, Bangalore",
     date: "28-Jan-2021",
     report:
-      "/uploads/documents/electrical_mous/MOU_VI_Solutions_Bangalore_2021.pdf",
+      "/uploads/documents/departments/electrical/mous/MOU_VI_Solutions_Bangalore_2021.pdf",
   },
   {
     no: "11.",
     org: "SCR Elektronics, Mumbai",
     date: "08-Feb-2020",
     report:
-      "/uploads/documents/electrical_mous/MOU_SCR_Elektronics_Mumbai_2020.pdf",
+      "/uploads/documents/departments/electrical/mous/MOU_SCR_Elektronics_Mumbai_2020.pdf",
   },
   {
     no: "12.",
     org: "TPSDI, Shahad Mumbai",
     date: "08-Sep-2018",
-    report: "/uploads/documents/electrical_mous/MOU_TPSDI_Mumbai_2018.pdf",
+    report: "/uploads/documents/departments/electrical/mous/MOU_TPSDI_Mumbai_2018.pdf",
   },
 ];
 
@@ -934,12 +934,12 @@ const ELECTRICAL_RESEARCH_FROM_MARKDOWN = {
 
 const ELECTRICAL_RESEARCH_TEMPLATE_URLS = {
   patents:
-    "/uploads/documents/pride_templates/electrical_patents_template.docx",
+    "/uploads/documents/departments/electrical/templates/electrical_patents_template.docx",
   publications:
-    "/uploads/documents/pride_templates/electrical_publications_template.docx",
+    "/uploads/documents/departments/electrical/templates/electrical_publications_template.docx",
   copyrights:
-    "/uploads/documents/pride_templates/electrical_copyrights_template.docx",
-  books: "/uploads/documents/pride_templates/electrical_books_template.docx",
+    "/uploads/documents/departments/electrical/templates/electrical_copyrights_template.docx",
+  books: "/uploads/documents/departments/electrical/templates/electrical_books_template.docx",
 };
 
 const elecPrideTableComponents = {
@@ -1801,7 +1801,7 @@ const Electrical = () => {
       (contextData?.templateData?.researchReports?.[year] ??
         tBase(
           `templateData.researchReports.${year}`,
-          `/uploads/documents/electrical_publications/Electrical_${year}_Patent_Publication_Data.pdf`,
+          `/uploads/documents/departments/electrical/publications/Electrical_${year}_Patent_Publication_Data.pdf`,
         )) ||
         "",
     ).trim();
@@ -3662,21 +3662,21 @@ const Electrical = () => {
       faculty: "Dr. S. R. Paraskar",
       subject: "Power System II",
       practice: "Simulation-Based Learning (Matlab)",
-      link: "/uploads/documents/electrical_innovative/SRP_PowerSystemII_Simulation.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/SRP_PowerSystemII_Simulation.pdf",
     },
     {
       sn: "02",
       faculty: "Dr. A. U. Jawadekar",
       subject: "Signals & Systems",
       practice: "Mindmap",
-      link: "/uploads/documents/electrical_innovative/AUJ_Signals_Systems_Mindmap.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/AUJ_Signals_Systems_Mindmap.pdf",
     },
     {
       sn: "",
       faculty: "",
       subject: "Advanced Control System",
       practice: "MATLAB Simulation",
-      link: "/uploads/documents/electrical_innovative/AUJ_Advanced_Control_System_Matlab.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/AUJ_Advanced_Control_System_Matlab.pdf",
       rowSpanParent: false,
     },
     {
@@ -3684,7 +3684,7 @@ const Electrical = () => {
       faculty: "",
       subject: "Electromagnetic Field",
       practice: "Think Pair and Share",
-      link: "/uploads/documents/electrical_innovative/AUJ_Electromagnetic_Field_ThinkPairShare.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/AUJ_Electromagnetic_Field_ThinkPairShare.pdf",
       rowSpanParent: false,
     },
     {
@@ -3692,14 +3692,14 @@ const Electrical = () => {
       faculty: "Prof. P. R. Bharambe",
       subject: "Power System Protection",
       practice: "You Tube Videos",
-      link: "/uploads/documents/electrical_innovative/PRB_PowerSystemProtection_YouTube.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/PRB_PowerSystemProtection_YouTube.pdf",
     },
     {
       sn: "",
       faculty: "",
       subject: "Computer Aided Machine Design",
       practice: "You Tube Videos",
-      link: "/uploads/documents/electrical_innovative/PRB_ComputerAidedMachineDesign_YouTube.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/PRB_ComputerAidedMachineDesign_YouTube.pdf",
       rowSpanParent: false,
     },
     {
@@ -3707,35 +3707,35 @@ const Electrical = () => {
       faculty: "Dr. R. S. Kankale",
       subject: "High Voltages- Part-1",
       practice: "You Tube Videos",
-      link: "/uploads/documents/electrical_innovative/RSK_HighVoltages_YouTube.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/RSK_HighVoltages_YouTube.pdf",
     },
     {
       sn: "06",
       faculty: "Prof. M.R.Chavan",
       subject: "Energy Resources and Generation",
       practice: "Industrial Visits/Field Work",
-      link: "/uploads/documents/electrical_innovative/MRC_EnergyResources_IndustrialVisit.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/MRC_EnergyResources_IndustrialVisit.pdf",
     },
     {
       sn: "07",
       faculty: "Prof. R. K. Mankar",
       subject: "Computer Methods in Power System Analysis",
       practice: "Simulation-Based Learning",
-      link: "/uploads/documents/electrical_innovative/RKM_ComputerMethods_Simulation.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/RKM_ComputerMethods_Simulation.pdf",
     },
     {
       sn: "08",
       faculty: "Prof. G. N. Bonde",
       subject: "Control System",
       practice: "You Tube Videos",
-      link: "/uploads/documents/electrical_innovative/GNB_ControlSystem_YouTube.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/GNB_ControlSystem_YouTube.pdf",
     },
     {
       sn: "",
       faculty: "",
       subject: "Electronic Devices & Circuit",
       practice: "Virtual Lab",
-      link: "/uploads/documents/electrical_innovative/GNB_ElectronicDevices_VirtualLab.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/GNB_ElectronicDevices_VirtualLab.pdf",
       rowSpanParent: false,
     },
     {
@@ -3743,21 +3743,21 @@ const Electrical = () => {
       faculty: "Prof. B. S. Rakhonde",
       subject: "Electrical Machine-I",
       practice: "You Tube Videos",
-      link: "/uploads/documents/electrical_innovative/BSR_ElectricalMachineI_YouTube.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/BSR_ElectricalMachineI_YouTube.pdf",
     },
     {
       sn: "10",
       faculty: "Prof. V.S.Karale",
       subject: "Electric Circuit Analysis",
       practice: "Virtual Lab",
-      link: "/uploads/documents/electrical_innovative/VSK_ElectricCircuitAnalysis_VirtualLab.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/VSK_ElectricCircuitAnalysis_VirtualLab.pdf",
     },
     {
       sn: "",
       faculty: "",
       subject: "Power Electronics",
       practice: "Simulation-Based Learning (Matlab)",
-      link: "/uploads/documents/electrical_innovative/VSK_PowerElectronics_Simulation.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/VSK_PowerElectronics_Simulation.pdf",
       rowSpanParent: false,
     },
     {
@@ -3765,14 +3765,14 @@ const Electrical = () => {
       faculty: "Prof. P. R. Dhabe",
       subject: "Digital Signal Processing",
       practice: "You Tube Videos",
-      link: "/uploads/documents/electrical_innovative/PRD_DigitalSignalProcessing_YouTube.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/PRD_DigitalSignalProcessing_YouTube.pdf",
     },
     {
       sn: "",
       faculty: "",
       subject: "Power System",
       practice: "You Tube Videos",
-      link: "/uploads/documents/electrical_innovative/PRD_PowerSystem_YouTube.pdf",
+      link: "/uploads/documents/departments/electrical/innovative-practices/PRD_PowerSystem_YouTube.pdf",
       rowSpanParent: false,
     },
   ];
@@ -6536,7 +6536,7 @@ Upon successful completion of this course, students will be able to:
                 value={md}
                 onSave={(v) => updateField("prideToppersMarkdown", v)}
                 showDocImport
-                docTemplateUrl="/uploads/documents/pride_templates/electrical_toppers_template.docx"
+                docTemplateUrl="/uploads/documents/departments/electrical/templates/electrical_toppers_template.docx"
                 docTemplateLabel="Download Toppers Template"
                 placeholder="University toppers table (GFM Markdown)..."
               />
@@ -6557,7 +6557,7 @@ Upon successful completion of this course, students will be able to:
                 value={md}
                 onSave={(v) => updateField("prideAlumniMarkdown", v)}
                 showDocImport
-                docTemplateUrl="/uploads/documents/pride_templates/electrical_alumni_template.docx"
+                docTemplateUrl="/uploads/documents/departments/electrical/templates/electrical_alumni_template.docx"
                 docTemplateLabel="Download Alumni Template"
                 placeholder="Top alumni table (GFM Markdown)..."
               />
@@ -6578,7 +6578,7 @@ Upon successful completion of this course, students will be able to:
                 value={md}
                 onSave={(v) => updateField("prideGateMarkdown", v)}
                 showDocImport
-                docTemplateUrl="/uploads/documents/pride_templates/electrical_gate_template.docx"
+                docTemplateUrl="/uploads/documents/departments/electrical/templates/electrical_gate_template.docx"
                 docTemplateLabel="Download GATE Template"
                 placeholder="GATE qualified students table (GFM Markdown)..."
               />
@@ -6845,7 +6845,7 @@ Upon successful completion of this course, students will be able to:
                       value={selectedUgProjectsMarkdown}
                       onSave={handleUgProjectMarkdownSave}
                       showDocImport
-                      docTemplateUrl="/uploads/documents/pride_templates/electrical_ug_projects_template.docx"
+                      docTemplateUrl="/uploads/documents/departments/electrical/templates/electrical_ug_projects_template.docx"
                       docTemplateLabel="Download UG Projects Template"
                       placeholder={`UG projects for ${projectYear} (GFM Markdown)...`}
                     />
@@ -8240,7 +8240,7 @@ Upon successful completion of this course, students will be able to:
                       updateData("innovativePractices", parsed);
                     }}
                     showDocImport
-                    docTemplateUrl="/uploads/documents/innovative_practice_templates/electrical_template.docx"
+                    docTemplateUrl="/uploads/documents/departments/electrical/templates/electrical_template.docx"
                     docTemplateLabel="Download Template"
                     placeholder="Innovative Practices table (GFM Markdown)..."
                   />
@@ -9627,8 +9627,8 @@ Upon successful completion of this course, students will be able to:
               <a
                 href={
                   internshipYear === "2024-25"
-                    ? "/uploads/documents/electrical_internships/Electrical_Internship_2024-25.pdf"
-                    : "/uploads/documents/electrical_internships/Electrical_Internship_2023-24.pdf"
+                    ? "/uploads/documents/departments/electrical/internships/Electrical_Internship_2024-25.pdf"
+                    : "/uploads/documents/departments/electrical/internships/Electrical_Internship_2023-24.pdf"
                 }
                 target="_blank"
                 rel="noopener noreferrer"
@@ -9745,7 +9745,7 @@ Upon successful completion of this course, students will be able to:
                 value={selectedInternshipsMarkdown}
                 onSave={handleInternshipsMarkdownSave}
                 showDocImport
-                docTemplateUrl="/uploads/documents/pride_templates/electrical_internships_template.docx"
+                docTemplateUrl="/uploads/documents/departments/electrical/templates/electrical_internships_template.docx"
                 docTemplateLabel="Download Internship Template"
                 placeholder={`Internship records for ${internshipYear} (GFM Markdown)...`}
               />

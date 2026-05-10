@@ -216,7 +216,7 @@ const defaultEntcIndustrialVisits = [
       "Wonderla Solar & Water Purification Plant, Hyderabad",
     ],
     report:
-      "/uploads/documents/entc/industrial-visits/entc_iv_2025_26_nsti_hyderabad.pdf",
+      "/uploads/documents/departments/entc/industrial-visits/entc_iv_2025_26_nsti_hyderabad.pdf",
     class: "3U1 & 3U2 (Third Year)",
     date: "18/01/2026 to 26/01/2026",
     students: "91",
@@ -229,7 +229,7 @@ const defaultEntcIndustrialVisits = [
       "BSNL ZTTC (RTTC), Chinchwad, Pune",
     ],
     report:
-      "/uploads/documents/entc/industrial-visits/entc_iv_2024_25_pune.pdf",
+      "/uploads/documents/departments/entc/industrial-visits/entc_iv_2024_25_pune.pdf",
     class: "4U1 & 4U2 (Final Year)",
     date: "28/02/2025 to 04/03/2025",
     students: "72",
@@ -242,7 +242,7 @@ const defaultEntcIndustrialVisits = [
       "Wonderla Solar & Water Purification Plant, Hyderabad",
     ],
     report:
-      "/uploads/documents/entc/industrial-visits/entc_iv_2024_25_isro.pdf",
+      "/uploads/documents/departments/entc/industrial-visits/entc_iv_2024_25_isro.pdf",
     class: "3U1 & 3U2 (Third Year)",
     date: "27/02/2025 to 04/03/2025",
     students: "90",
@@ -255,7 +255,7 @@ const defaultEntcIndustrialVisits = [
       "Wonderla Solar & Water Purification Plant, Hyderabad",
     ],
     report:
-      "/uploads/documents/entc/industrial-visits/entc_iv_2023_24_hyderabad.pdf",
+      "/uploads/documents/departments/entc/industrial-visits/entc_iv_2023_24_hyderabad.pdf",
     class: "3U1 & 3U2 (Third Year)",
     date: "25/02/2024 to 04/03/2024",
     students: "108",
@@ -263,7 +263,7 @@ const defaultEntcIndustrialVisits = [
   {
     sn: "05",
     industries: ["S A Electronics, Pune", "Vigyan Ashram, Pabal, Pune"],
-    report: "/uploads/documents/entc/industrial-visits/entc_iv_2019_20.pdf",
+    report: "/uploads/documents/departments/entc/industrial-visits/entc_iv_2019_20.pdf",
     class: "4U1 & 4U2 (Final Year)",
     date: "02/03/2020 to 06/03/2020",
     students: "49",
@@ -274,7 +274,7 @@ const defaultEntcIndustrialVisits = [
       "Police Wireless Training Center, Pashan, Pune",
       "Renu Electronics, Baner Road, Pune",
     ],
-    report: "/uploads/documents/entc/industrial-visits/entc_iv_2017_18.pdf",
+    report: "/uploads/documents/departments/entc/industrial-visits/entc_iv_2017_18.pdf",
     class: "4U1 & 4U2 (Final Year)",
     date: "15/01/2018 to 18/01/2018",
     students: "114",
@@ -499,87 +499,87 @@ const defaultEntcMous = [
     no: "1.",
     org: "ADOLF SOLUTIONS (OPC) PVT. LTD",
     date: "05-April-2025",
-    report: "/uploads/documents/entc_mous/MOU_Adolf_Solutions_2025.pdf",
+    report: "/uploads/documents/departments/entc/mous/MOU_Adolf_Solutions_2025.pdf",
   },
   {
     no: "2.",
     org: "DAccess IT Infra Pvt. Ltd., Pune",
     date: "05-April-2025",
-    report: "/uploads/documents/entc_mous/MOU_DAccess_IT_Infra_2025.pdf",
+    report: "/uploads/documents/departments/entc/mous/MOU_DAccess_IT_Infra_2025.pdf",
   },
   {
     no: "3.",
     org: "Iravan Technologies., Pune",
     date: "05-April-2025",
-    report: "/uploads/documents/entc_mous/MOU_Iravan_Technologies_2025.pdf",
+    report: "/uploads/documents/departments/entc/mous/MOU_Iravan_Technologies_2025.pdf",
   },
   {
     no: "4.",
     org: "SSG Embedded Solutions, Nagpur",
     date: "05-April-2025",
-    report: "/uploads/documents/entc_mous/MOU_SSG_Embedded_Solutions_2025.pdf",
+    report: "/uploads/documents/departments/entc/mous/MOU_SSG_Embedded_Solutions_2025.pdf",
   },
   {
     no: "5.",
     org: "Symbiosis Institute of Technology, Pune",
     date: "15-Sept-2023",
-    report: "/uploads/documents/entc_mous/MOU_Symbiosis_2023.pdf",
+    report: "/uploads/documents/departments/entc/mous/MOU_Symbiosis_2023.pdf",
   },
   {
     no: "6.",
     org: "S M Technologies Pvt Ltd",
     date: "16-Apr-2022",
-    report: "/uploads/documents/entc_mous/MOU_SM_Technologies_2022.pdf",
+    report: "/uploads/documents/departments/entc/mous/MOU_SM_Technologies_2022.pdf",
   },
   {
     no: "7.",
     org: "TOR VERGATA University of ROME",
     date: "11-Feb-2020",
-    report: "/uploads/documents/entc_mous/MOU_Tor_Vergata_Rome_2020.pdf",
+    report: "/uploads/documents/departments/entc/mous/MOU_Tor_Vergata_Rome_2020.pdf",
   },
   {
     no: "8.",
     org: "ioCare, Pune",
     date: "07-Feb-2020",
-    report: "/uploads/documents/entc_mous/MOU_ioCare_2020.pdf",
+    report: "/uploads/documents/departments/entc/mous/MOU_ioCare_2020.pdf",
   },
   {
     no: "9.",
     org: "SSGM Electronic Solutions Pvt. Ltd., Akola",
     date: "16-Sept-2019",
     report:
-      "/uploads/documents/entc_mous/MOU_SSGM_Electronic_Solutions_2019.pdf",
+      "/uploads/documents/departments/entc/mous/MOU_SSGM_Electronic_Solutions_2019.pdf",
   },
   {
     no: "10.",
     org: "Green Field Control Systems, Gandhinagar, Gujarat",
     date: "16-Sept-2019",
-    report: "/uploads/documents/entc_mous/MOU_Green_Field_Control_2019.pdf",
+    report: "/uploads/documents/departments/entc/mous/MOU_Green_Field_Control_2019.pdf",
   },
   {
     no: "11.",
     org: "Integral Power Solutions Pvt. Ltd., Nashik",
     date: "02-Aug-2019",
     report:
-      "/uploads/documents/entc_mous/MOU_Integral_Power_Solutions_2019.pdf",
+      "/uploads/documents/departments/entc/mous/MOU_Integral_Power_Solutions_2019.pdf",
   },
   {
     no: "12.",
     org: "Scientech Tech Pvt. Ltd., Indore",
     date: "Jan-2019",
-    report: "/uploads/documents/entc_mous/MOU_Scientech_2019.pdf",
+    report: "/uploads/documents/departments/entc/mous/MOU_Scientech_2019.pdf",
   },
   {
     no: "13.",
     org: "V-Chip Technology Pvt. Ltd., Pune",
     date: "10-Aug-2018",
-    report: "/uploads/documents/entc_mous/MOU_VChip_Technology_2018.pdf",
+    report: "/uploads/documents/departments/entc/mous/MOU_VChip_Technology_2018.pdf",
   },
   {
     no: "14.",
     org: "Dr. P.D.K.V., Akola",
     date: "25-Jul-2018",
-    report: "/uploads/documents/entc_mous/MOU_PDKV_Akola_2018.pdf",
+    report: "/uploads/documents/departments/entc/mous/MOU_PDKV_Akola_2018.pdf",
   },
 ];
 
@@ -937,14 +937,14 @@ const ENTC_RESEARCH_FROM_MARKDOWN = {
 };
 
 const ENTC_RESEARCH_TEMPLATE_URLS = {
-  patents: "/uploads/documents/pride_templates/entc_patents_template.docx",
+  patents: "/uploads/documents/departments/entc/templates/entc_patents_template.docx",
   publications:
-    "/uploads/documents/pride_templates/entc_publications_template.docx",
+    "/uploads/documents/departments/entc/templates/entc_publications_template.docx",
   conferences:
-    "/uploads/documents/pride_templates/entc_conferences_template.docx",
-  books: "/uploads/documents/pride_templates/entc_books_template.docx",
+    "/uploads/documents/departments/entc/templates/entc_conferences_template.docx",
+  books: "/uploads/documents/departments/entc/templates/entc_books_template.docx",
   copyrights:
-    "/uploads/documents/pride_templates/entc_copyrights_template.docx",
+    "/uploads/documents/departments/entc/templates/entc_copyrights_template.docx",
 };
 
 const EnTC = () => {
@@ -1473,7 +1473,7 @@ const EnTC = () => {
     String(
       t(
         `researchReports.${year}`,
-        `/uploads/documents/entc_publications/ENTC_${year}_Patent_Publication_Data.pdf`,
+        `/uploads/documents/departments/entc/publications/ENTC_${year}_Patent_Publication_Data.pdf`,
       ) || "",
     ).trim();
 
@@ -2023,7 +2023,7 @@ const EnTC = () => {
               updateData(`placements.details.${placementYear}`, value)
             }
             showDocImport
-            docTemplateUrl="/uploads/documents/pride_templates/cse_placement_details_template.docx"
+            docTemplateUrl="/uploads/documents/departments/shared/templates/placement_details_template.docx"
             docTemplateLabel="Download Placement Template"
             placeholder="Paste or import placement data (Markdown) here..."
           />
@@ -5358,7 +5358,7 @@ On completion of the course, the students will be able to:
                   value={md}
                   onSave={(v) => updateData("pride.gateMarkdown", v)}
                   showDocImport
-                  docTemplateUrl="/uploads/documents/pride_templates/entc_gate_template.docx"
+                  docTemplateUrl="/uploads/documents/departments/entc/templates/entc_gate_template.docx"
                   docTemplateLabel="Download Template"
                 />
               ) : (
@@ -5381,7 +5381,7 @@ On completion of the course, the students will be able to:
                   value={md}
                   onSave={(v) => updateData("pride.toppersMarkdown", v)}
                   showDocImport
-                  docTemplateUrl="/uploads/documents/pride_templates/entc_toppers_template.docx"
+                  docTemplateUrl="/uploads/documents/departments/entc/templates/entc_toppers_template.docx"
                   docTemplateLabel="Download Template"
                 />
               ) : (
@@ -5404,7 +5404,7 @@ On completion of the course, the students will be able to:
                   value={md}
                   onSave={(v) => updateData("pride.alumniMarkdown", v)}
                   showDocImport
-                  docTemplateUrl="/uploads/documents/pride_templates/entc_alumni_template.docx"
+                  docTemplateUrl="/uploads/documents/departments/entc/templates/entc_alumni_template.docx"
                   docTemplateLabel="Download Template"
                 />
               ) : (
@@ -5436,7 +5436,7 @@ On completion of the course, the students will be able to:
               value={md}
               onSave={(v) => updateData("studentProjects.markdown", v)}
               showDocImport
-              docTemplateUrl="/uploads/documents/pride_templates/entc_projects_template.docx"
+              docTemplateUrl="/uploads/documents/departments/entc/templates/entc_projects_template.docx"
               docTemplateLabel="Download Projects Template"
               placeholder="Student projects tables by year (GFM Markdown)..."
             />
@@ -7147,7 +7147,7 @@ On completion of the course, the students will be able to:
                       updateData("innovativePractices", parsed);
                     }}
                     showDocImport
-                    docTemplateUrl="/uploads/documents/innovative_practice_templates/entc_template.docx"
+                    docTemplateUrl="/uploads/documents/departments/entc/templates/entc_template.docx"
                     docTemplateLabel="Download Template"
                     placeholder="Innovative Practices table (GFM Markdown)..."
                   />
@@ -7920,7 +7920,7 @@ On completion of the course, the students will be able to:
                       value={selectedUgProjectsMarkdown}
                       onSave={handleUgProjectMarkdownSave}
                       showDocImport
-                      docTemplateUrl="/uploads/documents/pride_templates/entc_ug_projects_template.docx"
+                      docTemplateUrl="/uploads/documents/departments/entc/templates/entc_ug_projects_template.docx"
                       docTemplateLabel="Download UG Projects Template"
                       placeholder={`UG projects for ${ugProjectYear} (GFM Markdown)...`}
                     />
@@ -9240,7 +9240,7 @@ On completion of the course, the students will be able to:
                 value={selectedInternshipsMarkdown}
                 onSave={handleInternshipsMarkdownSave}
                 showDocImport
-                docTemplateUrl="/uploads/documents/pride_templates/entc_internships_template.docx"
+                docTemplateUrl="/uploads/documents/departments/entc/templates/entc_internships_template.docx"
                 docTemplateLabel="Download Internship Template"
                 placeholder={`Internship records for ${internshipYear} (GFM Markdown)...`}
               />

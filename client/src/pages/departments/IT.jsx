@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useRef } from "react";
 import apiClient from "../../utils/apiClient";
@@ -209,7 +209,7 @@ const defaultItIndustrialVisits = [
   {
     sn: "01",
     industries: ["ValueMomentum, Pune"],
-    report: "/uploads/documents/it/industrial-visits/it_iv_2024_25.pdf",
+    report: "/uploads/documents/departments/it/industrial-visits/it_iv_2024_25.pdf",
     class: "3rd Year IT & CSE",
     date: "19/03/2025 to 22/03/2025",
     students: "62",
@@ -217,7 +217,7 @@ const defaultItIndustrialVisits = [
   {
     sn: "02",
     industries: ["HCL Technologies Ltd, Nagpur"],
-    report: "/uploads/documents/it/industrial-visits/it_iv_hcltech_nagpur.pdf",
+    report: "/uploads/documents/departments/it/industrial-visits/it_iv_hcltech_nagpur.pdf",
     class: "2nd Year IT",
     date: "10/04/2024",
     students: "54",
@@ -228,7 +228,7 @@ const defaultItIndustrialVisits = [
       "Saama Technologies, Hinjewadi, Pune",
       "ValueMomentum, Hinjewadi, Pune",
     ],
-    report: "/uploads/documents/it/industrial-visits/it_iv_2023_24.pdf",
+    report: "/uploads/documents/departments/it/industrial-visits/it_iv_2023_24.pdf",
     class: "3rd Year IT",
     date: "05/03/2024 to 09/03/2024",
     students: "45",
@@ -247,7 +247,7 @@ const defaultItIndustrialVisits = [
       "e-Zest Solutions Ltd, Hinjewadi, Pune",
       "Ramakrishna IT Consultancy, Pune",
     ],
-    report: "/uploads/documents/it/industrial-visits/it_iv_2018_19.pdf",
+    report: "/uploads/documents/departments/it/industrial-visits/it_iv_2018_19.pdf",
     class: "3rd Year IT",
     date: "02/10/2018 to 06/10/2018",
     students: "46",
@@ -255,7 +255,7 @@ const defaultItIndustrialVisits = [
   {
     sn: "06",
     industries: ["pandayG.com, Hyderabad"],
-    report: "/uploads/documents/it/industrial-visits/it_iv_2017_18.pdf",
+    report: "/uploads/documents/departments/it/industrial-visits/it_iv_2017_18.pdf",
     class: "3rd Year CSE & IT",
     date: "06/09/2017",
     students: "--",
@@ -263,7 +263,7 @@ const defaultItIndustrialVisits = [
   {
     sn: "07",
     industries: ["Value Momentum, Hyderabad"],
-    report: "/uploads/documents/it/industrial-visits/it_iv_2017_18_vm.pdf",
+    report: "/uploads/documents/departments/it/industrial-visits/it_iv_2017_18_vm.pdf",
     class: "3rd Year CSE & IT",
     date: "04/09/2017",
     students: "--",
@@ -271,7 +271,7 @@ const defaultItIndustrialVisits = [
   {
     sn: "08",
     industries: ["I-Medita (Cisco Networking Labs), Pune", "Mindscripts, Pune"],
-    report: "/uploads/documents/it/industrial-visits/it_iv_2016_17.pdf",
+    report: "/uploads/documents/departments/it/industrial-visits/it_iv_2016_17.pdf",
     class: "3rd Year IT",
     date: "15/03/2017 to 18/03/2017",
     students: "33",
@@ -454,55 +454,55 @@ const defaultItMous = [
     no: "1.",
     org: "Prodevans Technologies Pvt. Ltd., Bengaluru",
     date: "05-10-2023",
-    report: "/uploads/documents/it_mous/MOU_Prodevans_Technologies_2023.pdf",
+    report: "/uploads/documents/departments/it/mous/MOU_Prodevans_Technologies_2023.pdf",
   },
   {
     no: "2.",
     org: "BridgeLabz Solutions Pvt. Ltd., Mumbai",
     date: "31-01-2023",
-    report: "/uploads/documents/it_mous/MOU_BridgeLabz_2023.pdf",
+    report: "/uploads/documents/departments/it/mous/MOU_BridgeLabz_2023.pdf",
   },
   {
     no: "3.",
     org: "Expert Global Solutions Pvt. Ltd., Sambhajinagar (Aurangabad)",
     date: "24-11-2022",
-    report: "/uploads/documents/it_mous/MOU_Expert_Global_Solutions_2022.pdf",
+    report: "/uploads/documents/departments/it/mous/MOU_Expert_Global_Solutions_2022.pdf",
   },
   {
     no: "4.",
     org: "Vnurt, Bengaluru",
     date: "19-01-2019",
-    report: "/uploads/documents/it_mous/MOU_Vnurt_2019.pdf",
+    report: "/uploads/documents/departments/it/mous/MOU_Vnurt_2019.pdf",
   },
   {
     no: "5.",
     org: "Renuka Technology, Nagpur",
     date: "19-01-2019",
-    report: "/uploads/documents/it_mous/MOU_Renuka_Technology_2019.pdf",
+    report: "/uploads/documents/departments/it/mous/MOU_Renuka_Technology_2019.pdf",
   },
   {
     no: "6.",
     org: "Clubix Technology, Nagpur",
     date: "19-01-2019",
-    report: "/uploads/documents/it_mous/MOU_Clubix_Technology_2019.pdf",
+    report: "/uploads/documents/departments/it/mous/MOU_Clubix_Technology_2019.pdf",
   },
   {
     no: "7.",
     org: "Vidharbha Industry Defence Hub, Mihan, Nagpur",
     date: "19-01-2019",
-    report: "/uploads/documents/it_mous/MOU_Vidarbha_Defence_Hub_2019.pdf",
+    report: "/uploads/documents/departments/it/mous/MOU_Vidarbha_Defence_Hub_2019.pdf",
   },
   {
     no: "8.",
     org: "JDM Semiconductor, Nagpur",
     date: "19-01-2019",
-    report: "/uploads/documents/it_mous/MOU_JDM_Semiconductor_2019.pdf",
+    report: "/uploads/documents/departments/it/mous/MOU_JDM_Semiconductor_2019.pdf",
   },
   {
     no: "9.",
     org: "Red Hat Academy, Bengaluru",
     date: "11-06-2018",
-    report: "/uploads/documents/it_mous/MOU_Red_Hat_Academy_2018.pdf",
+    report: "/uploads/documents/departments/it/mous/MOU_Red_Hat_Academy_2018.pdf",
   },
 ];
 
@@ -888,13 +888,13 @@ const IT_RESEARCH_FROM_MARKDOWN = {
 };
 
 const IT_RESEARCH_TEMPLATE_URLS = {
-  patents: "/uploads/documents/pride_templates/it_patents_template.docx",
+  patents: "/uploads/documents/departments/it/templates/it_patents_template.docx",
   publications:
-    "/uploads/documents/pride_templates/it_publications_template.docx",
+    "/uploads/documents/departments/it/templates/it_publications_template.docx",
   conferences:
-    "/uploads/documents/pride_templates/it_conferences_template.docx",
-  books: "/uploads/documents/pride_templates/it_books_template.docx",
-  copyrights: "/uploads/documents/pride_templates/it_copyrights_template.docx",
+    "/uploads/documents/departments/it/templates/it_conferences_template.docx",
+  books: "/uploads/documents/departments/it/templates/it_books_template.docx",
+  copyrights: "/uploads/documents/departments/it/templates/it_copyrights_template.docx",
 };
 
 const defaultCourseMaterials = [
@@ -1617,7 +1617,7 @@ const IT = () => {
     String(
       t(
         `researchReports.${year}`,
-        `/uploads/documents/it_publications/IT_publication_${year}.pdf`,
+        `/uploads/documents/departments/it/publications/IT_publication_${year}.pdf`,
       ) || "",
     ).trim();
 
@@ -2073,7 +2073,7 @@ const IT = () => {
 
   const getPlacementMarkdown = (year) => {
     const records = placementRecordsByYear[year] || [];
-    const header = `## Placement Record — ${year}`;
+    const header = `## Placement Record � ${year}`;
     const intro =
       year === currentPlacementYear
         ? "*Placements still in progress for the current academic year.*\n\n"
@@ -2116,7 +2116,7 @@ const IT = () => {
   };
 
   const placementRecordsToMarkdown = (year, records) => {
-    const header = `## Placement Record — ${year}`;
+    const header = `## Placement Record � ${year}`;
     const intro =
       year === currentPlacementYear
         ? "*Placements still in progress for the current academic year.*\n\n"
@@ -3625,7 +3625,7 @@ const IT = () => {
                   (item, i) => (
                     <div key={i} className="flex items-start gap-4">
                       <div className="mt-1 text-ssgmce-orange text-2xl flex-shrink-0">
-                        ➤
+                        ?
                       </div>
                       <div className="text-lg text-gray-700 leading-relaxed font-medium flex-1">
                         <MarkdownEditor
@@ -3654,7 +3654,7 @@ const IT = () => {
                           className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                           title="Remove item"
                         >
-                          ✕
+                          ?
                         </button>
                       )}
                     </div>
@@ -3686,7 +3686,7 @@ const IT = () => {
               >
                 {t("mission", defaultMission).map((item, i) => (
                   <div key={i} className="flex items-start gap-4">
-                    <div className="mt-1 text-ssgmce-orange text-xl">➤</div>
+                    <div className="mt-1 text-ssgmce-orange text-xl">?</div>
                     <div className="text-gray-700 w-full">
                       <MarkdownEditor
                         value={item}
@@ -3710,7 +3710,7 @@ const IT = () => {
                         className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                         title="Remove item"
                       >
-                        ✕
+                        ?
                       </button>
                     )}
                   </div>
@@ -3770,7 +3770,7 @@ const IT = () => {
                 </p>
                 {t("peo", defaultPeo).map((item, i) => (
                   <div key={i} className="flex items-start gap-4">
-                    <div className="mt-1 text-ssgmce-orange text-xl">➤</div>
+                    <div className="mt-1 text-ssgmce-orange text-xl">?</div>
                     <div className="text-gray-700 leading-relaxed font-medium w-full">
                       <MarkdownEditor
                         value={item}
@@ -3794,7 +3794,7 @@ const IT = () => {
                         className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                         title="Remove item"
                       >
-                        ✕
+                        ?
                       </button>
                     )}
                   </div>
@@ -3823,7 +3823,7 @@ const IT = () => {
               >
                 {t("pso", defaultPso).map((item, i) => (
                   <div key={i} className="flex items-start gap-4">
-                    <div className="mt-1 text-ssgmce-orange text-xl">➤</div>
+                    <div className="mt-1 text-ssgmce-orange text-xl">?</div>
                     <div className="text-gray-700 leading-relaxed font-medium w-full">
                       <MarkdownEditor
                         value={item}
@@ -3847,7 +3847,7 @@ const IT = () => {
                         className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                         title="Remove item"
                       >
-                        ✕
+                        ?
                       </button>
                     )}
                   </div>
@@ -3921,7 +3921,7 @@ const IT = () => {
                               className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                               title="Remove item"
                             >
-                              ✕
+                              ?
                             </button>
                           )}
                         </div>
@@ -3933,8 +3933,8 @@ const IT = () => {
                   className="text-ssgmce-blue hover:text-ssgmce-orange font-medium text-sm transition-colors"
                 >
                   {showAllPos
-                    ? "Read Less ▲"
-                    : `Read More ▼ (${t("po", defaultPo).length - 4} more)`}
+                    ? "Read Less ?"
+                    : `Read More ? (${t("po", defaultPo).length - 4} more)`}
                 </button>
                 {isEditing && (
                   <button
@@ -4019,7 +4019,7 @@ After successful completion of the course, students will be able to:
 
 1. Understand the definitions and fundamental concepts of entrepreneurship and start-ups
 2. Understand the role of a business plan in guiding the implementation of business ideas
-3. Understand the company’s organization structure and its role in effective management. Course Name: Environmental Science Course Code: 3SH208VE
+3. Understand the company�s organization structure and its role in effective management. Course Name: Environmental Science Course Code: 3SH208VE
 4. Understand the multidisciplinary nature of environment and Renewable and non-renewable resources
 5. Understand natural environment and its relationship with human activities
 6. Understand the basic concepts and problems and follow sustainable development practices`,
@@ -4067,7 +4067,7 @@ After successful completion of the course, students will be able to:
 2. Apply synchronization and deadlock-related issues
 3. Investigate memory management techniques
 
-### 4IT215VS Computer Skills – I
+### 4IT215VS Computer Skills � I
 
 After successful completion of the course, students will be able to:
 
@@ -4245,7 +4245,7 @@ After successful completion of the course, students will be able to:
 5. Apply knowledge of signals, transmission media, and error detection and correction techniques in data communication
 6. Illustrate the building blocks and functioning of a digital communication system
 
-### 6IT09 Computer Skill Lab – IV
+### 6IT09 Computer Skill Lab � IV
 
 After successful completion of the course, students will be able to:
 
@@ -4620,7 +4620,7 @@ After successful completion of the course, students will be able to:
                                     className="text-xs text-green-700 bg-green-100 border border-green-300 rounded px-1.5 py-0.5 truncate max-w-[160px] font-medium"
                                     title={item.fileName}
                                   >
-                                    ✅ {item.fileName}
+                                    ? {item.fileName}
                                   </span>
                                 )}
                               </div>
@@ -4861,7 +4861,7 @@ After successful completion of the course, students will be able to:
               value={md}
               onSave={(v) => updateData("studentProjects.markdown", v)}
               showDocImport
-              docTemplateUrl="/uploads/documents/pride_templates/it_projects_template.docx"
+              docTemplateUrl="/uploads/documents/departments/it/templates/it_projects_template.docx"
               docTemplateLabel="Download Projects Template"
               placeholder="Student projects tables by year (GFM Markdown)..."
             />
@@ -4932,7 +4932,7 @@ After successful completion of the course, students will be able to:
                   value={md}
                   onSave={(v) => updateData("pride.gateMarkdown", v)}
                   showDocImport
-                  docTemplateUrl="/uploads/documents/pride_templates/it_gate_template.docx"
+                  docTemplateUrl="/uploads/documents/departments/it/templates/it_gate_template.docx"
                   docTemplateLabel="Download Template"
                 />
               ) : (
@@ -4954,7 +4954,7 @@ After successful completion of the course, students will be able to:
                   value={md}
                   onSave={(v) => updateData("pride.toppersMarkdown", v)}
                   showDocImport
-                  docTemplateUrl="/uploads/documents/pride_templates/it_toppers_template.docx"
+                  docTemplateUrl="/uploads/documents/departments/it/templates/it_toppers_template.docx"
                   docTemplateLabel="Download Template"
                 />
               ) : (
@@ -4977,7 +4977,7 @@ After successful completion of the course, students will be able to:
                   value={md}
                   onSave={(v) => updateData("pride.alumniMarkdown", v)}
                   showDocImport
-                  docTemplateUrl="/uploads/documents/pride_templates/it_alumni_template.docx"
+                  docTemplateUrl="/uploads/documents/departments/it/templates/it_alumni_template.docx"
                   docTemplateLabel="Download Template"
                 />
               ) : (
@@ -6572,7 +6572,7 @@ After successful completion of the course, students will be able to:
                       updateData("innovativePractices", parsed);
                     }}
                     showDocImport
-                    docTemplateUrl="/uploads/documents/innovative_practice_templates/it_template.docx"
+                    docTemplateUrl="/uploads/documents/departments/it/templates/it_template.docx"
                     docTemplateLabel="Download Template"
                     placeholder="Innovative Practices table (GFM Markdown)..."
                   />
@@ -8188,7 +8188,7 @@ After successful completion of the course, students will be able to:
                 value={selectedInternshipsMarkdown}
                 onSave={handleInternshipsMarkdownSave}
                 showDocImport
-                docTemplateUrl="/uploads/documents/pride_templates/it_internships_template.docx"
+                docTemplateUrl="/uploads/documents/departments/it/templates/it_internships_template.docx"
                 docTemplateLabel="Download Internship Template"
                 placeholder={`Internship records for ${internshipYear} (GFM Markdown)...`}
               />
@@ -8348,7 +8348,7 @@ After successful completion of the course, students will be able to:
                 <div className="bg-gradient-to-r from-ssgmce-blue to-blue-700 text-white p-4">
                   <h4 className="text-lg font-bold flex items-center gap-2">
                     <FaBook className="text-ssgmce-orange" />
-                    UG Projects – {ugProjectYear}
+                    UG Projects � {ugProjectYear}
                   </h4>
                 </div>
                 <div className="overflow-x-auto">
@@ -8392,7 +8392,7 @@ After successful completion of the course, students will be able to:
                                   <FaExternalLinkAlt className="text-xs" /> View
                                 </a>
                               ) : (
-                                <span className="text-gray-400 text-xs">—</span>
+                                <span className="text-gray-400 text-xs">�</span>
                               )}
                             </td>
                           )}
@@ -8422,7 +8422,7 @@ After successful completion of the course, students will be able to:
                       value={selectedUgProjectsMarkdown}
                       onSave={handleUgProjectMarkdownSave}
                       showDocImport
-                      docTemplateUrl="/uploads/documents/pride_templates/cse_ug_projects_template.docx"
+                      docTemplateUrl="/uploads/documents/departments/cse/templates/cse_ug_projects_template.docx"
                       docTemplateLabel="Download UG Projects Template"
                       placeholder={`UG projects for ${ugProjectYear} (GFM Markdown)...`}
                     />
@@ -8603,7 +8603,7 @@ After successful completion of the course, students will be able to:
         {/* PDF Download Link */}
         <div className="flex items-center gap-4">
           <a
-            href="/uploads/documents/it_services/IT_Services_Offered.pdf"
+            href="/uploads/documents/departments/it/services/IT_Services_Offered.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-5 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors font-medium shadow-sm"

@@ -1629,6 +1629,9 @@ const placementsPages = [
     route: "/placements/about",
     category: "placements",
     template: "generic",
+    templateData: {
+      layout: "placements-about-v1",
+    },
     isPublished: true,
     sections: [],
   },

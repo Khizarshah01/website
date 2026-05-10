@@ -19,8 +19,17 @@ server/build/
 
 # Documents - served via API from server/uploads/documents
 client/public/documents/
-server/uploads/documents/*
-!server/uploads/documents/.gitkeep
+!client/public/documents/
+client/public/documents/*
+!client/public/documents/research/
+!client/public/documents/research/**
+
+# Ignore uploaded document files but keep the folder skeleton tracked
+server/uploads/documents/**/*
+!server/uploads/documents/**/
+!server/uploads/documents/README.md
+!server/uploads/documents/**/.gitkeep
+!server/uploads/documents/**/README.md
 
 # Logs
 logs/

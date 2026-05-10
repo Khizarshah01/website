@@ -1,22 +1,19 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const {
+  getAuthTokenFromRequest,
+  getJwtSecret,
+} = require("../utils/authSecurity");
 
-// JWT Secret - should be in .env file
-const JWT_SECRET = process.env.JWT_SECRET || "ssgmce-admin-secret-key-2024";
-const JWT_EXPIRES_IN = "7d";
+const JWT_SECRET = getJwtSecret();
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 
 // Optional protect – sets req.user when a valid token is present,
 // but does NOT block the request when no token is provided.
 // Use on routes that serve both public and authenticated users (e.g. GET /api/faculty).
 const optionalProtect = async (req, res, next) => {
   try {
-    let token;
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
-    }
+    const token = getAuthTokenFromRequest(req);
     if (token) {
       const decoded = jwt.verify(token, JWT_SECRET);
       const user = await User.findById(decoded.id);
@@ -33,15 +30,7 @@ const optionalProtect = async (req, res, next) => {
 // Protect routes - verify JWT token
 const protect = async (req, res, next) => {
   try {
-    let token;
-
-    // Check for token in Authorization header
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
-    }
+    const token = getAuthTokenFromRequest(req);
 
     if (!token) {
       return res.status(401).json({

@@ -30,6 +30,7 @@ const uploadBufferToGridFS = async ({
   contentType,
   category,
   originalName = "",
+  scope = "",
 }) => {
   const normalizedCategory = normalizeCategory(category);
   if (!normalizedCategory) {
@@ -43,6 +44,7 @@ const uploadBufferToGridFS = async ({
       metadata: {
         category: normalizedCategory,
         originalName,
+        scope: String(scope || "").trim().toLowerCase(),
       },
     });
 

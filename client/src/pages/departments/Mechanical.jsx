@@ -655,73 +655,73 @@ const defaultMechMous = [
     no: "1.",
     org: "Joshi Jampala Engineering Pvt. Ltd., Satara",
     date: "05/03/2025",
-    report: "/uploads/documents/mech_mous/MOU_Joshi_Jampala_2025.pdf",
+    report: "/uploads/documents/departments/mechanical/mous/MOU_Joshi_Jampala_2025.pdf",
   },
   {
     no: "2.",
     org: "Endress Hauser, Chat. Sambhajinagar",
     date: "05/03/2025",
-    report: "/uploads/documents/mech_mous/MOU_Endress_Hauser_2025.pdf",
+    report: "/uploads/documents/departments/mechanical/mous/MOU_Endress_Hauser_2025.pdf",
   },
   {
     no: "3.",
     org: "SW System, Pune",
     date: "05/03/2025",
-    report: "/uploads/documents/mech_mous/MOU_SW_System_2025.pdf",
+    report: "/uploads/documents/departments/mechanical/mous/MOU_SW_System_2025.pdf",
   },
   {
     no: "4.",
     org: "Tejas Polymer Engineers, Pune",
     date: "05/03/2025",
-    report: "/uploads/documents/mech_mous/MOU_Tejas_Polymer_2025.pdf",
+    report: "/uploads/documents/departments/mechanical/mous/MOU_Tejas_Polymer_2025.pdf",
   },
   {
     no: "5.",
     org: "Sharv Polyplast Pvt. Ltd., Pune",
     date: "05/03/2025",
-    report: "/uploads/documents/mech_mous/MOU_Sharv_Polyplast_2025.pdf",
+    report: "/uploads/documents/departments/mechanical/mous/MOU_Sharv_Polyplast_2025.pdf",
   },
   {
     no: "6.",
     org: 'Krishna Vishwa Vidyapeeth "Deemed to be University", Karad, Maharashtra',
     date: "16/01/2024",
-    report: "/uploads/documents/mech_mous/MOU_KVV_Karad_2024.pdf",
+    report: "/uploads/documents/departments/mechanical/mous/MOU_KVV_Karad_2024.pdf",
   },
   {
     no: "7.",
     org: "Endress Hauser, Sambhaji Nagar (Aurangabad)",
     date: "31/03/2022",
-    report: "/uploads/documents/mech_mous/MOU_Endress_Hauser_2022.pdf",
+    report: "/uploads/documents/departments/mechanical/mous/MOU_Endress_Hauser_2022.pdf",
   },
   {
     no: "8.",
     org: "Tool Tech Toolings Kirdak Auto Com Pvt. Ltd., Sambhaji Nagar (Aurangabad)",
     date: "27/07/2022",
-    report: "/uploads/documents/mech_mous/MOU_Tool_Tech_Toolings_2022.pdf",
+    report: "/uploads/documents/departments/mechanical/mous/MOU_Tool_Tech_Toolings_2022.pdf",
   },
   {
     no: "9.",
     org: "Vinodrai Engg Pvt Ltd., MIDC, Jalna",
     date: "16/03/2019",
-    report: "/uploads/documents/mech_mous/MOU_Vinodrai_Engg_2019.pdf",
+    report: "/uploads/documents/departments/mechanical/mous/MOU_Vinodrai_Engg_2019.pdf",
   },
   {
     no: "10.",
     org: "Mechatol Engg Solutions Pvt Ltd., Kothrud, Pune",
     date: "19/01/2019",
-    report: "/uploads/documents/mech_mous/MOU_Mechatol_Engg_2019.pdf",
+    report: "/uploads/documents/departments/mechanical/mous/MOU_Mechatol_Engg_2019.pdf",
   },
   {
     no: "11.",
     org: "Kala Group of Companies, MIDC Chakan, Pune",
     date: "19/01/2019",
-    report: "/uploads/documents/mech_mous/MOU_Kala_Group_2019.pdf",
+    report: "/uploads/documents/departments/mechanical/mous/MOU_Kala_Group_2019.pdf",
   },
   {
     no: "12.",
     org: "Wadhokar Group of Companies, MIDC Chakan, Pune",
     date: "19/01/2019",
-    report: "/uploads/documents/mech_mous/MOU_Wadhokar_Group_2019.pdf",
+    report: "/uploads/documents/departments/mechanical/mous/MOU_Wadhokar_Group_2019.pdf",
   },
 ];
 
@@ -1025,13 +1025,13 @@ const MECH_RESEARCH_FROM_MARKDOWN = {
 
 const MECH_RESEARCH_TEMPLATE_URLS = {
   patents:
-    "/uploads/documents/pride_templates/mechanical_patents_template.docx",
+    "/uploads/documents/departments/mechanical/templates/mechanical_patents_template.docx",
   publications:
-    "/uploads/documents/pride_templates/mechanical_publications_template.docx",
+    "/uploads/documents/departments/mechanical/templates/mechanical_publications_template.docx",
   copyrights:
-    "/uploads/documents/pride_templates/mechanical_copyrights_template.docx",
+    "/uploads/documents/departments/mechanical/templates/mechanical_copyrights_template.docx",
   institutePatents:
-    "/uploads/documents/pride_templates/mechanical_institute_patents_template.docx",
+    "/uploads/documents/departments/mechanical/templates/mechanical_institute_patents_template.docx",
 };
 
 const Mechanical = () => {
@@ -1981,7 +1981,7 @@ const Mechanical = () => {
               updateData(`placements.details.${placementYear}`, value)
             }
             showDocImport
-            docTemplateUrl="/uploads/documents/pride_templates/cse_placement_details_template.docx"
+            docTemplateUrl="/uploads/documents/departments/shared/templates/placement_details_template.docx"
             docTemplateLabel="Download Placement Template"
             placeholder="Paste or import placement data (Markdown) here..."
           />
@@ -3586,7 +3586,7 @@ const Mechanical = () => {
                         className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                         title="Remove item"
                       >
-                        ✕
+                          ✕
                       </button>
                     )}
                   </div>
@@ -3664,7 +3664,7 @@ const Mechanical = () => {
                         className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                         title="Remove item"
                       >
-                        ✕
+                          ✕
                       </button>
                     )}
                   </div>
@@ -3731,7 +3731,7 @@ const Mechanical = () => {
                         className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                         title="Remove item"
                       >
-                        ✕
+                          ✕
                       </button>
                     )}
                   </div>
@@ -3808,7 +3808,7 @@ const Mechanical = () => {
                               className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                               title="Remove item"
                             >
-                              ✕
+                          ✕
                             </button>
                           )}
                         </div>
@@ -5037,7 +5037,7 @@ After successfully completing the course, students will be able to:
                   value={md}
                   onSave={(v) => updateData("pride.gateMarkdown", v)}
                   showDocImport
-                  docTemplateUrl="/uploads/documents/pride_templates/mechanical_gate_template.docx"
+                  docTemplateUrl="/uploads/documents/departments/mechanical/templates/mechanical_gate_template.docx"
                   docTemplateLabel="Download Template"
                 />
               ) : (
@@ -5058,7 +5058,7 @@ After successfully completing the course, students will be able to:
                   value={md}
                   onSave={(v) => updateData("pride.toppersMarkdown", v)}
                   showDocImport
-                  docTemplateUrl="/uploads/documents/pride_templates/mechanical_toppers_template.docx"
+                  docTemplateUrl="/uploads/documents/departments/mechanical/templates/mechanical_toppers_template.docx"
                   docTemplateLabel="Download Template"
                 />
               ) : (
@@ -5081,7 +5081,7 @@ After successfully completing the course, students will be able to:
                   value={md}
                   onSave={(v) => updateData("pride.alumniMarkdown", v)}
                   showDocImport
-                  docTemplateUrl="/uploads/documents/pride_templates/mechanical_alumni_template.docx"
+                  docTemplateUrl="/uploads/documents/departments/mechanical/templates/mechanical_alumni_template.docx"
                   docTemplateLabel="Download Template"
                 />
               ) : (
@@ -7177,7 +7177,7 @@ After successfully completing the course, students will be able to:
               value={md}
               onSave={(v) => updateData("studentProjects.markdown", v)}
               showDocImport
-              docTemplateUrl="/uploads/documents/pride_templates/mech_projects_template.docx"
+              docTemplateUrl="/uploads/documents/departments/mechanical/templates/mech_projects_template.docx"
               docTemplateLabel="Download Projects Template"
               placeholder="Student projects tables by year (GFM Markdown)..."
             />
@@ -7460,7 +7460,7 @@ After successfully completing the course, students will be able to:
                       updateData("innovativePractices", parsed);
                     }}
                     showDocImport
-                    docTemplateUrl="/uploads/documents/innovative_practice_templates/mechanical_template.docx"
+                    docTemplateUrl="/uploads/documents/departments/mechanical/templates/mechanical_template.docx"
                     docTemplateLabel="Download Template"
                     placeholder="Innovative Practices table (GFM Markdown)..."
                   />
@@ -8362,7 +8362,7 @@ After successfully completing the course, students will be able to:
               {/* Detail Report PDF Link */}
               <div className="flex items-center gap-3 mb-2">
                 <a
-                  href={`/uploads/documents/mech_publications/MECH_publication_${researchYear}.pdf`}
+                  href={`/uploads/documents/departments/mechanical/publications/MECH_publication_${researchYear}.pdf`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-ssgmce-blue font-bold rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors text-sm"
@@ -8684,8 +8684,8 @@ After successfully completing the course, students will be able to:
               <a
                 href={
                   internshipYear === "2023-24"
-                    ? "/uploads/documents/mech_internships/Mech_Internship_2023-24.pdf"
-                    : "/uploads/documents/mech_internships/Mech_Internship_2022-23.pdf"
+                    ? "/uploads/documents/departments/mechanical/internships/Mech_Internship_2023-24.pdf"
+                    : "/uploads/documents/departments/mechanical/internships/Mech_Internship_2022-23.pdf"
                 }
                 target="_blank"
                 rel="noopener noreferrer"
@@ -8796,7 +8796,7 @@ After successfully completing the course, students will be able to:
                 value={selectedInternshipsMarkdown}
                 onSave={handleInternshipsMarkdownSave}
                 showDocImport
-                docTemplateUrl="/uploads/documents/pride_templates/mechanical_internships_template.docx"
+                docTemplateUrl="/uploads/documents/departments/mechanical/templates/mechanical_internships_template.docx"
                 docTemplateLabel="Download Internship Template"
                 placeholder={`Internship records for ${internshipYear} (GFM Markdown)...`}
               />

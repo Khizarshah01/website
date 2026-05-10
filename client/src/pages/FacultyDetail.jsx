@@ -372,6 +372,20 @@ export const FACULTY_DIRECTORY_DEPARTMENTS = [
   { id: "mba", label: "Business Administration" },
 ];
 
+const DEPARTMENT_ROUTE_MAP = {
+  applied: "/departments/applied-sciences?section=faculty&tab=faculty",
+  cse: "/departments/cse?section=faculty&tab=faculty",
+  it: "/departments/it?section=faculty&tab=faculty",
+  entc: "/departments/entc?section=faculty&tab=faculty",
+  electrical: "/departments/electrical?section=faculty&tab=faculty",
+  mechanical: "/departments/mechanical?section=faculty&tab=faculty",
+  mba: "/departments/mba?section=faculty&tab=faculty",
+};
+
+const getFacultyReturnPath = (facultyMember) =>
+  DEPARTMENT_ROUTE_MAP[facultyMember?.department] ||
+  "/faculty?section=faculty-directory";
+
 const buildFacultyDirectory = (liveFacultyByDept = {}) => [
   ...(liveFacultyByDept.applied?.length
     ? liveFacultyByDept.applied
@@ -521,7 +535,9 @@ const FacultyDetail = () => {
           </p>
           <button
             type="button"
-            onClick={() => goBackOrFallback(navigate, location, "/faculty")}
+            onClick={() =>
+              goBackOrFallback(navigate, location, "/faculty?section=faculty-directory")
+            }
             className="inline-flex items-center px-6 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors"
           >
             <FaArrowLeft className="mr-2" />
@@ -548,7 +564,9 @@ const FacultyDetail = () => {
         <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900">
           <div className="container mx-auto max-w-7xl px-4 py-4">
             <button
-              onClick={() => goBackOrFallback(navigate, location, "/faculty")}
+              onClick={() =>
+                goBackOrFallback(navigate, location, getFacultyReturnPath(faculty))
+              }
               className="inline-flex items-center text-blue-200 hover:text-white text-sm transition-colors"
             >
               <FaArrowLeft className="mr-2 text-xs" />
@@ -574,7 +592,7 @@ const FacultyDetail = () => {
                       <img
                         src={faculty.photo}
                         alt={faculty.name}
-                        className="w-full h-full object-contain"
+                        className="h-full w-full object-cover object-top"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-blue-700">

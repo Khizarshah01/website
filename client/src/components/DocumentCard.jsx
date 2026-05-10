@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import apiClient from "../utils/apiClient";
 import { logUnexpectedError } from "../utils/apiErrors";
+import { resolveDocumentUrl } from "../utils/contentUrls";
 
 /**
  * DocumentCard Component
@@ -35,7 +36,9 @@ const DocumentCard = ({ document }) => {
   } = document;
   const [showPDFModal, setShowPDFModal] = useState(false);
 
-  const safeFileUrl = typeof fileUrl === "string" ? fileUrl.trim() : "";
+  const safeFileUrl = resolveDocumentUrl(
+    typeof fileUrl === "string" ? fileUrl.trim() : "",
+  );
   const isPDF =
     fileType === "pdf" || safeFileUrl.toLowerCase().endsWith(".pdf");
 

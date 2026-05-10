@@ -103,24 +103,9 @@ export const EditProvider = ({ children, pageId, initialData = {} }) => {
     }
 
     try {
-      const token = localStorage.getItem("adminToken");
-
-      if (!token) {
-        console.error("No authentication token found");
-        return {
-          success: false,
-          error: "Not authenticated. Please login again.",
-        };
-      }
-
       const response = await apiClient.put(
         `/pages/${pageId}`,
         data, // send the full data object directly so the server can merge top-level fields
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
 
       if (response.data.success) {

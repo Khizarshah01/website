@@ -6,11 +6,23 @@ import {
   academicsPathToPageId,
 } from "../constants/academicsPages";
 import { useEdit } from "../contexts/EditContext";
+import { scrollToSection, updateSectionInUrl } from "../utils/navigation";
 import MobileSidebarToggle from "./MobileSidebarToggle";
 
-const AcademicsSidebar = () => {
+const AcademicsSidebar = ({ sections = [] }) => {
   const location = useLocation();
   const { isEditing } = useEdit();
+  const activeSection = new URLSearchParams(location.search).get("section");
+  const visibleSections = Array.isArray(sections)
+    ? sections
+        .filter((section) => section?.sectionId && section?.title)
+        .sort((a, b) => (a.order || 0) - (b.order || 0))
+    : [];
+
+  const handleSectionClick = (sectionId) => {
+    updateSectionInUrl(sectionId);
+    scrollToSection(sectionId);
+  };
 
   const navContent = (
     <nav>
@@ -38,6 +50,28 @@ const AcademicsSidebar = () => {
                 <span className="whitespace-normal">{link.label}</span>
                 <FaChevronRight className="shrink-0 text-[10px]" />
               </Link>
+              {isActive && visibleSections.length > 0 && !isEditing ? (
+                <ul className="mt-1 space-y-1 border-l border-gray-200 pl-3">
+                  {visibleSections.map((section) => {
+                    const sectionActive = activeSection === section.sectionId;
+                    return (
+                      <li key={section.sectionId}>
+                        <button
+                          type="button"
+                          onClick={() => handleSectionClick(section.sectionId)}
+                          className={`w-full rounded-md px-2 py-1.5 text-left text-xs leading-snug transition-colors ${
+                            sectionActive
+                              ? "bg-ssgmce-blue/10 font-semibold text-ssgmce-blue"
+                              : "text-gray-600 hover:bg-gray-100 hover:text-ssgmce-blue"
+                          }`}
+                        >
+                          {section.title}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : null}
             </li>
           );
         })}

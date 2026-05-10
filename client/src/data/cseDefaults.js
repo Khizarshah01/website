@@ -2232,103 +2232,103 @@ export const defaultUgProjects = {
       id: "1",
       title:
         "GenAI-Powered Application Tracking System: Enhancing Recruitment with Skill Fitment Analysis.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-01-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-01-Project_Report_2024-25.pdf",
     },
     {
       id: "2",
       title: "Eloqify - Intelligent Interaction Companion.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-02-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-02-Project_Report_2024-25.pdf",
     },
     {
       id: "3",
       title:
         "WeCare: Blockchain-Based Solution for Modern Healthcare Challenges.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-03-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-03-Project_Report_2024-25.pdf",
     },
     {
       id: "4",
       title:
         "Job Nexus: An AI-Driven Career Placement Portal for Optimized Campus Recruitment.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-04-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-04-Project_Report_2024-25.pdf",
     },
     {
       id: "5",
       title: "Integrated Air Travel Management and Navigation System.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-05-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-05-Project_Report_2024-25.pdf",
     },
     {
       id: "6",
       title: "AI Driven Fitness Platform Using Deep CNN.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-06-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-06-Project_Report_2024-25.pdf",
     },
     {
       id: "7",
       title:
         "Automated guide for Accurate and Faster Packaging of E-Commerce Orders.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-07-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-07-Project_Report_2024-25.pdf",
     },
     {
       id: "8",
       title: "Brain Stroke Detection Using Machine Learning Approach.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-08-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-08-Project_Report_2024-25.pdf",
     },
     {
       id: "9",
       title: "SMART TIMETABLE GENERATOR FOR COLLEGE",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-09-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-09-Project_Report_2024-25.pdf",
     },
     {
       id: "10",
       title:
         "Automated Price Comparison and cheapest option finder for online grocery purchase.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-10-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-10-Project_Report_2024-25.pdf",
     },
     {
       id: "11",
       title: "ProjectPulse: College Project Showcase Platform.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-11-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-11-Project_Report_2024-25.pdf",
     },
     {
       id: "12",
       title:
         "Korgut: Connective Platform between Students, Recruiter, and College",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-12-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-12-Project_Report_2024-25.pdf",
     },
     {
       id: "13",
       title: "AI-Based Web-Application for Personalized Financial Management.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-13-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-13-Project_Report_2024-25.pdf",
     },
     {
       id: "14",
       title:
         "Integrated QR Code Based Medical Inventory and Healthcare Management.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-14-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-14-Project_Report_2024-25.pdf",
     },
     {
       id: "15",
       title: "Agroguide: Crop Recommendation system using Machine Learning.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-15-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-15-Project_Report_2024-25.pdf",
     },
     {
       id: "16",
       title: "Smart CCTV Surveillance System using Python.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-16-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-16-Project_Report_2024-25.pdf",
     },
     {
       id: "17",
       title: "Development of a NextGen Meeting Portal.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-17-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-17-Project_Report_2024-25.pdf",
     },
     {
       id: "18",
       title: "Song Recommendation System based on Emotion.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-18-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-18-Project_Report_2024-25.pdf",
     },
     {
       id: "19",
       title: "Machine Learning Approach For Dream 11 Cricket Team Selection.",
-      link: "https://www.ssgmce.ac.in/uploads/UG_Projects/cse/202425/Proj.Gr.-19-Project_Report_2024-25.pdf",
+      link: "/ug_projects/cse/Proj.Gr.-19-Project_Report_2024-25.pdf",
     },
   ],
   "2023-24": [
@@ -4123,7 +4123,7 @@ export const defaultInnovativePractices = [
     faculty: "Dr. J. M. Patil",
     subject: "Database Management Systems",
     practice: "Power Point Presentation",
-    link: "/uploads/documents/cse_innovative/JMP_innovative.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/JMP_innovative.pdf",
   },
   {
     sn: "02",
@@ -4131,14 +4131,14 @@ export const defaultInnovativePractices = [
     subject: "Block Chain Fundamentals",
     practice:
       "Mini/Term/Short Projects (Design/Fabrication/Simulation/Software/Hardware Development)",
-    link: "/uploads/documents/cse_innovative/Dr_NMK_innovative_learning_CSE.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/Dr_NMK_innovative_learning_CSE.pdf",
   },
   {
     sn: "03",
     faculty: "C. M. Mankar",
     subject: "Theory of Computation",
     practice: "Power Point Presentation",
-    link: "/uploads/documents/cse_innovative/CMM_innovative.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/CMM_innovative.pdf",
   },
   {
     sn: "04",
@@ -4153,35 +4153,35 @@ export const defaultInnovativePractices = [
     faculty: "Dr. P. K. Bharne",
     subject: "Operating System",
     practice: "Content based question making",
-    link: "/uploads/documents/cse_innovative/PKBInnovativePracticeCSE.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/PKBInnovativePracticeCSE.pdf",
   },
   {
     sn: "06",
     faculty: "K. P. Sable",
     subject: "Data Communication & Networking",
     practice: "Learning through Survey/Case studies",
-    link: "/uploads/documents/cse_innovative/KPS_Innovative_Practice_DCN.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/KPS_Innovative_Practice_DCN.pdf",
   },
   {
     sn: "07",
     faculty: "S. B. Pagrut",
     subject: "Digital Forensics",
     practice: "New Experiment development and testing",
-    link: "/uploads/documents/cse_innovative/SBP_InnovativePractice.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/SBP_InnovativePractice.pdf",
   },
   {
     sn: "08",
     faculty: "Dr. R. A. Zamare",
     subject: "Big Data Analytics",
     practice: "Learning through Industrial visit/field work and report writing",
-    link: "/uploads/documents/cse_innovative/RAZ_Innovative_Practice_Industrial_Visit_BDA.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/RAZ_Innovative_Practice_Industrial_Visit_BDA.pdf",
   },
   {
     sn: "09",
     faculty: "P. R. Pohare",
     subject: "AI",
     practice: "Designing Quizzes",
-    link: "/uploads/documents/cse_innovative/PRP_Innovations.pdf",
+    link: "/uploads/documents/departments/cse/innovative-practices/PRP_Innovations.pdf",
   },
 ];
 export const defaultAchievements = {
@@ -4492,14 +4492,14 @@ export function markdownToInnovativePractices(markdown = "") {
     if (
       !inTable &&
       trimmed.match(/^\|.*\|$/) &&
-      !trimmed.match(/^\|[\s-|]+\|$/)
+      !trimmed.match(/^\|[\s:|-]+\|$/)
     ) {
       inTable = true;
       continue;
     }
 
     // Skip separator rows (all dashes and pipes)
-    if (trimmed.match(/^\|[\s-|]+\|$/)) {
+    if (trimmed.match(/^\|[\s:|-]+\|$/)) {
       continue;
     }
 
@@ -4511,7 +4511,13 @@ export function markdownToInnovativePractices(markdown = "") {
         .filter((cell) => cell.length > 0);
 
       // Only add valid rows (must have all 5 fields and sn must not be empty)
-      if (cells.length >= 5 && cells[0] && cells[0].length > 0) {
+      if (
+        cells.length >= 5 &&
+        cells[0] &&
+        cells[0].length > 0 &&
+        cells[0] !== "S.N." &&
+        cells[0] !== "S.N"
+      ) {
         practices.push({
           sn: cells[0],
           faculty: cells[1] || "",

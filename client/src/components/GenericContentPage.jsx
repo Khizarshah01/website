@@ -36,6 +36,8 @@ import {
 import principalFallbackImage from "../assets/images/about/principal_c.png";
 import inspirationFallbackImage from "../assets/images/about/chairman_c.jpeg";
 import campusViewImage from "../assets/images/home/Campus-View.avif";
+import tpoFallbackImage from "../assets/images/placements/tpo-adesh-solanke.jpg";
+import NAAC_DVV_TABLE_MARKDOWN from "../data/naacDvvTableMarkdown";
 
 // Map pageId prefixes to their sidebar components
 const SIDEBAR_MAP = {
@@ -58,6 +60,39 @@ const SIDEBAR_MAP = {
 const PAGE_CACHE_TTL_MS = 5 * 60 * 1000;
 const pageDataCache = new Map();
 const pageRequestCache = new Map();
+const LEGACY_PHD_ENROLLMENT_URL =
+  "https://www.ssgmce.ac.in/uploads/pdf/PhD%20Enrollment%20in%20Research%20Centres-Updated-Aug-24.pdf";
+const LOCAL_PHD_ENROLLMENT_URL =
+  "/documents/research/phd/phd-enrollment-in-research-centres-updated-aug-24.pdf";
+const RESEARCH_UG_PROJECTS_LINK_REPLACEMENTS = [
+  ["/departments/cse", "/departments/cse?tab=ug-projects"],
+  ["/departments/electrical", "/departments/electrical?tab=projects"],
+  ["/departments/entc", "/departments/entc?tab=projects"],
+  ["/departments/it", "/departments/it?tab=projects"],
+  ["/departments/mechanical", "/departments/mechanical?tab=student-projects"],
+];
+const RESEARCH_NISP_LINK_REPLACEMENTS = [
+  [
+    "https://www.ssgmce.ac.in/uploads/pdf/SGIARC-TBI-NISP.pdf",
+    "/documents/research/nisp/sgiarc-tbi-nisp.pdf",
+  ],
+  [
+    "https://www.ssgmce.ac.in/uploads/pdf/MHRD_NISP_policy.pdf",
+    "/documents/research/nisp/mhrd-nisp-policy.pdf",
+  ],
+  [
+    "https://www.ssgmce.ac.in/uploads/pdf/NISP%20_Expert%20Committee.pdf",
+    "/documents/research/nisp/nisp-expert-committee.pdf",
+  ],
+  [
+    "https://www.ssgmce.ac.in/uploads/pdf/NISP%201st%20meeting%20Policy.pdf",
+    "/documents/research/nisp/nisp-1st-meeting-policy.pdf",
+  ],
+  [
+    "https://www.ssgmce.ac.in/uploads/pdf/NISP%202nd%20meeting%20policy.pdf",
+    "/documents/research/nisp/nisp-2nd-meeting-policy.pdf",
+  ],
+];
 
 const PREFETCH_GROUPS = {
   "about-": [
@@ -112,8 +147,219 @@ const PREFETCH_GROUPS = {
   ],
 };
 
+const AQAR_DATA_SECTION_IDS = new Set([
+  "aqar-2023-24",
+  "aqar-2021-22",
+  "aqar-2020-21",
+  "aqar-older",
+]);
+
+const AQAR_CRITERION_SNIPPETS = Object.freeze({
+  I: "Covers curriculum planning, academic flexibility, enrichment, and structured stakeholder feedback.",
+  II: "Includes enrolment profile, student-centric teaching, internal evaluation reforms, and satisfaction survey.",
+  III: "Details research grants, innovation ecosystem, publications, extension activities, and collaborations.",
+  IV: "Documents classrooms/labs, library resources, IT infrastructure, bandwidth, and maintenance systems.",
+  V: "Summarizes scholarships, mentoring and support services, progression, placements, and co-curricular outcomes.",
+  VI: "Focuses on governance model, e-governance adoption, financial processes, and institutional quality initiatives.",
+  VII: "Presents gender equity measures, environmental practices, inclusivity, and institutional best practices.",
+});
+
+const parseMarkdownLinkCell = (cellText = "") => {
+  const trimmed = String(cellText || "").trim();
+  const match = trimmed.match(/\[([^\]]+)\]\((.+)\)/);
+  if (!match) {
+    return {
+      label: trimmed.replace(/\*\*/g, "").trim(),
+      url: "",
+    };
+  }
+
+  return {
+    label: String(match[1] || "")
+      .replace(/\*\*/g, "")
+      .trim(),
+    url: String(match[2] || "").trim(),
+  };
+};
+
+const parseMarkdownTableRows = (markdown = "") => {
+  const lines = String(markdown || "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith("|") && line.endsWith("|"));
+
+  if (lines.length < 3) return [];
+
+  const dataLines = lines.slice(2);
+  return dataLines
+    .map((line) =>
+      line
+        .slice(1, -1)
+        .split("|")
+        .map((cell) => cell.trim()),
+    )
+    .filter((cells) => cells.some((cell) => cell.length > 0));
+};
+
+const resolveAqarTitle = (sectionId, firstCell, index) => {
+  const clean = String(firstCell || "")
+    .replace(/\*\*/g, "")
+    .trim();
+  if (sectionId === "aqar-older" && clean) {
+    return `AQAR Report ${clean}`;
+  }
+  return clean || `Document ${index + 1}`;
+};
+
+const resolveAqarSnippet = (title, url, sectionTitle) => {
+  const normalizedTitle = String(title || "").toLowerCase();
+  const normalizedSectionTitle = String(sectionTitle || "").trim();
+
+  if (normalizedTitle.includes("aqar report")) {
+    return `Complete yearly status report for ${normalizedSectionTitle}, including Part A institutional data and Part B criterion-wise evidence.`;
+  }
+
+  if (normalizedTitle.includes("extended profile")) {
+    return `Part A data set for ${normalizedSectionTitle} with institutional profile and preparedness details.`;
+  }
+
+  const criterionMatch = title.match(/criterion\s+([ivx]+)/i);
+  if (criterionMatch) {
+    const key = criterionMatch[1].toUpperCase();
+    const base = AQAR_CRITERION_SNIPPETS[key];
+    if (base) return `AQAR ${normalizedSectionTitle}: ${base}`;
+  }
+
+  if (url.toLowerCase().endsWith(".pdf")) {
+    return `Archived AQAR report document for ${normalizedSectionTitle}.`;
+  }
+
+  return `Linked AQAR supporting document for ${normalizedSectionTitle}.`;
+};
+
+const getAqarReportCards = (section = {}) => {
+  const sectionId = String(section.sectionId || "");
+  const markdown = section?.content?.text;
+  if (!AQAR_DATA_SECTION_IDS.has(sectionId) || !markdown) return [];
+
+  const rows = parseMarkdownTableRows(markdown);
+  return rows.map((cells, index) => {
+    const firstCell = cells[0] || "";
+    const secondCell = cells[1] || "";
+    const linkCandidate = parseMarkdownLinkCell(secondCell || firstCell);
+    const url = linkCandidate.url;
+    const title = resolveAqarTitle(sectionId, firstCell, index);
+    return {
+      id: `${sectionId}-${index}-${title}`,
+      title,
+      url,
+      snippet: resolveAqarSnippet(title, url, section.title),
+    };
+  });
+};
+
+const getAqarItems = (section = {}) => {
+  const sectionId = String(section.sectionId || "");
+  if (!AQAR_DATA_SECTION_IDS.has(sectionId)) return [];
+
+  const savedItems = section?.content?.items;
+  if (Array.isArray(savedItems) && savedItems.length) return savedItems;
+  return getAqarReportCards(section);
+};
+
+const buildAqarMarkdownFromItems = (items = [], sectionTitle = "") => {
+  if (!Array.isArray(items) || !items.length) return "";
+
+  return items
+    .map((item, index) => {
+      const rawTitle = String(item?.title || "").trim();
+      const title =
+        /^\d{4}-\d{2}$/.test(rawTitle) &&
+        sectionTitle.toLowerCase().includes("previous")
+          ? `AQAR Report ${rawTitle}`
+          : rawTitle || `Document ${index + 1}`;
+      const url = String(item?.url || "").trim();
+      const detail = String(
+        item?.snippet || resolveAqarSnippet(title, url, sectionTitle),
+      ).trim();
+      const cta = url
+        ? url.toLowerCase().endsWith(".pdf")
+          ? `[Download PDF ↗](${url})`
+          : `[Open Document ↗](${url})`
+        : "Unavailable";
+
+      return `${index + 1}. **${title}**\n   - Detail: ${detail}\n   - Document: ${cta}`;
+    })
+    .join("\n\n");
+};
+
 const getStorageCacheKey = (pageId) =>
   `ssgmce-page-cache:${String(pageId || "").toLowerCase()}`;
+
+const normalizeLegacyPageData = (pageId, pageData) => {
+  if (!pageData || String(pageId || "").toLowerCase() !== "research-phd") {
+    if (
+      String(pageId || "").toLowerCase() !== "research-ug-projects" &&
+      String(pageId || "").toLowerCase() !== "research-nisp"
+    ) {
+      return pageData;
+    }
+  }
+
+  const clonedSections = Array.isArray(pageData.sections)
+    ? pageData.sections.map((section) => {
+        const text = section?.content?.text;
+        if (typeof text !== "string") {
+          return section;
+        }
+
+        let nextText = text;
+        if (String(pageId || "").toLowerCase() === "research-phd") {
+          if (!nextText.includes(LEGACY_PHD_ENROLLMENT_URL)) {
+            return section;
+          }
+
+          nextText = nextText.replace(
+            LEGACY_PHD_ENROLLMENT_URL,
+            LOCAL_PHD_ENROLLMENT_URL,
+          );
+        }
+
+        if (String(pageId || "").toLowerCase() === "research-ug-projects") {
+          RESEARCH_UG_PROJECTS_LINK_REPLACEMENTS.forEach(([from, to]) => {
+            nextText = nextText.replaceAll(`](${from})`, `](${to})`);
+          });
+
+          if (nextText === text) {
+            return section;
+          }
+        }
+
+        if (String(pageId || "").toLowerCase() === "research-nisp") {
+          RESEARCH_NISP_LINK_REPLACEMENTS.forEach(([from, to]) => {
+            nextText = nextText.replaceAll(from, to);
+          });
+
+          if (nextText === text) {
+            return section;
+          }
+        }
+
+        return {
+          ...section,
+          content: {
+            ...section.content,
+            text: nextText,
+          },
+        };
+      })
+    : pageData.sections;
+
+  return {
+    ...pageData,
+    sections: clonedSections,
+  };
+};
 
 const getCachedPageData = (pageId) => {
   const normalizedPageId = String(pageId || "").toLowerCase();
@@ -127,15 +373,17 @@ const getCachedPageData = (pageId) => {
     return null;
   }
 
-  return cached.data;
+  return normalizeLegacyPageData(normalizedPageId, cached.data);
 };
 
 const setCachedPageData = (pageId, data) => {
   const normalizedPageId = String(pageId || "").toLowerCase();
   if (!normalizedPageId || !data) return;
 
+  const normalizedData = normalizeLegacyPageData(normalizedPageId, data);
+
   const entry = {
-    data,
+    data: normalizedData,
     timestamp: Date.now(),
   };
   pageDataCache.set(normalizedPageId, entry);
@@ -167,7 +415,7 @@ const readSessionCachedPageData = (pageId) => {
     }
 
     pageDataCache.set(normalizedPageId, parsed);
-    return parsed.data;
+    return normalizeLegacyPageData(normalizedPageId, parsed.data);
   } catch {
     return null;
   }
@@ -189,7 +437,7 @@ const fetchPageById = async (pageId) => {
       if (!res?.data?.success) {
         throw new Error(res?.data?.message || "Page not found");
       }
-      return res.data.data;
+      return normalizeLegacyPageData(normalizedPageId, res.data.data);
     })
     .finally(() => {
       pageRequestCache.delete(normalizedPageId);
@@ -421,6 +669,7 @@ const GenericContentPage = ({ pageId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const lastAutoScrolledPageRef = useRef(null);
+  const naacDvvInitializedRef = useRef(false);
   const [isPrincipalMessageExpanded, setIsPrincipalMessageExpanded] =
     useState(false);
   const [isGlanceIntroExpanded, setIsGlanceIntroExpanded] = useState(false);
@@ -452,6 +701,52 @@ const GenericContentPage = ({ pageId }) => {
     pageId?.startsWith("facilities-") &&
     !pageId?.startsWith("facilities-admin-office-") &&
     pageId !== "facilities-administrative-office";
+  const selectedLayout = String(displayPage?.templateData?.layout || "").trim();
+
+  useEffect(() => {
+    naacDvvInitializedRef.current = false;
+  }, [pageId]);
+
+  useEffect(() => {
+    if (!isEditing || pageId !== "iqac-aqar") return;
+    if (!sections.length) return;
+
+    sections.forEach((section, index) => {
+      if (!AQAR_DATA_SECTION_IDS.has(section?.sectionId)) return;
+
+      const currentText = String(section?.content?.text || "").trim();
+      if (currentText && /^\s*1\.\s+/m.test(currentText)) return;
+
+      const items = getAqarItems(section);
+      const nextMarkdown = buildAqarMarkdownFromItems(items, section.title);
+      if (!nextMarkdown) return;
+
+      updateData(`sections[${index}].content.text`, nextMarkdown);
+    });
+  }, [isEditing, pageId, sections, updateData]);
+
+  useEffect(() => {
+    if (!isEditing || pageId !== "iqac-naac") return;
+    if (naacDvvInitializedRef.current) return;
+    if (!sections.length) return;
+
+    const docsSectionIndex = sections.findIndex(
+      (section) => section?.sectionId === "naac-docs",
+    );
+    if (docsSectionIndex === -1) return;
+
+    const existingTable = String(
+      sections[docsSectionIndex]?.content?.dvvTable || "",
+    ).trim();
+    if (!existingTable) {
+      updateData(
+        `sections[${docsSectionIndex}].content.dvvTable`,
+        NAAC_DVV_TABLE_MARKDOWN,
+      );
+    }
+
+    naacDvvInitializedRef.current = true;
+  }, [isEditing, pageId, sections, updateData]);
 
   useEffect(() => {
     // When rendered inside VisualPageEditor the data is already loaded into
@@ -620,6 +915,21 @@ const GenericContentPage = ({ pageId }) => {
 
     return {
       name: parts[0] || "Dr. S. B. Somani",
+      role: parts[1] || "Principal",
+      org:
+        parts.slice(2).join(", ") ||
+        "Shri Sant Gajanan Maharaj College of Engineering, Shegaon",
+    };
+  };
+
+  const parsePlacementOfficerCaption = (caption = "") => {
+    const parts = String(caption || "")
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    return {
+      name: parts[0] || "Training & Placement Officer",
       role: parts[1] || "Principal",
       org:
         parts.slice(2).join(", ") ||
@@ -806,7 +1116,9 @@ Constituted By **All India Council for Technical Education, New Delhi**
   };
 
   const isLikelyNameColumnHeader = (header = "") => {
-    const normalizedHeader = String(header || "").toLowerCase().trim();
+    const normalizedHeader = String(header || "")
+      .toLowerCase()
+      .trim();
     return (
       normalizedHeader.includes("name") ||
       normalizedHeader.includes("authorit") ||
@@ -1413,16 +1725,18 @@ Constituted By **All India Council for Technical Education, New Delhi**
   };
 
   const renderAboutVisionPage = () => {
-        const getVisionMissionIcon = (title = "") => {
-          const normalizedTitle = String(title).toLowerCase();
-          if (normalizedTitle.includes("vision")) {
-            return <FaBullseye className="text-ssgmce-orange" aria-hidden="true" />;
-          }
-          if (normalizedTitle.includes("mission")) {
-            return <FaHandshake className="text-ssgmce-orange" aria-hidden="true" />;
-          }
-          return null;
-        };
+    const getVisionMissionIcon = (title = "") => {
+      const normalizedTitle = String(title).toLowerCase();
+      if (normalizedTitle.includes("vision")) {
+        return <FaBullseye className="text-ssgmce-orange" aria-hidden="true" />;
+      }
+      if (normalizedTitle.includes("mission")) {
+        return (
+          <FaHandshake className="text-ssgmce-orange" aria-hidden="true" />
+        );
+      }
+      return null;
+    };
 
     const visionHeading = String(
       displayPage.pageTitle || "Vision-Mission, Core Values & Goals",
@@ -2173,6 +2487,143 @@ Constituted By **All India Council for Technical Education, New Delhi**
     );
   };
 
+  const renderPlacementsAboutPage = () => {
+    const introMeta =
+      getSectionByPriority(["tp-intro", "intro"], "markdown") || null;
+    const officerImageMeta =
+      getSectionByPriority(["tp-image", "officer-image"], "image") || null;
+    const teamMeta =
+      getSectionByPriority(
+        ["tp-team", "team", "about-training-and-placement-cell"],
+        "markdown",
+      ) || null;
+
+    const officerImage = officerImageMeta?.section?.content?.url || "";
+    const officerAlt =
+      officerImageMeta?.section?.content?.alt || "Training & Placement Cell";
+    const officer = parsePlacementOfficerCaption(
+      officerImageMeta?.section?.content?.caption,
+    );
+
+    return (
+      <GenericPage title={displayPage.pageTitle} showInnerTitle={false}>
+        <div className="flex flex-col lg:flex-row gap-8">
+          {sidebar && (
+            <div className="lg:w-1/4 flex-shrink-0">
+              <div className="sticky top-24">{sidebar}</div>
+            </div>
+          )}
+
+          <div className={sidebar ? "lg:w-3/4" : "w-full"}>
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+              <div className="xl:col-span-4">
+                {officerImageMeta && (
+                  <EditableSection
+                    index={officerImageMeta.originalIndex}
+                    title={officerImageMeta.section.type}
+                    sectionContent={officerImageMeta.section.content}
+                    contentPath={`sections[${officerImageMeta.originalIndex}].content`}
+                  >
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                      {isEditing ? (
+                        <EditableImage
+                          path={`sections[${officerImageMeta.originalIndex}].content.url`}
+                          className="w-full aspect-[4/5] object-cover rounded-xl border border-gray-100"
+                          alt={officerAlt}
+                        />
+                      ) : (
+                        <ImageWithFallback
+                          src={officerImage}
+                          fallbackSrc={tpoFallbackImage}
+                          alt={officerAlt}
+                          className="w-full aspect-[4/5] object-cover rounded-xl border border-gray-100"
+                        />
+                      )}
+                    </div>
+                  </EditableSection>
+                )}
+
+                <div className="text-center mt-6 px-2">
+                  <h3 className="text-4xl font-bold text-ssgmce-blue leading-tight">
+                    {officer.name}
+                  </h3>
+                  <p className="text-2xl text-ssgmce-orange font-semibold mt-2">
+                    {officer.role}
+                  </p>
+                  <p className="text-gray-500 text-base mt-3">{officer.org}</p>
+                </div>
+              </div>
+
+              <div className="xl:col-span-8">
+                <div className="mb-5 border-l-4 border-ssgmce-orange pl-4">
+                  <h2 className="text-3xl font-bold text-ssgmce-blue">
+                    {displayPage.pageTitle}
+                  </h2>
+                </div>
+
+                <FaQuoteLeft className="text-3xl text-ssgmce-orange/30 mb-4" />
+
+                <div className="space-y-5">
+                  {introMeta && (
+                    <EditableSection
+                      index={introMeta.originalIndex}
+                      title={introMeta.section.type}
+                      sectionContent={introMeta.section.content}
+                      contentPath={`sections[${introMeta.originalIndex}].content`}
+                    >
+                      <div className="prose max-w-none text-gray-700 leading-relaxed">
+                        {introMeta.section.type === "markdown" ? (
+                          <MarkdownEditor
+                            value={introMeta.section.content.text}
+                            path={`sections[${introMeta.originalIndex}].content.text`}
+                            className="leading-7"
+                          />
+                        ) : (
+                          <EditableText
+                            value={introMeta.section.content.text}
+                            path={`sections[${introMeta.originalIndex}].content.text`}
+                            richText={true}
+                            multiline={true}
+                          />
+                        )}
+                      </div>
+                    </EditableSection>
+                  )}
+
+                  {teamMeta && teamMeta.originalIndex !== introMeta?.originalIndex && (
+                    <EditableSection
+                      index={teamMeta.originalIndex}
+                      title={teamMeta.section.type}
+                      sectionContent={teamMeta.section.content}
+                      contentPath={`sections[${teamMeta.originalIndex}].content`}
+                    >
+                      <div className="prose max-w-none text-gray-700 leading-relaxed">
+                        {teamMeta.section.type === "markdown" ? (
+                          <MarkdownEditor
+                            value={teamMeta.section.content.text}
+                            path={`sections[${teamMeta.originalIndex}].content.text`}
+                            className="leading-8"
+                          />
+                        ) : (
+                          <EditableText
+                            value={teamMeta.section.content.text}
+                            path={`sections[${teamMeta.originalIndex}].content.text`}
+                            richText={true}
+                            multiline={true}
+                          />
+                        )}
+                      </div>
+                    </EditableSection>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </GenericPage>
+    );
+  };
+
   if (loading && !displayPage) {
     return (
       <GenericPage
@@ -2219,6 +2670,10 @@ Constituted By **All India Council for Technical Education, New Delhi**
 
   if (pageId === "about-governing" || pageId === "about-governing-body") {
     return renderAboutGoverningPage();
+  }
+
+  if (selectedLayout === "placements-about-v1") {
+    return renderPlacementsAboutPage();
   }
 
   return (
@@ -2328,6 +2783,8 @@ Constituted By **All India Council for Technical Education, New Delhi**
                         <MarkdownEditor
                           value={section.content.text}
                           path={`sections[${index}].content.text`}
+                          pageId={pageId}
+                          sectionTitle={section.title}
                           className={
                             isAdmissionsThemePage || isAboutThemePage
                               ? "leading-7"
@@ -2356,6 +2813,8 @@ Constituted By **All India Council for Technical Education, New Delhi**
                       <MarkdownEditor
                         value={section.content.text}
                         path={`sections[${index}].content.text`}
+                        pageId={pageId}
+                        sectionTitle={section.title}
                         className={
                           isAdmissionsThemePage || isAboutThemePage
                             ? "leading-7"
@@ -2363,6 +2822,24 @@ Constituted By **All India Council for Technical Education, New Delhi**
                         }
                       />
                     )}
+
+                    {pageId === "iqac-naac" &&
+                      section.type === "markdown" &&
+                      section.sectionId === "naac-docs" && (
+                        <div className="mt-6">
+                          <h4 className="text-base font-semibold text-ssgmce-blue mb-3">
+                            DVV Clarification Details
+                          </h4>
+                          <MarkdownEditor
+                            value={
+                              section?.content?.dvvTable ||
+                              NAAC_DVV_TABLE_MARKDOWN
+                            }
+                            path={`sections[${index}].content.dvvTable`}
+                            pageId={pageId}
+                          />
+                        </div>
+                      )}
 
                     {/* Stats Section */}
                     {section.type === "stats" && section.content.stats && (
@@ -2951,7 +3428,7 @@ Constituted By **All India Council for Technical Education, New Delhi**
             )}
 
             {/* Add Markdown Section button for facility pages in edit mode */}
-            {isEditing && pageId?.startsWith("facilities-") && (
+            {isEditing && (
               <div className="flex justify-center py-6">
                 <button
                   onClick={() => {

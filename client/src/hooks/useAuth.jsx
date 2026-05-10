@@ -1,5 +1,10 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import apiClient from "../utils/apiClient";
+import {
+  clearStoredAuth,
+  getStoredAdminUser,
+  setStoredAdminUser,
+} from "../utils/authStorage";
 
 // Create Auth Context
 const AuthContext = createContext(null);
@@ -12,14 +17,39 @@ export const AuthProvider = ({ children }) => {
 
   // Initialize auth state from localStorage
   useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-    const savedUser = localStorage.getItem("adminUser");
+    let isMounted = true;
 
-    if (token && savedUser) {
-      setUser(JSON.parse(savedUser));
-      apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    }
-    setLoading(false);
+    const initializeAuth = async () => {
+      const savedUser = getStoredAdminUser();
+      if (savedUser && isMounted) {
+        setUser(savedUser);
+      }
+
+      try {
+        const response = await apiClient.get(`/auth/me`, {
+          skipAuthRedirect: true,
+        });
+        if (isMounted && response.data?.success) {
+          setUser(response.data.data);
+          setStoredAdminUser(response.data.data);
+        }
+      } catch (_error) {
+        if (isMounted) {
+          clearStoredAuth();
+          setUser(null);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Login function
@@ -34,15 +64,9 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (response.data.success) {
-        const { token, ...userData } = response.data.data;
+        const { token: _token, ...userData } = response.data.data;
 
-        // Save to localStorage
-        localStorage.setItem("adminToken", token);
-        localStorage.setItem("adminUser", JSON.stringify(userData));
-
-        // Set axios default header
-        apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
+        setStoredAdminUser(userData);
         setUser(userData);
         return { success: true };
       }
@@ -68,12 +92,9 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (response.data.success) {
-        const { token, ...userData } = response.data.data;
+        const { token: _token, ...userData } = response.data.data;
 
-        localStorage.setItem("adminToken", token);
-        localStorage.setItem("adminUser", JSON.stringify(userData));
-        apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
+        setStoredAdminUser(userData);
         setUser(userData);
         return { success: true };
       }
@@ -87,10 +108,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Logout function
-  const logout = () => {
-    localStorage.removeItem("adminToken");
-    localStorage.removeItem("adminUser");
-    delete apiClient.defaults.headers.common["Authorization"];
+  const logout = async () => {
+    try {
+      await apiClient.post(`/auth/logout`, {}, { skipAuthRedirect: true });
+    } catch (_error) {
+      // Clear local auth state even if the cookie is already expired server-side.
+    }
+    clearStoredAuth();
     setUser(null);
   };
 
@@ -103,7 +127,7 @@ export const AuthProvider = ({ children }) => {
   const userDepartment = user?.department || "All";
 
   // Get auth token
-  const getToken = () => localStorage.getItem("adminToken");
+  const getToken = () => null;
 
   return (
     <AuthContext.Provider

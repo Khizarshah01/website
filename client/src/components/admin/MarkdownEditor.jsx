@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
@@ -6,7 +7,12 @@ import MarkdownIt from "markdown-it";
 import markdownItAttrs from "markdown-it-attrs";
 import apiClient from "../../utils/apiClient";
 import { useEdit } from "../../contexts/EditContext";
+import {
+  iprDepartmentLinks,
+  publicationDepartmentLinks,
+} from "../../constants/researchDepartmentLinks";
 import { resolveUploadedAssetUrl } from "../../utils/uploadUrls";
+import DepartmentRedirectGrid from "../research/DepartmentRedirectGrid";
 import {
   FaCheck,
   FaTimes,
@@ -221,6 +227,15 @@ const parseDepartmentPageLink = (markdownText = "") => {
   };
 };
 
+const isInternalAppPath = (href = "") =>
+  typeof href === "string" && href.startsWith("/") && !href.startsWith("//");
+
+const sanitizeResearchMarkdown = (markdownText = "") =>
+  String(markdownText || "").replace(
+    /\n\n\[View on SSGMCE Website\]\(https:\/\/www\.ssgmce\.ac\.in\/patent\.php\)/gi,
+    "",
+  );
+
 const splitByH2Sections = (markdownText = "") => {
   const headingRegex = /^##\s+(.+)$/gm;
   const matches = Array.from(markdownText.matchAll(headingRegex));
@@ -338,8 +353,27 @@ const getMetaChipClass = (label = "", value = "") => {
   return "bg-slate-50 text-slate-700 border-slate-200";
 };
 
+const isYearlyPublicationReportsSection = (title = "") =>
+  /^\s*yearly(?:\s+publication)?\s+reports?\s*$/i.test(String(title || ""));
+
+const isYearlyIprReportsSection = (title = "") =>
+  /^\s*yearly\s+reports?\s*$/i.test(String(title || ""));
+
 const DepartmentLinkCard = ({ link }) => {
   if (!link) return null;
+  if (isInternalAppPath(link.href)) {
+    return (
+      <div className="mb-4 rounded-lg border border-blue-100 bg-blue-50/50 px-3 py-2">
+        <Link
+          to={link.href}
+          className="inline-flex items-center gap-2 text-sm font-medium text-ssgmce-blue hover:text-blue-800 transition-colors"
+        >
+          {link.label}
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="mb-4 rounded-lg border border-blue-100 bg-blue-50/50 px-3 py-2">
       <a
@@ -493,7 +527,33 @@ const preprocessContainers = (md) => {
   return result;
 };
 
-const FacilityGridLayout = ({ markdownText }) => {
+const FacilityGridLayout = ({
+  markdownText,
+  pageId = "",
+  sectionTitle = "",
+}) => {
+  const cleanedMarkdownText = sanitizeResearchMarkdown(markdownText);
+  const isResearchPublicationsPage = pageId === "research-publications";
+  const isResearchIprPage = pageId === "research-ipr";
+  const shouldShowPublicationDepartmentGrid =
+    isResearchPublicationsPage &&
+    String(sectionTitle || "").trim().toLowerCase() === "overview";
+  const shouldShowIprDepartmentGrid =
+    isResearchIprPage &&
+    String(sectionTitle || "").trim().toLowerCase() === "overview";
+  const departmentRedirectConfig = shouldShowPublicationDepartmentGrid
+    ? {
+        departments: publicationDepartmentLinks,
+        title: "Explore Publications by Department",
+        subtitle: "Jump directly to the publication section for any department.",
+      }
+    : shouldShowIprDepartmentGrid
+      ? {
+          departments: iprDepartmentLinks,
+          title: "Explore IPR by Department",
+          subtitle: "Jump directly to the patent and publication section for any department.",
+        }
+      : null;
   const renderMarkdown = (content) => (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
@@ -504,7 +564,11 @@ const FacilityGridLayout = ({ markdownText }) => {
     </ReactMarkdown>
   );
 
-  const facilityParsed = parseFacilityGridMarkdown(markdownText);
+  if (pageId === "iqac-aqar") {
+    return renderMarkdown(cleanedMarkdownText);
+  }
+
+  const facilityParsed = parseFacilityGridMarkdown(cleanedMarkdownText);
   if (facilityParsed) {
     return (
       <div className="space-y-5">
@@ -562,7 +626,7 @@ const FacilityGridLayout = ({ markdownText }) => {
     );
   }
 
-  const scholarParsed = parseResearchScholarMarkdown(markdownText);
+  const scholarParsed = parseResearchScholarMarkdown(cleanedMarkdownText);
   if (scholarParsed) {
     const scholarEntries = scholarParsed.map((scholar) => ({
       serial: scholar.serial,
@@ -574,7 +638,7 @@ const FacilityGridLayout = ({ markdownText }) => {
     return <StructuredRecordCards entries={scholarEntries} />;
   }
 
-  const { departmentLink, content } = parseDepartmentPageLink(markdownText);
+  const { departmentLink, content } = parseDepartmentPageLink(cleanedMarkdownText);
   const sectioned = splitByH2Sections(content);
 
   if (sectioned) {
@@ -599,7 +663,19 @@ const FacilityGridLayout = ({ markdownText }) => {
       return { ...section, kind: "markdown" };
     });
 
-    const hasCustomSection = classifiedSections.some(
+    const visibleSections = isResearchPublicationsPage
+      ? classifiedSections.filter(
+          (section) => !isYearlyPublicationReportsSection(section.title),
+        )
+      : isResearchIprPage
+        ? classifiedSections.filter(
+            (section) => !isYearlyIprReportsSection(section.title),
+          )
+      : classifiedSections;
+    const removedYearlyReports =
+      visibleSections.length !== classifiedSections.length;
+
+    const hasCustomSection = visibleSections.some(
       (section) => section.kind !== "markdown",
     );
 
@@ -610,7 +686,7 @@ const FacilityGridLayout = ({ markdownText }) => {
 
           {sectioned.intro ? renderMarkdown(sectioned.intro) : null}
 
-          {classifiedSections.map((section, idx) => (
+          {visibleSections.map((section, idx) => (
             <section key={`${section.title}-${idx}`} className="space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="text-lg font-semibold text-ssgmce-blue border-b border-gray-200 pb-1">
@@ -633,12 +709,35 @@ const FacilityGridLayout = ({ markdownText }) => {
               {section.kind === "markdown" ? renderMarkdown(section.content) : null}
             </section>
           ))}
+
+          {departmentRedirectConfig && removedYearlyReports ? (
+            <DepartmentRedirectGrid
+              departments={departmentRedirectConfig.departments}
+              title={departmentRedirectConfig.title}
+              subtitle={departmentRedirectConfig.subtitle}
+              currentPath={departmentLink?.href || ""}
+            />
+          ) : null}
         </div>
       );
     }
   }
 
   const docsOnly = parseDocumentCardItems(content);
+  if (departmentRedirectConfig && docsOnly) {
+    return (
+      <div className="space-y-4">
+        <DepartmentLinkCard link={departmentLink} />
+        <DepartmentRedirectGrid
+          departments={departmentRedirectConfig.departments}
+          title={departmentRedirectConfig.title}
+          subtitle={departmentRedirectConfig.subtitle}
+          currentPath={departmentLink?.href || ""}
+        />
+      </div>
+    );
+  }
+
   if (docsOnly) {
     return (
       <div className="space-y-4">
@@ -662,6 +761,13 @@ const FacilityGridLayout = ({ markdownText }) => {
     <div className="space-y-4">
       <DepartmentLinkCard link={departmentLink} />
       {renderMarkdown(content)}
+      {departmentRedirectConfig && !departmentLink ? (
+        <DepartmentRedirectGrid
+          departments={departmentRedirectConfig.departments}
+          title={departmentRedirectConfig.title}
+          subtitle={departmentRedirectConfig.subtitle}
+        />
+      ) : null}
     </div>
   );
 };
@@ -1046,6 +1152,8 @@ const MarkdownEditor = ({
   onSave,
   placeholder = "Click to edit content…",
   className = "",
+  pageId = "",
+  sectionTitle = "",
 }) => {
   const { data, updateData, isEditing } = useEdit();
   const textareaRef = useRef(null);
@@ -1479,7 +1587,11 @@ const MarkdownEditor = ({
     return (
       <div className={className}>
         {displayValue ? (
-          <FacilityGridLayout markdownText={displayValue} />
+          <FacilityGridLayout
+            markdownText={displayValue}
+            pageId={pageId}
+            sectionTitle={sectionTitle}
+          />
         ) : null}
       </div>
     );
@@ -1494,7 +1606,11 @@ const MarkdownEditor = ({
         title="Click to edit (Markdown supported)"
       >
         {displayValue ? (
-          <FacilityGridLayout markdownText={displayValue} />
+          <FacilityGridLayout
+            markdownText={displayValue}
+            pageId={pageId}
+            sectionTitle={sectionTitle}
+          />
         ) : (
           <span className="text-gray-400 dark:text-gray-500 italic text-sm">
             {placeholder}

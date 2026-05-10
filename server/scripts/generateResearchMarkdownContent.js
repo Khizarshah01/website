@@ -85,6 +85,34 @@ const yearlyLinks = (years, labelSuffix = "Report") =>
     .map((entry) => `- [${normalizeText(entry.year)} ${labelSuffix}](${entry.pdfUrl})`)
     .join("\n");
 
+const withDepartmentTab = (route, tab) => {
+  const normalizedRoute = normalizeText(route);
+  if (!normalizedRoute || !tab) return normalizedRoute;
+
+  const separator = normalizedRoute.includes("?") ? "&" : "?";
+  return `${normalizedRoute}${separator}tab=${encodeURIComponent(tab)}`;
+};
+
+const UG_PROJECTS_DEPARTMENT_TABS = {
+  "/departments/cse": "ug-projects",
+  "/departments/electrical": "projects",
+  "/departments/entc": "projects",
+  "/departments/it": "projects",
+  "/departments/mechanical": "student-projects",
+  "/departments/mba": "projects",
+};
+
+const withUgProjectsDepartmentTab = (route) =>
+  withDepartmentTab(route, UG_PROJECTS_DEPARTMENT_TABS[normalizeText(route)] || "projects");
+
+const NISP_DOCUMENT_URLS = {
+  policy: "/documents/research/nisp/sgiarc-tbi-nisp.pdf",
+  mhrdPolicy: "/documents/research/nisp/mhrd-nisp-policy.pdf",
+  expertCommittee: "/documents/research/nisp/nisp-expert-committee.pdf",
+  firstMeeting: "/documents/research/nisp/nisp-1st-meeting-policy.pdf",
+  secondMeeting: "/documents/research/nisp/nisp-2nd-meeting-policy.pdf",
+};
+
 const publicationEntry = (publication) =>
   [
     `**${normalizeText(publication.year)} - ${normalizeText(publication.title)}**`,
@@ -134,11 +162,125 @@ const contactEntry = (record) =>
     `  - Phone: ${normalizeText(record.phone)}`,
   ].join("\n");
 
+const policyDocuments = [
+  {
+    title: "Research & Development Policy",
+    description:
+      "Comprehensive R&D policy document of SSGMCE covering objectives, scope, guidelines, and framework for research activities.",
+    url: "/documents/research/policy/rd-policy-ssgmce.pdf",
+  },
+  {
+    title: "Research & Development Policy - Annexure",
+    description:
+      "Supporting annexures including project definition formats, evaluation criteria, phase-wise guidelines, and assessment forms.",
+    url: "/documents/research/policy/rd-policy-annex.pdf",
+  },
+];
+
+const annexureHighlights = [
+  {
+    title: "Annexure I - Interdisciplinary Project Definition",
+    description:
+      "Format for Interdisciplinary Projects Special Focus Group (IPRG) including project modules, work packages, deliverables, and task breakdown.",
+  },
+  {
+    title: "Annexure II - Project Phases & Evaluation",
+    description:
+      "Detailed phase-wise project guidelines - Phase I (Project guide details, identification, proposed titles), Phase II (Patent search, literature review), Phase III (Work plan, budget, timeline), and evaluation rubrics.",
+  },
+  {
+    title: "Prior Art & Patent Search",
+    description:
+      "Guidelines for conducting patent searches via IPINDIA.GOV.IN and USPTO.GOV.IN, along with literature review methodology for finalizing projects.",
+  },
+  {
+    title: "Project Identification Process",
+    description:
+      "Systematic process covering emerging trends (IoT, Industry 4.0), commercial products, agriculture, medical sciences, and societal solutions with references to research institutes, incubation centers, and funding agencies.",
+  },
+  {
+    title: "Resource & Infrastructure Planning",
+    description:
+      "Guidelines for resource capacity analysis, make/buy decisions, infrastructure identification, concept trials, industry-academia collaboration with IITs, NITs, and consultancy firms.",
+  },
+  {
+    title: "Assessment & Deliverables",
+    description:
+      "Comprehensive evaluation framework including project milestones, deliverable tracking, faculty-student collaboration models, and project award/reward criteria.",
+  },
+];
+
+const facilities = [
+  {
+    name: "Cadence Center",
+    department: "Electronics & Telecommunication",
+    description:
+      "Cadence VLSI and Embedded System Design Centre equipped with industry-standard Cadence EDA tools for VLSI design, simulation, and verification. Supports research and training in semiconductor design and embedded systems.",
+    reportUrl:
+      "/documents/research/coe/cadence-vlsi-embedded-system-design-centre.pdf",
+    image: "https://www.ssgmce.ac.in/images/blog/cadence-img.jpg",
+  },
+  {
+    name: "Electric Vehicle Lab",
+    department: "Electrical Engineering",
+    description:
+      "State-of-the-art Electric Vehicle Laboratory for research and development in EV technology, battery management systems, motor controllers, and sustainable transportation solutions.",
+    reportUrl: "/documents/research/coe/electric-vehicle-lab-report.pdf",
+    image: "https://www.ssgmce.ac.in/images/blog/EV-Lab-1.webp",
+  },
+  {
+    name: "FAB Lab",
+    department: "Mechanical Engineering",
+    description:
+      "Fabrication Laboratory (FAB Lab) providing hands-on access to modern fabrication tools including 3D printers, laser cutters, CNC machines, and prototyping equipment for innovation and product development.",
+    reportUrl: "/documents/research/coe/fab-lab-annual-report-2023-24.pdf",
+    image: "https://www.ssgmce.ac.in/images/blog/Fab-Lab.png",
+  },
+  {
+    name: "Solar Production Center",
+    department: "Electrical Engineering",
+    description:
+      "Center of Excellence in Solar Energy featuring solar panel production facility, sun simulators, battery assembly setup, solar product display gallery, and solar radiation measurement equipment for renewable energy research.",
+    reportUrl: "/documents/research/coe/solar-center-report.pdf",
+    image: "https://www.ssgmce.ac.in/images/blog/solar_production.webp",
+  },
+  {
+    name: "PLC Automation Lab",
+    department: "Electrical Engineering",
+    description:
+      "PLC and Factory Automation Laboratory equipped with programmable logic controllers, SCADA systems, and industrial automation hardware for training and research in Industry 4.0 technologies.",
+    reportUrl:
+      "https://www.ssgmce.ac.in/uploads/Report_Training%20Program%20Conducted_PLC%20and%20Factory%20Automation%20Lab%20(1).pdf",
+    image: "https://www.ssgmce.ac.in/images/blog/PLC_Automation_lab.PNG",
+  },
+  {
+    name: "SAP ERP Center",
+    department: "MBA",
+    description:
+      "SAP ERP (Enterprise Resource Planning) Center providing hands-on experience with SAP modules for students. Covers business process management, supply chain, finance, and human resource management using SAP software.",
+    reportUrl: "/documents/research/coe/sap-erp-center-overview.pdf",
+    image: "https://www.ssgmce.ac.in/images/blog/sap_erp.jfif",
+  },
+  {
+    name: "Dr. Georg H Endress Laboratory",
+    department: "Electronics & Telecommunication",
+    description:
+      "Advanced instrumentation and process automation laboratory established in collaboration with Endress+Hauser. Equipped with cutting-edge measurement and control instruments for flow, level, pressure, and temperature measurement.",
+    reportUrl:
+      "/documents/research/coe/dr-georg-h-endress-laboratory-report.pdf",
+    image: "https://www.ssgmce.ac.in/images/blog/Endress_Laboratory.PNG",
+  },
+  {
+    name: "YOGI-DIGI AIML Laboratory",
+    department: "Electronics & Telecommunication",
+    description:
+      "High-performance AI/ML research laboratory equipped with 5th Generation Intel Xeon Scalable Processors featuring a compute node (32 Cores, 64 Threads, 20 GT/s UPI, 2.1 GHz) and a master node (12 Cores, 24 Threads, 16 GT/s UPI, 2.40 GHz). Includes Smart Board and Jupyter Notebook Software for hands-on research and training in artificial intelligence and machine learning.\n\n- **Area:** 800 sq. ft.\n- **Systems:** 35 PCs\n- **Infrastructure:** High-Performance GPU Server | UPS: 25 KVA",
+    image: "/uploads/images/EXTC_AIMLLAB.jpg",
+  },
+];
+
 const createResearchMarkdownPages = () => {
   const rdcMembers = loadArray("RDCell.jsx", "rdcMembers");
-  const policyDocuments = loadArray("ResearchPolicy.jsx", "policyDocuments");
-  const annexureHighlights = loadArray("ResearchPolicy.jsx", "annexureHighlights");
-  const facilities = loadArray("COE.jsx", "facilities");
   const publications = loadArray("Publications.jsx", "departmentData");
   const institutePatents = loadArray("IPR.jsx", "institutePatents");
   const iprDepartments = loadArray("IPR.jsx", "departmentData");
@@ -334,7 +476,7 @@ ${normalizeText(facility.description)}
         `
 SSGMCE research output spans **${publications.length} departments** with **${totalPublications} highlighted publications**, including **${indexedPublicationCount} Scopus / SCI / IEEE indexed outputs** and **${bookCount} books or book chapters**.
 
-This page showcases highlighted publications. For the complete yearly record, use the department-wise report links in the sections below.
+This page showcases highlighted publications. For yearly reports, use the department publication sections linked below.
         `,
         1,
       ),
@@ -343,8 +485,9 @@ This page showcases highlighted publications. For the complete yearly record, us
           slugify(`publications-${department.short}`),
           normalizeText(department.name),
           `
-## Yearly Publication Reports
-${yearlyLinks(department.years, "Publication Report")}
+**Department Page:** [View ${normalizeText(
+  department.shortName || department.short || department.name,
+)} Department Publications](${withDepartmentTab(department.route, "publications")})
 
 ## Highlighted Publications
 ${numberedEntries(department.publications, publicationEntry)}
@@ -379,7 +522,6 @@ ${markdownTable(
   ]),
 )}
 
-[View on SSGMCE Website](https://www.ssgmce.ac.in/patent.php)
         `,
         2,
       ),
@@ -425,7 +567,7 @@ The projects reflect the application of engineering principles and emerging tech
           slugify(`ug-projects-${department.shortName}`),
           normalizeText(department.name),
           `
-**Department Page:** [View ${normalizeText(department.shortName)} Department](${department.route})
+**Department Page:** [View ${normalizeText(department.shortName)} Department](${withUgProjectsDepartmentTab(department.route)})
 
 ${department.batches
   .map(
@@ -452,7 +594,7 @@ Shri Sant Gajanan Maharaj College of Engineering, Shegaon is a recognized resear
 - Registered scholars: **${totalScholars}**
 - Total seats: **${totalSeats}**
 - Vacant seats: **${totalSeats - totalScholars}**
-- [Download Detailed Ph.D. Enrollment PDF](https://www.ssgmce.ac.in/uploads/pdf/PhD%20Enrollment%20in%20Research%20Centres-Updated-Aug-24.pdf)
+- [Download Detailed Ph.D. Enrollment PDF](/documents/research/phd/phd-enrollment-in-research-centres-updated-aug-24.pdf)
         `,
         1,
       ),
@@ -499,7 +641,7 @@ SSGMCE has established Memoranda of Understanding (MoUs) with industries, univer
           slugify(`collaboration-${department.shortName}`),
           normalizeText(department.name),
           `
-**Department Page:** [View ${normalizeText(department.shortName)} Department](${department.route})
+**Department Page:** [View ${normalizeText(department.shortName)} Department](${withDepartmentTab(department.route, "mous")})
 
 ${numberedEntries(
   department.mous,
@@ -603,12 +745,9 @@ ${objectives
         "nisp-documents",
         "Policy Documents",
         `
-${policyDocs
-  .map(
-    (document) =>
-      `- **${normalizeText(document.title)}**: ${normalizeText(document.subtitle)} [View PDF](${document.url})`,
-  )
-  .join("\n")}
+- **NISP Policy and Procedures**: SGIARC-TBI - Institute-level innovation & startup policy framework [View PDF](${NISP_DOCUMENT_URLS.policy})
+- **MHRD NISP Policy**: Ministry of Education - National Innovation and Startup Policy document [View PDF](${NISP_DOCUMENT_URLS.mhrdPolicy})
+- **NISP Expert Committee**: Composition and details of the NISP Expert Committee [View PDF](${NISP_DOCUMENT_URLS.expertCommittee})
         `,
         2,
       ),
@@ -616,12 +755,8 @@ ${policyDocs
         "nisp-meetings",
         "Meeting Minutes",
         `
-${meetings
-  .map(
-    (meeting) =>
-      `- **${normalizeText(meeting.title)}**: [View PDF](${meeting.url})`,
-  )
-  .join("\n")}
+- **1st NISP Meeting**: [View PDF](${NISP_DOCUMENT_URLS.firstMeeting})
+- **2nd NISP Meeting**: [View PDF](${NISP_DOCUMENT_URLS.secondMeeting})
         `,
         3,
       ),
