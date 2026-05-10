@@ -43,6 +43,7 @@ import {
 } from "react-icons/fa";
 import principalFallbackImage from "../assets/images/about/principal_c.png";
 import inspirationFallbackImage from "../assets/images/about/chairman_c.jpeg";
+import organizationStructureFallbackImage from "../assets/images/about/organization-structure.jpg";
 import campusViewImage from "../assets/images/home/Campus-View.avif";
 import tpoFallbackImage from "../assets/images/placements/tpo-adesh-solanke.jpg";
 import NAAC_DVV_TABLE_MARKDOWN from "../data/naacDvvTableMarkdown";
@@ -152,8 +153,7 @@ const PREFETCH_GROUPS = {
   ],
 };
 
-const ABOUT_STRUCTURE_FALLBACK_IMAGE_URL =
-  "/uploads/images/about/organization-structure.jpg";
+const ABOUT_STRUCTURE_FALLBACK_IMAGE_URL = organizationStructureFallbackImage;
 
 const AQAR_DATA_SECTION_IDS = new Set([
   "aqar-2023-24",
