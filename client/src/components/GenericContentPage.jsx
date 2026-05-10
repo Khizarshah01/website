@@ -36,6 +36,7 @@ import {
 import principalFallbackImage from "../assets/images/about/principal_c.png";
 import inspirationFallbackImage from "../assets/images/about/chairman_c.jpeg";
 import campusViewImage from "../assets/images/home/Campus-View.avif";
+import tpoFallbackImage from "../assets/images/placements/tpo-adesh-solanke.jpg";
 import NAAC_DVV_TABLE_MARKDOWN from "../data/naacDvvTableMarkdown";
 
 // Map pageId prefixes to their sidebar components
@@ -700,6 +701,7 @@ const GenericContentPage = ({ pageId }) => {
     pageId?.startsWith("facilities-") &&
     !pageId?.startsWith("facilities-admin-office-") &&
     pageId !== "facilities-administrative-office";
+  const selectedLayout = String(displayPage?.templateData?.layout || "").trim();
 
   useEffect(() => {
     naacDvvInitializedRef.current = false;
@@ -913,6 +915,21 @@ const GenericContentPage = ({ pageId }) => {
 
     return {
       name: parts[0] || "Dr. S. B. Somani",
+      role: parts[1] || "Principal",
+      org:
+        parts.slice(2).join(", ") ||
+        "Shri Sant Gajanan Maharaj College of Engineering, Shegaon",
+    };
+  };
+
+  const parsePlacementOfficerCaption = (caption = "") => {
+    const parts = String(caption || "")
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    return {
+      name: parts[0] || "Training & Placement Officer",
       role: parts[1] || "Principal",
       org:
         parts.slice(2).join(", ") ||
@@ -2470,6 +2487,143 @@ Constituted By **All India Council for Technical Education, New Delhi**
     );
   };
 
+  const renderPlacementsAboutPage = () => {
+    const introMeta =
+      getSectionByPriority(["tp-intro", "intro"], "markdown") || null;
+    const officerImageMeta =
+      getSectionByPriority(["tp-image", "officer-image"], "image") || null;
+    const teamMeta =
+      getSectionByPriority(
+        ["tp-team", "team", "about-training-and-placement-cell"],
+        "markdown",
+      ) || null;
+
+    const officerImage = officerImageMeta?.section?.content?.url || "";
+    const officerAlt =
+      officerImageMeta?.section?.content?.alt || "Training & Placement Cell";
+    const officer = parsePlacementOfficerCaption(
+      officerImageMeta?.section?.content?.caption,
+    );
+
+    return (
+      <GenericPage title={displayPage.pageTitle} showInnerTitle={false}>
+        <div className="flex flex-col lg:flex-row gap-8">
+          {sidebar && (
+            <div className="lg:w-1/4 flex-shrink-0">
+              <div className="sticky top-24">{sidebar}</div>
+            </div>
+          )}
+
+          <div className={sidebar ? "lg:w-3/4" : "w-full"}>
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+              <div className="xl:col-span-4">
+                {officerImageMeta && (
+                  <EditableSection
+                    index={officerImageMeta.originalIndex}
+                    title={officerImageMeta.section.type}
+                    sectionContent={officerImageMeta.section.content}
+                    contentPath={`sections[${officerImageMeta.originalIndex}].content`}
+                  >
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                      {isEditing ? (
+                        <EditableImage
+                          path={`sections[${officerImageMeta.originalIndex}].content.url`}
+                          className="w-full aspect-[4/5] object-cover rounded-xl border border-gray-100"
+                          alt={officerAlt}
+                        />
+                      ) : (
+                        <ImageWithFallback
+                          src={officerImage}
+                          fallbackSrc={tpoFallbackImage}
+                          alt={officerAlt}
+                          className="w-full aspect-[4/5] object-cover rounded-xl border border-gray-100"
+                        />
+                      )}
+                    </div>
+                  </EditableSection>
+                )}
+
+                <div className="text-center mt-6 px-2">
+                  <h3 className="text-4xl font-bold text-ssgmce-blue leading-tight">
+                    {officer.name}
+                  </h3>
+                  <p className="text-2xl text-ssgmce-orange font-semibold mt-2">
+                    {officer.role}
+                  </p>
+                  <p className="text-gray-500 text-base mt-3">{officer.org}</p>
+                </div>
+              </div>
+
+              <div className="xl:col-span-8">
+                <div className="mb-5 border-l-4 border-ssgmce-orange pl-4">
+                  <h2 className="text-3xl font-bold text-ssgmce-blue">
+                    {displayPage.pageTitle}
+                  </h2>
+                </div>
+
+                <FaQuoteLeft className="text-3xl text-ssgmce-orange/30 mb-4" />
+
+                <div className="space-y-5">
+                  {introMeta && (
+                    <EditableSection
+                      index={introMeta.originalIndex}
+                      title={introMeta.section.type}
+                      sectionContent={introMeta.section.content}
+                      contentPath={`sections[${introMeta.originalIndex}].content`}
+                    >
+                      <div className="prose max-w-none text-gray-700 leading-relaxed">
+                        {introMeta.section.type === "markdown" ? (
+                          <MarkdownEditor
+                            value={introMeta.section.content.text}
+                            path={`sections[${introMeta.originalIndex}].content.text`}
+                            className="leading-7"
+                          />
+                        ) : (
+                          <EditableText
+                            value={introMeta.section.content.text}
+                            path={`sections[${introMeta.originalIndex}].content.text`}
+                            richText={true}
+                            multiline={true}
+                          />
+                        )}
+                      </div>
+                    </EditableSection>
+                  )}
+
+                  {teamMeta && teamMeta.originalIndex !== introMeta?.originalIndex && (
+                    <EditableSection
+                      index={teamMeta.originalIndex}
+                      title={teamMeta.section.type}
+                      sectionContent={teamMeta.section.content}
+                      contentPath={`sections[${teamMeta.originalIndex}].content`}
+                    >
+                      <div className="prose max-w-none text-gray-700 leading-relaxed">
+                        {teamMeta.section.type === "markdown" ? (
+                          <MarkdownEditor
+                            value={teamMeta.section.content.text}
+                            path={`sections[${teamMeta.originalIndex}].content.text`}
+                            className="leading-8"
+                          />
+                        ) : (
+                          <EditableText
+                            value={teamMeta.section.content.text}
+                            path={`sections[${teamMeta.originalIndex}].content.text`}
+                            richText={true}
+                            multiline={true}
+                          />
+                        )}
+                      </div>
+                    </EditableSection>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </GenericPage>
+    );
+  };
+
   if (loading && !displayPage) {
     return (
       <GenericPage
@@ -2516,6 +2670,10 @@ Constituted By **All India Council for Technical Education, New Delhi**
 
   if (pageId === "about-governing" || pageId === "about-governing-body") {
     return renderAboutGoverningPage();
+  }
+
+  if (selectedLayout === "placements-about-v1") {
+    return renderPlacementsAboutPage();
   }
 
   return (
