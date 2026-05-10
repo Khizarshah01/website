@@ -1,4 +1,12 @@
 const Document = require("../models/Document");
+const jwt = require("jsonwebtoken");
+const {
+  getAuthTokenFromRequest,
+  getJwtSecret,
+} = require("../utils/authSecurity");
+const { isTokenBlacklisted } = require("../utils/tokenBlacklist");
+
+const JWT_SECRET = getJwtSecret();
 
 // @desc    Get all active documents
 // @route   GET /api/documents
@@ -64,6 +72,33 @@ const getDocumentById = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Document not found" });
     }
+
+    if (document.isPrivate || document.accessLevel === "admin") {
+      const token = getAuthTokenFromRequest(req);
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          message: "Authentication required.",
+        });
+      }
+
+      if (isTokenBlacklisted(token)) {
+        return res.status(401).json({
+          success: false,
+          message: "Session expired. Please log in again.",
+        });
+      }
+
+      try {
+        jwt.verify(token, JWT_SECRET);
+      } catch (_error) {
+        return res.status(403).json({
+          success: false,
+          message: "Invalid or expired token.",
+        });
+      }
+    }
+
     res.json({ success: true, data: document });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

@@ -73,6 +73,15 @@ const documentSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isPrivate: {
+      type: Boolean,
+      default: false,
+    },
+    accessLevel: {
+      type: String,
+      enum: ["public", "admin"],
+      default: "public",
+    },
     order: {
       type: Number,
       default: 0,

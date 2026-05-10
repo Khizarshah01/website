@@ -8,8 +8,11 @@ const {
 } = require("../middleware/authRateLimit");
 const {
   clearAuthCookie,
+  getAuthTokenFromRequest,
   setAuthCookie,
 } = require("../utils/authSecurity");
+const { blacklistToken } = require("../utils/tokenBlacklist");
+const { validatePassword } = require("../utils/passwordPolicy");
 
 const isNonEmptyString = (value) => typeof value === "string" && value.trim().length > 0;
 const MIN_PASSWORD_LENGTH = 8;
@@ -32,6 +35,52 @@ const normalizeRole = (value) => {
 
 const isStrongEnoughPassword = (value) =>
   isNonEmptyString(value) && value.trim().length >= MIN_PASSWORD_LENGTH;
+
+const loginAttempts = new Map();
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_DURATION = 15 * 60 * 1000;
+
+const getLockRecord = (email = "") => loginAttempts.get(normalizeEmail(email));
+
+const isAccountLocked = (email = "") => {
+  const key = normalizeEmail(email);
+  if (!key) return false;
+  const record = getLockRecord(key);
+  if (!record) return false;
+
+  if (record.attempts >= MAX_ATTEMPTS) {
+    if (Date.now() - record.firstAttempt < LOCKOUT_DURATION) {
+      return true;
+    }
+    loginAttempts.delete(key);
+  }
+
+  return false;
+};
+
+const recordFailedAttempt = (email = "") => {
+  const key = normalizeEmail(email);
+  if (!key) return;
+
+  const current = getLockRecord(key) || {
+    attempts: 0,
+    firstAttempt: Date.now(),
+  };
+
+  if (Date.now() - current.firstAttempt >= LOCKOUT_DURATION) {
+    current.attempts = 0;
+    current.firstAttempt = Date.now();
+  }
+
+  current.attempts += 1;
+  loginAttempts.set(key, current);
+};
+
+const clearAttempts = (email = "") => {
+  const key = normalizeEmail(email);
+  if (!key) return;
+  loginAttempts.delete(key);
+};
 
 const sendUnexpectedError = (res, fallbackMessage) => {
   return res.status(500).json({
@@ -94,6 +143,14 @@ const register = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: `Name, email and password are required. Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
+      });
+    }
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: passwordValidation.errors.join(" "),
       });
     }
 
@@ -167,10 +224,19 @@ const login = async (req, res) => {
       });
     }
 
+    if (isAccountLocked(normalizedEmail)) {
+      return res.status(429).json({
+        success: false,
+        message:
+          "Account temporarily locked due to too many failed attempts. Try again in 15 minutes.",
+      });
+    }
+
     // Find user and include password
     const user = await User.findOne({ email: normalizedEmail }).select("+password");
 
     if (!user) {
+      recordFailedAttempt(normalizedEmail);
       await registerLoginFailure(req, normalizedEmail);
       return res.status(401).json({
         success: false,
@@ -180,6 +246,7 @@ const login = async (req, res) => {
 
     // Check if account is active
     if (!user.isActive) {
+      recordFailedAttempt(normalizedEmail);
       await registerLoginFailure(req, normalizedEmail);
       return res.status(401).json({
         success: false,
@@ -190,6 +257,7 @@ const login = async (req, res) => {
     // Check password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      recordFailedAttempt(normalizedEmail);
       await registerLoginFailure(req, normalizedEmail);
       return res.status(401).json({
         success: false,
@@ -200,6 +268,7 @@ const login = async (req, res) => {
     // Update last login
     user.lastLogin = new Date();
     await user.save({ validateBeforeSave: false });
+    clearAttempts(normalizedEmail);
     await clearLoginFailures(req, normalizedEmail);
 
     // Log the login event (non-blocking)
@@ -242,7 +311,11 @@ const login = async (req, res) => {
 // @desc    Logout user
 // @route   POST /api/auth/logout
 // @access  Public
-const logout = async (_req, res) => {
+const logout = async (req, res) => {
+  const token = getAuthTokenFromRequest(req);
+  if (token) {
+    blacklistToken(token);
+  }
   clearAuthCookie(res);
   return res.json({
     success: true,
@@ -288,6 +361,14 @@ const updatePassword = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: `Current password is required and the new password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
+      });
+    }
+
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: passwordValidation.errors.join(" "),
       });
     }
 
@@ -348,6 +429,14 @@ const createCoordinator = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: `Name, email, password and department are required. Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
+      });
+    }
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: passwordValidation.errors.join(" "),
       });
     }
 
@@ -452,6 +541,13 @@ const updateCoordinator = async (req, res) => {
       if (!isStrongEnoughPassword(password)) {
         return res.status(400).json({ success: false, message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` });
       }
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.valid) {
+        return res.status(400).json({
+          success: false,
+          message: passwordValidation.errors.join(" "),
+        });
+      }
       user.password = password.trim();
     }
 
@@ -513,4 +609,7 @@ module.exports = {
   createCoordinator,
   updateCoordinator,
   deleteCoordinator,
+  isAccountLocked,
+  recordFailedAttempt,
+  clearAttempts,
 };

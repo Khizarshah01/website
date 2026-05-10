@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
+import DOMPurify from "isomorphic-dompurify";
 import {
   FaFilePdf,
   FaDownload,
@@ -271,7 +272,7 @@ const NIRFRanking = () => {
                     <div
                       className="prose prose-sm max-w-none"
                       dangerouslySetInnerHTML={{
-                        __html: section.content?.text || "",
+                        __html: DOMPurify.sanitize(section.content?.text || ""),
                       }}
                     />
                   )}
@@ -295,7 +296,9 @@ const NIRFRanking = () => {
                 {section.type === "richtext" ? (
                   <div
                     className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: section.content.text }}
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(section.content.text),
+                    }}
                   />
                 ) : (
                   <div className="prose prose-sm max-w-none">

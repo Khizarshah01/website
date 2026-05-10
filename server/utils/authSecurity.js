@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 
 const DEFAULT_COOKIE_NAME = "ssgmce_admin_session";
-const DEFAULT_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+const DEFAULT_COOKIE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const WEAK_SECRET_VALUES = new Set([
   "",
   "your_jwt_secret_key_change_this",
@@ -56,14 +56,11 @@ const getAuthCookieName = () =>
 
 const getAuthCookieOptions = () => {
   const sameSite = String(
-    process.env.AUTH_COOKIE_SAME_SITE || (isProduction() ? "lax" : "lax"),
+    process.env.AUTH_COOKIE_SAME_SITE || "strict",
   )
     .trim()
     .toLowerCase();
-  const secure = parseBoolean(
-    process.env.AUTH_COOKIE_SECURE,
-    sameSite === "none" || isProduction(),
-  );
+  const secure = isProduction();
 
   return {
     httpOnly: true,

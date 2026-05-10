@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useState, useMemo, useRef } from "react";
+import DOMPurify from "isomorphic-dompurify";
 import apiClient from "../utils/apiClient";
 import GenericPage from "./GenericPage";
 import PlacementSidebar from "./PlacementSidebar";
@@ -3047,7 +3048,7 @@ Constituted By **All India Council for Technical Education, New Delhi**
                               {item.html ? (
                                 <div
                                   dangerouslySetInnerHTML={{
-                                    __html: item.html,
+                                    __html: DOMPurify.sanitize(item.html),
                                   }}
                                 />
                               ) : (

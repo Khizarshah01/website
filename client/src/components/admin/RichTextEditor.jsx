@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactQuill, { Quill } from "react-quill-new";
+import DOMPurify from "isomorphic-dompurify";
 import "react-quill-new/dist/quill.snow.css";
 import "./RichTextEditor.css";
 import { useEdit } from "../../contexts/EditContext";
@@ -185,7 +186,7 @@ const RichTextEditor = ({
     return (
       <div
         className={`ql-editor ${className}`}
-        dangerouslySetInnerHTML={{ __html: displayValue }}
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(displayValue) }}
       />
     );
   }
@@ -199,7 +200,9 @@ const RichTextEditor = ({
       >
         <div
           className="ql-editor"
-          dangerouslySetInnerHTML={{ __html: displayValue || placeholder }}
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(displayValue || placeholder),
+          }}
         />
       </div>
     );

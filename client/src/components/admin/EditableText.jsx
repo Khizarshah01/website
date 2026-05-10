@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import DOMPurify from "isomorphic-dompurify";
 import { useEdit } from "../../contexts/EditContext";
 import { FaPencilAlt, FaCheck, FaTimes } from "react-icons/fa";
 import RichTextEditor from "./RichTextEditor";
@@ -103,7 +104,7 @@ const EditableText = ({
       return (
         <div
           className={`ql-editor ${className}`}
-          dangerouslySetInnerHTML={{ __html: displayValue }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(displayValue) }}
         />
       );
     }

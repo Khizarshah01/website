@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import DOMPurify from "isomorphic-dompurify";
 import {
   Bold,
   Italic,
@@ -799,7 +800,9 @@ export default function PlacementMarkdownEditor({
             </div>
             <div
               className="flex-1 overflow-y-auto p-5 md-preview"
-              dangerouslySetInnerHTML={{ __html: renderedHtml }}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(renderedHtml),
+              }}
             />
           </div>
         )}

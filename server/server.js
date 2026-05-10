@@ -24,6 +24,27 @@ const { protect, adminOnly } = require("./middleware/authMiddleware");
 app.set("trust proxy", 1);
 app.set("query parser", "simple");
 
+// Force HTTPS in production when behind reverse proxies/load balancers.
+if (process.env.NODE_ENV === "production") {
+  app.use((req, res, next) => {
+    if (req.headers["x-forwarded-proto"] !== "https") {
+      return res.redirect(301, `https://${req.headers.host}${req.url}`);
+    }
+    return next();
+  });
+}
+
+// Explicit HSTS header for production HTTPS responses.
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === "production") {
+    res.setHeader(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains",
+    );
+  }
+  return next();
+});
+
 const allowedOrigins = Array.from(
   new Set(
     [
