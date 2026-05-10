@@ -277,7 +277,7 @@ const Navbar = () => {
       megaMenuTitle: "Important Documents",
       dropdown: [
         { name: "Policies and Procedure", path: "/documents/policies" },
-        { name: "Mandatory Disclosure", path: "/documents/disclosure" },
+        { name: "Mandatory Disclosure", path: "/documents/mandatory" },
         { name: "NAAC", path: "/documents/naac" },
         { name: "NBA", path: "/documents/nba" },
         { name: "ISO", path: "/documents/iso" },

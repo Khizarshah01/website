@@ -13,9 +13,14 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 80px;
     /* ~15% larger type on larger screens, softened on mobile to protect layouts. */
     font-size: clamp(16px, 0.5vw + 15px, 18.4px);
     -webkit-text-size-adjust: 100%;
+  }
+
+  [id] {
+    scroll-margin-top: 80px;
   }
 
   *,
@@ -347,6 +352,56 @@
 .page-section .prose td {
   text-align: left;
   vertical-align: top;
+}
+
+/* Department pages: keep people photos consistent across duplicated page templates. */
+[class*="w-72"][class*="md:w-80"][class*="lg:w-96"] {
+  width: 180px !important;
+  height: 210px !important;
+  max-width: 180px;
+  overflow: hidden;
+}
+
+[class*="w-72"][class*="md:w-80"][class*="lg:w-96"] img {
+  width: 180px !important;
+  height: 210px !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  border-radius: 8px;
+}
+
+[class*="w-32"][class*="sm:w-40"][class*="border-r"] {
+  width: 150px !important;
+  height: 200px !important;
+  flex: 0 0 150px !important;
+  overflow: hidden;
+}
+
+[class*="w-32"][class*="sm:w-40"][class*="border-r"] img {
+  width: 150px !important;
+  height: 200px !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+.department-rich-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.department-rich-table th,
+.department-rich-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.department-rich-table th {
+  background: #003366;
+  color: #fff;
+  font-weight: 700;
 }
 
 /* Custom utilities */

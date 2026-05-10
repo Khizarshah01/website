@@ -4492,14 +4492,14 @@ export function markdownToInnovativePractices(markdown = "") {
     if (
       !inTable &&
       trimmed.match(/^\|.*\|$/) &&
-      !trimmed.match(/^\|[\s-|]+\|$/)
+      !trimmed.match(/^\|[\s:|-]+\|$/)
     ) {
       inTable = true;
       continue;
     }
 
     // Skip separator rows (all dashes and pipes)
-    if (trimmed.match(/^\|[\s-|]+\|$/)) {
+    if (trimmed.match(/^\|[\s:|-]+\|$/)) {
       continue;
     }
 
@@ -4511,7 +4511,13 @@ export function markdownToInnovativePractices(markdown = "") {
         .filter((cell) => cell.length > 0);
 
       // Only add valid rows (must have all 5 fields and sn must not be empty)
-      if (cells.length >= 5 && cells[0] && cells[0].length > 0) {
+      if (
+        cells.length >= 5 &&
+        cells[0] &&
+        cells[0].length > 0 &&
+        cells[0] !== "S.N." &&
+        cells[0] !== "S.N"
+      ) {
         practices.push({
           sn: cells[0],
           faculty: cells[1] || "",

@@ -1,10 +1,11 @@
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import { AuthProvider } from "./hooks/useAuth";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { installGlobalImageFallback } from "./utils/imageFallback";
 
 // ─── Lazy-loaded pages ────────────────────────────────────────────────────────
 const Home = lazy(() => import("./pages/Home"));
@@ -476,6 +477,8 @@ const PageLoader = () => (
 );
 
 function App() {
+  useEffect(() => installGlobalImageFallback(), []);
+
   return (
     <AuthProvider>
       <ThemeProvider>

@@ -110,7 +110,7 @@ export const AuthProvider = ({ children }) => {
   // Logout function
   const logout = async () => {
     try {
-      await apiClient.post(`/auth/logout`, null, { skipAuthRedirect: true });
+      await apiClient.post(`/auth/logout`, {}, { skipAuthRedirect: true });
     } catch (_error) {
       // Clear local auth state even if the cookie is already expired server-side.
     }

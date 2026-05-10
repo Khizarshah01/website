@@ -16,6 +16,7 @@ import {
   FaUpload,
 } from "react-icons/fa";
 import { getErrorMessage, logUnexpectedError } from "../../utils/apiErrors";
+import { resolveDocumentUrl } from "../../utils/contentUrls";
 
 const DOCUMENT_CATEGORIES = [
   "aicte",
@@ -778,7 +779,7 @@ const AdminDocuments = () => {
                         <p className="font-semibold text-gray-800 dark:text-gray-200">{doc.title}</p>
                         <p className="text-xs text-gray-500 mt-1 line-clamp-1">{doc.description || "No description"}</p>
                         <a
-                          href={doc.fileUrl}
+                          href={resolveDocumentUrl(doc.fileUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mt-1"

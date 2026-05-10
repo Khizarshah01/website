@@ -1,5 +1,6 @@
 import React from "react";
 import { FaBuilding, FaChevronRight, FaIndustry, FaUniversity } from "react-icons/fa";
+import { scrollToSection, updateSectionInUrl } from "../utils/navigation";
 import MobileSidebarToggle from "./MobileSidebarToggle";
 
 const SidebarGroup = ({
@@ -11,6 +12,12 @@ const SidebarGroup = ({
   renderLabel,
 }) => {
   if (!Array.isArray(links) || links.length === 0) return null;
+
+  const handleSidebarClick = (sectionId) => {
+    onTabChange(sectionId);
+    updateSectionInUrl(sectionId);
+    scrollToSection(sectionId, { delay: 120 });
+  };
 
   return (
     <li>
@@ -25,7 +32,7 @@ const SidebarGroup = ({
             <li key={link.id}>
               <button
                 type="button"
-                onClick={() => onTabChange(link.id)}
+                onClick={() => handleSidebarClick(link.id)}
                 className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-medium leading-snug transition-colors ${
                   isActive
                     ? "bg-ssgmce-blue/10 font-semibold text-ssgmce-blue"

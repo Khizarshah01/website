@@ -1,6 +1,25 @@
 const path = require("path");
 const fs = require("fs");
 
+const DOCUMENTS_ROOT = path.join(__dirname, "../uploads/documents");
+
+const departmentAliases = {
+  "applied-sciences": "departments/applied-sciences",
+  applied_sciences: "departments/applied-sciences",
+  cse: "departments/cse",
+  "computer-science": "departments/cse",
+  electrical: "departments/electrical",
+  elpo: "departments/electrical",
+  entc: "departments/entc",
+  extc: "departments/entc",
+  it: "departments/it",
+  "information-technology": "departments/it",
+  mba: "departments/mba",
+  mechanical: "departments/mechanical",
+  mech: "departments/mechanical",
+  shared: "departments/shared",
+};
+
 const LEGACY_DOCUMENT_PREFIXES = [
   ["cse-syllabus", "departments/cse/syllabus"],
   ["cse_industrial_visits", "departments/cse/industrial-visits"],
@@ -60,6 +79,12 @@ const normalizeDocumentRelativePath = (unsafeRelativePath = "") =>
 
 const mapLegacyDocumentPath = (unsafeRelativePath = "") => {
   const normalized = normalizeDocumentRelativePath(unsafeRelativePath);
+  const [firstSegment, ...remainingSegments] = normalized.split("/");
+  const departmentAlias = departmentAliases[String(firstSegment || "").toLowerCase()];
+
+  if (departmentAlias) {
+    return [departmentAlias, ...remainingSegments].filter(Boolean).join("/");
+  }
 
   for (const [legacyPrefix, nextPrefix] of LEGACY_DOCUMENT_PREFIXES) {
     if (normalized === legacyPrefix) {
@@ -89,18 +114,28 @@ const resolveDocumentPathFromRoot = (documentsRoot, unsafeRelativePath = "") => 
   return resolvedPath;
 };
 
-const resolveExistingDocumentPath = (documentsRoot, unsafeRelativePath = "") => {
-  const normalized = normalizeDocumentRelativePath(unsafeRelativePath);
-  const directPath = resolveDocumentPathFromRoot(documentsRoot, normalized);
+const resolveDocumentPath = (requestedPath = "") => {
+  const normalized = normalizeDocumentRelativePath(requestedPath);
+  const aliasedRelativePath = mapLegacyDocumentPath(normalized);
+  const aliasedPath = resolveDocumentPathFromRoot(
+    DOCUMENTS_ROOT,
+    aliasedRelativePath,
+  );
 
-  if (directPath && fs.existsSync(directPath)) {
-    return {
-      relativePath: normalized,
-      absolutePath: directPath,
-      usedLegacyAlias: false,
-    };
+  if (aliasedPath && fs.existsSync(aliasedPath)) {
+    return aliasedPath;
   }
 
+  const directPath = resolveDocumentPathFromRoot(DOCUMENTS_ROOT, normalized);
+  if (directPath && fs.existsSync(directPath)) {
+    return directPath;
+  }
+
+  return null;
+};
+
+const resolveExistingDocumentPath = (documentsRoot, unsafeRelativePath = "") => {
+  const normalized = normalizeDocumentRelativePath(unsafeRelativePath);
   const aliasedRelativePath = mapLegacyDocumentPath(normalized);
   const aliasedPath = resolveDocumentPathFromRoot(documentsRoot, aliasedRelativePath);
 
@@ -112,12 +147,25 @@ const resolveExistingDocumentPath = (documentsRoot, unsafeRelativePath = "") => 
     };
   }
 
+  const directPath = resolveDocumentPathFromRoot(documentsRoot, normalized);
+
+  if (directPath && fs.existsSync(directPath)) {
+    return {
+      relativePath: normalized,
+      absolutePath: directPath,
+      usedLegacyAlias: false,
+    };
+  }
+
   return null;
 };
 
 module.exports = {
+  DOCUMENTS_ROOT,
+  departmentAliases,
   mapLegacyDocumentPath,
   normalizeDocumentRelativePath,
+  resolveDocumentPath,
   resolveDocumentPathFromRoot,
   resolveExistingDocumentPath,
 };

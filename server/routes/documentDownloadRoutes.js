@@ -1,10 +1,14 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const { resolveExistingDocumentPath } = require("../utils/documentPathAliases");
+const {
+  DOCUMENTS_ROOT,
+  resolveDocumentPath,
+  resolveExistingDocumentPath,
+} = require("../utils/documentPathAliases");
 
 const router = express.Router();
-const documentsRoot = path.resolve(__dirname, "../uploads/documents");
+const documentsRoot = path.resolve(DOCUMENTS_ROOT);
 
 // Serve document by filename (supports nested paths like institution/administration/file.pdf)
 router.get("/download/*", (req, res) => {
@@ -61,6 +65,32 @@ router.get("/list/*", (req, res) => {
   } catch (error) {
     console.error("List documents error:", error);
     res.status(500).json({ error: "Failed to list documents" });
+  }
+});
+
+// Serve structured documents by nested path, with legacy aliases as fallback.
+// Example: GET /api/documents/departments/cse/syllabus/file.pdf
+router.get("/*", (req, res) => {
+  try {
+    const requestedPath = req.params[0] || "";
+    const safePath = path
+      .normalize(requestedPath)
+      .replace(/^(\.\.(\/|\\|$))+/, "");
+    const resolvedPath = resolveDocumentPath(safePath);
+
+    if (!resolvedPath) {
+      return res.status(404).json({ error: "Document not found." });
+    }
+
+    const stat = fs.statSync(resolvedPath);
+    if (!stat.isFile()) {
+      return res.status(400).json({ error: "Requested path is not a file." });
+    }
+
+    return res.sendFile(resolvedPath);
+  } catch (error) {
+    console.error("Structured document route error:", error);
+    return res.status(500).json({ error: "Failed to serve document." });
   }
 });
 

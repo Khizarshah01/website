@@ -15,6 +15,32 @@ const apiClient = axios.create({
   },
 });
 
+// Keep legacy token headers from breaking cookie-based auth, and let the
+// browser add multipart boundaries for FormData uploads.
+apiClient.interceptors.request.use((config) => {
+  const authHeader = config.headers?.Authorization;
+  if (
+    typeof authHeader === "string" &&
+    /^Bearer\s+(null|undefined)?\s*$/i.test(authHeader)
+  ) {
+    if (typeof config.headers.delete === "function") {
+      config.headers.delete("Authorization");
+    } else {
+      delete config.headers.Authorization;
+    }
+  }
+
+  if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+    if (typeof config.headers.delete === "function") {
+      config.headers.delete("Content-Type");
+    } else {
+      delete config.headers["Content-Type"];
+    }
+  }
+
+  return config;
+});
+
 // Interceptor to handle errors globally
 apiClient.interceptors.response.use(
   (response) => response,

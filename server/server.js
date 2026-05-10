@@ -13,8 +13,10 @@ const {
   getJwtSecret,
 } = require("./utils/authSecurity");
 
-// Load environment variables
-dotenv.config();
+// Load environment variables. When started from server/, use server/.env if it
+// exists, then fall back to the project root .env without overriding values.
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 getJwtSecret();
 
 const app = express();
@@ -41,48 +43,44 @@ const isLocalDevOrigin = (origin = "") =>
   /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(String(origin || ""));
 
 // ===== SECURITY: Rate Limiting =====
+const isDev = process.env.NODE_ENV !== "production";
+
+if (!process.env.NODE_ENV) {
+  console.warn(
+    "[WARN] NODE_ENV is not set. Treating server as development; rate limiters are disabled. Set NODE_ENV=production in production.",
+  );
+}
+
 // Authentication rate limiter - prevent brute force attacks
 const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minute window
-  max: 5, // limit each IP to 5 login/register attempts per windowMs
-  message: {
-    status: 429,
-    success: false,
-    message:
-      "Too many authentication attempts from this IP. Please try again after 15 minutes.",
-  },
+  max: isDev ? 0 : 20,
+  message: { error: "Too many auth attempts. Please try again later." },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  skip: (req) => {
-    // Skip rate limiting for GET requests
-    return req.method === "GET";
-  },
+  skip: (req) => isDev || req.method === "GET",
 });
 
 // General API rate limiter - protect against DoS
 const apiRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minute window
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: {
-    status: 429,
-    success: false,
-    message: "Too many requests from this IP. Please try again later.",
-  },
+  max: isDev ? 0 : 500,
+  message: { error: "Too many requests. Please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => isDev || req.method === "GET",
 });
 
 // Upload rate limiter - prevent abuse of file upload endpoint
 const uploadRateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour window
-  max: 20, // limit each IP to 20 uploads per hour
+  max: isDev ? 0 : 100,
   message: {
-    status: 429,
-    success: false,
-    message: "Too many uploads from this IP. Please try again after an hour.",
+    error: "Upload limit reached. Please wait before uploading more files.",
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => isDev,
 });
 
 const securityHeaders = (req, res, next) => {
@@ -124,7 +122,7 @@ const securityHeaders = (req, res, next) => {
 // Middleware
 app.use(securityHeaders);
 app.use(helmet()); // Comprehensive security headers (HSTS, CSP, X-Frame-Options, etc.)
-app.use(apiRateLimiter); // Apply general API rate limiting
+app.use("/api/", apiRateLimiter); // Apply general API rate limiting only to API routes
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -142,9 +140,26 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
-app.use(express.json({ limit: "10mb" }));
+const jsonBodyParser = express.json({ limit: "10mb", strict: false });
+app.use((req, res, next) => {
+  const contentType = req.headers["content-type"] || "";
+  if (contentType.toLowerCase().includes("multipart/form-data")) {
+    return next();
+  }
+
+  return jsonBodyParser(req, res, (err) => {
+    if (err) {
+      return next(err);
+    }
+    if (req.body === null) {
+      req.body = {};
+    }
+    return next();
+  });
+});
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(noSqlInjectionGuard);
+app.use("/upload/", uploadRateLimiter);
 
 // Reserve sensitive prefixes behind admin auth even when no route is mounted.
 app.use("/api/debug", protect, adminOnly, (_req, res) => {
@@ -160,9 +175,6 @@ app.use("/api/admin", protect, adminOnly, (_req, res) => {
     message: "Endpoint not found.",
   });
 });
-
-// Serve static files from uploads folder
-app.get("/uploads/:category/:filename", streamUploadedFile);
 
 const documentsRoot = path.join(__dirname, "uploads", "documents");
 
@@ -203,6 +215,9 @@ app.use(
   }),
 );
 
+// Serve uploaded GridFS/disk files after document paths get first chance.
+app.get("/uploads/:category/:filename", streamUploadedFile);
+
 // Import Routes
 const newsRoutes = require("./routes/newsRoutes");
 const facultyRoutes = require("./routes/facultyRoutes");
@@ -228,13 +243,16 @@ app.use("/api/faculty", facultyRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/notices", noticeRoutes);
 app.use("/api/events", eventRoutes);
-app.use("/api/auth", authRateLimiter, authRoutes); // Apply stricter rate limiting to auth endpoints
+app.use("/api/auth/", authRateLimiter); // Apply stricter rate limiting to auth endpoints
+app.use("/api/auth", authRoutes);
 app.use("/api/pages", pageContentRoutes);
-app.use("/api/upload", uploadRateLimiter, uploadRoutes); // Apply stricter rate limiting to upload endpoints
+app.use("/api/upload/", uploadRateLimiter); // Apply stricter rate limiting to upload endpoints
+app.use("/api/upload", uploadRoutes);
 app.use("/api/research", researchRoutes);
 app.use("/api/placements", placementRoutes);
 app.use("/api/iqac", iqacRoutes);
 app.use("/api/documents", documentRoutes);
+app.use("/api/documents", documentDownloadRoutes);
 app.use("/api/document-download", documentDownloadRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/nirf", nirfRoutes);
@@ -260,6 +278,13 @@ app.get("/", (req, res) => {
 
 // Error Handler
 app.use((err, req, res, next) => {
+  if (err.type === "entity.parse.failed") {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid request body. Expected JSON.",
+    });
+  }
+
   console.error(err.stack);
 
   // Handle multer errors
@@ -358,8 +383,8 @@ const getMongoConnectionHints = (error) => {
 
 const connectToMongo = async () => {
   const primaryUri =
-    process.env.MONGODB_URI ||
     process.env.MONGODB_DIRECT_URI ||
+    process.env.MONGODB_URI ||
     "mongodb://localhost:27017/ssgmce";
   const directUri = process.env.MONGODB_DIRECT_URI;
   const mongoConnectStartedAt = Date.now();

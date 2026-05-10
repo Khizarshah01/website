@@ -1460,14 +1460,14 @@ export function itMarkdownToInnovativePractices(markdown = "") {
     if (
       !inTable &&
       trimmed.match(/^\|.*\|$/) &&
-      !trimmed.match(/^\|[\s-|]+\|$/)
+      !trimmed.match(/^\|[\s:|-]+\|$/)
     ) {
       inTable = true;
       continue;
     }
 
     // Skip separator rows (all dashes and pipes)
-    if (trimmed.match(/^\|[\s-|]+\|$/)) {
+    if (trimmed.match(/^\|[\s:|-]+\|$/)) {
       continue;
     }
 

@@ -23,19 +23,13 @@ client/public/documents/
 client/public/documents/*
 !client/public/documents/research/
 !client/public/documents/research/**
-server/uploads/documents/*
-!server/uploads/documents/.gitkeep
+
+# Ignore uploaded document files but keep the folder skeleton tracked
+server/uploads/documents/**/*
+!server/uploads/documents/**/
 !server/uploads/documents/README.md
-!server/uploads/documents/academics/
-!server/uploads/documents/academics/**
-!server/uploads/documents/admin-office/
-!server/uploads/documents/admin-office/**
-!server/uploads/documents/departments/
-!server/uploads/documents/departments/**
-!server/uploads/documents/institution/
-!server/uploads/documents/institution/**
-!server/uploads/documents/research/
-!server/uploads/documents/research/**
+!server/uploads/documents/**/.gitkeep
+!server/uploads/documents/**/README.md
 
 # Logs
 logs/

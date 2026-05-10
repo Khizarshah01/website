@@ -6823,11 +6823,27 @@ const CSE = () => {
 
           // Prefer saved CMS data and only fall back to bundled defaults
           // when neither markdown nor stored structured data is available.
-          const parsedPractices = markdownToInnovativePractices(md);
+          const normalizePractices = (items = []) =>
+            (Array.isArray(items) ? items : [])
+              .filter((item) => {
+                const sn = String(item?.sn || "").trim();
+                if (!sn) return false;
+                if (sn === "S.N." || sn === "S.N") return false;
+                if (/^:?-+:?$/.test(sn)) return false;
+                return true;
+              })
+              .map((item) => ({
+                ...item,
+                sn: String(item?.sn || "").trim(),
+              }));
+
+          const parsedPractices = normalizePractices(
+            markdownToInnovativePractices(md),
+          );
           const practices =
             parsedPractices && parsedPractices.length > 0
               ? parsedPractices
-              : defaultPractices;
+              : normalizePractices(defaultPractices);
 
           return (
             <motion.div

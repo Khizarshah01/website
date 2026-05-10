@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import PageHeader from "./PageHeader";
 import DocumentsSidebar from "./DocumentsSidebar";
 import apiClient from "../utils/apiClient";
+import { resolveDocumentUrl } from "../utils/contentUrls";
 
 const extractMarkdownFromSections = (sections = []) =>
   sections
@@ -18,6 +19,34 @@ const extractMarkdownFromSections = (sections = []) =>
     .filter(Boolean)
     .join("\n\n")
     .trim();
+
+const markdownComponents = {
+  table: ({ children }) => (
+    <div className="my-4 overflow-x-auto rounded-lg border border-gray-200">
+      <table className="min-w-full text-sm">{children}</table>
+    </div>
+  ),
+  th: ({ children }) => (
+    <th className="border-b border-gray-200 bg-gray-50 px-3 py-2 text-left font-semibold text-gray-700">
+      {children}
+    </th>
+  ),
+  td: ({ children }) => (
+    <td className="border-b border-gray-100 px-3 py-2 align-top text-gray-700">
+      {children}
+    </td>
+  ),
+  a: ({ href, children }) => (
+    <a
+      href={resolveDocumentUrl(href)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-medium text-ssgmce-blue hover:underline"
+    >
+      {children}
+    </a>
+  ),
+};
 
 const DocumentsPageLayout = ({
   pageId,
@@ -95,7 +124,9 @@ const DocumentsPageLayout = ({
                 ) : null}
                 {resolvedDescription ? (
                   <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
-                    <ReactMarkdown>{resolvedDescription}</ReactMarkdown>
+                    <ReactMarkdown components={markdownComponents}>
+                      {resolvedDescription}
+                    </ReactMarkdown>
                   </div>
                 ) : null}
               </div>
