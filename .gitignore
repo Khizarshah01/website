@@ -18,22 +18,6 @@ client/build/
 server/dist/
 server/build/
 
-# Exclude only the oversized Tatwadarshi PDFs that exceed GitHub's file-size limit
-client/public/documents/institution/others/e-tattwadarshi/Tattwadarshi 2019.pdf
-client/public/documents/institution/others/e-tattwadarshi/Tattwadarshi 2020.pdf
-client/public/documents/institution/others/e-tattwadarshi/Tattwadarshi 2021.pdf
-client/public/documents/institution/others/e-tattwadarshi/Tattwadarshi 2023.pdf
-client/public/documents/institution/others/e-tattwadarshi/Tattwadarshi 2024.pdf
-client/public/documents/institution/others/e-tattwadarshi/Tattwadarshi 2025.pdf
-client/public/documents/institution/others/newsletters/Tattwadarshi 2023.pdf
-server/uploads/documents/institution/others/e-tattwadarshi/Tattwadarshi 2019.pdf
-server/uploads/documents/institution/others/e-tattwadarshi/Tattwadarshi 2020.pdf
-server/uploads/documents/institution/others/e-tattwadarshi/Tattwadarshi 2021.pdf
-server/uploads/documents/institution/others/e-tattwadarshi/Tattwadarshi 2023.pdf
-server/uploads/documents/institution/others/e-tattwadarshi/Tattwadarshi 2024.pdf
-server/uploads/documents/institution/others/e-tattwadarshi/Tattwadarshi 2025.pdf
-server/uploads/documents/institution/others/newsletters/Tattwadarshi 2023.pdf
-
 # Logs
 logs/
 *.log
