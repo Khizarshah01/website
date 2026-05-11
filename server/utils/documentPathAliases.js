@@ -2,6 +2,14 @@ const path = require("path");
 const fs = require("fs");
 
 const DOCUMENTS_ROOT = path.join(__dirname, "../uploads/documents");
+const CLIENT_PUBLIC_DOCUMENTS_ROOT = path.resolve(
+  __dirname,
+  "..",
+  "..",
+  "client",
+  "public",
+  "documents",
+);
 
 const departmentAliases = {
   "applied-sciences": "departments/applied-sciences",
@@ -117,18 +125,18 @@ const resolveDocumentPathFromRoot = (documentsRoot, unsafeRelativePath = "") => 
 const resolveDocumentPath = (requestedPath = "") => {
   const normalized = normalizeDocumentRelativePath(requestedPath);
   const aliasedRelativePath = mapLegacyDocumentPath(normalized);
-  const aliasedPath = resolveDocumentPathFromRoot(
-    DOCUMENTS_ROOT,
-    aliasedRelativePath,
-  );
+  const candidateRoots = [DOCUMENTS_ROOT, CLIENT_PUBLIC_DOCUMENTS_ROOT];
 
-  if (aliasedPath && fs.existsSync(aliasedPath)) {
-    return aliasedPath;
-  }
+  for (const root of candidateRoots) {
+    const aliasedPath = resolveDocumentPathFromRoot(root, aliasedRelativePath);
+    if (aliasedPath && fs.existsSync(aliasedPath)) {
+      return aliasedPath;
+    }
 
-  const directPath = resolveDocumentPathFromRoot(DOCUMENTS_ROOT, normalized);
-  if (directPath && fs.existsSync(directPath)) {
-    return directPath;
+    const directPath = resolveDocumentPathFromRoot(root, normalized);
+    if (directPath && fs.existsSync(directPath)) {
+      return directPath;
+    }
   }
 
   return null;
@@ -137,24 +145,26 @@ const resolveDocumentPath = (requestedPath = "") => {
 const resolveExistingDocumentPath = (documentsRoot, unsafeRelativePath = "") => {
   const normalized = normalizeDocumentRelativePath(unsafeRelativePath);
   const aliasedRelativePath = mapLegacyDocumentPath(normalized);
-  const aliasedPath = resolveDocumentPathFromRoot(documentsRoot, aliasedRelativePath);
+  const candidateRoots = [documentsRoot, CLIENT_PUBLIC_DOCUMENTS_ROOT];
 
-  if (aliasedPath && fs.existsSync(aliasedPath)) {
-    return {
-      relativePath: aliasedRelativePath,
-      absolutePath: aliasedPath,
-      usedLegacyAlias: aliasedRelativePath !== normalized,
-    };
-  }
+  for (const root of candidateRoots) {
+    const aliasedPath = resolveDocumentPathFromRoot(root, aliasedRelativePath);
+    if (aliasedPath && fs.existsSync(aliasedPath)) {
+      return {
+        relativePath: aliasedRelativePath,
+        absolutePath: aliasedPath,
+        usedLegacyAlias: aliasedRelativePath !== normalized,
+      };
+    }
 
-  const directPath = resolveDocumentPathFromRoot(documentsRoot, normalized);
-
-  if (directPath && fs.existsSync(directPath)) {
-    return {
-      relativePath: normalized,
-      absolutePath: directPath,
-      usedLegacyAlias: false,
-    };
+    const directPath = resolveDocumentPathFromRoot(root, normalized);
+    if (directPath && fs.existsSync(directPath)) {
+      return {
+        relativePath: normalized,
+        absolutePath: directPath,
+        usedLegacyAlias: false,
+      };
+    }
   }
 
   return null;

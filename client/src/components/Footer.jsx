@@ -177,8 +177,13 @@ const Footer = () => {
 
       <div className="border-t border-white/10 bg-black/15">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col items-center justify-between gap-2 text-center text-xs text-slate-300 md:flex-row md:text-left">
-            <p>&copy; {new Date().getFullYear()} SSGMCE Shegaon. All Rights Reserved.</p>
+          <div className="flex flex-col items-center gap-1.5 text-center">
+            <p className="text-xs font-medium tracking-[0.02em] text-slate-200">
+              &copy; {new Date().getFullYear()} SSGMCE Shegaon. All Rights Reserved.
+            </p>
+            <p className="text-[11px] font-medium tracking-[0.015em] text-slate-300/90">
+              Developed by the Students of CSE Department, SSGMCE Shegaon.
+            </p>
           </div>
         </div>
       </div>
