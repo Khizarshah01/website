@@ -2011,33 +2011,41 @@ Constituted By **All India Council for Technical Education, New Delhi**
                     className="leading-7"
                   />
                 ) : (
-                  <div className="space-y-6">
-                    <div className="space-y-2 text-center">
-                      <p className="text-lg md:text-xl font-bold uppercase tracking-wide text-ssgmce-blue">
-                        {headingLines[0]}
-                      </p>
-                      <p className="text-xl font-semibold text-gray-700">
-                        {headingLines[1]}
-                      </p>
-                      <p className="text-lg md:text-xl font-bold uppercase tracking-wide text-ssgmce-blue">
-                        {headingLines[2]}
-                      </p>
+                  <div className="space-y-5">
+                    <div className="border-b border-slate-200 pb-4 text-center">
+                      <div className="space-y-2">
+                        {headingLines[0] ? (
+                          <p className="text-base font-bold uppercase tracking-[0.06em] text-ssgmce-blue md:text-[1.15rem] md:leading-tight">
+                            {headingLines[0]}
+                          </p>
+                        ) : null}
+                        {headingLines[1] ? (
+                          <p className="text-lg font-medium text-slate-600 md:text-[1.1rem] md:leading-tight">
+                            {headingLines[1]}
+                          </p>
+                        ) : null}
+                        {headingLines[2] ? (
+                          <p className="text-base font-bold uppercase tracking-[0.06em] text-ssgmce-blue md:text-[1.15rem] md:leading-tight">
+                            {headingLines[2]}
+                          </p>
+                        ) : null}
+                      </div>
                     </div>
 
-                    <div className="overflow-x-auto border border-[#ff7d7d]">
-                      <table className="w-full min-w-[780px] table-fixed border-collapse">
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[780px] table-fixed border-collapse overflow-hidden rounded-xl">
                         <colgroup>
                           <col style={{ width: "7%" }} />
                           <col style={{ width: "27%" }} />
                           <col style={{ width: "42%" }} />
                           <col style={{ width: "24%" }} />
                         </colgroup>
-                        <thead className="bg-[#efe686]">
+                        <thead className="bg-ssgmce-blue text-white">
                           <tr>
                             {parsedTable.headers.map((header, index) => (
                               <th
                                 key={`${header}-${index}`}
-                                className="border border-[#ff7d7d] px-3 py-3 text-center text-[15px] font-semibold text-[#d93b3b] whitespace-normal break-words"
+                                className="px-5 py-4 text-center text-sm font-semibold md:text-[1.05rem] whitespace-normal break-words"
                               >
                                 {header}
                               </th>
@@ -2046,13 +2054,20 @@ Constituted By **All India Council for Technical Education, New Delhi**
                         </thead>
                         <tbody>
                           {parsedTable.rows.map((row, rowIndex) => (
-                            <tr key={`governing-row-${rowIndex}`}>
+                            <tr
+                              key={`governing-row-${rowIndex}`}
+                              className={
+                                rowIndex % 2 === 0
+                                  ? "bg-white"
+                                  : "bg-slate-50/80"
+                              }
+                            >
                               {row.map((cell, cellIndex) => (
                                 <td
                                   key={`governing-cell-${rowIndex}-${cellIndex}`}
-                                  className={`border border-[#ff7d7d] px-4 py-3 text-[15px] leading-relaxed text-[#2f57d6] whitespace-normal break-words ${
+                                  className={`border-b border-slate-200 px-5 py-4 text-[15px] leading-relaxed text-slate-600 whitespace-normal break-words md:text-[0.98rem] ${
                                     cellIndex === 0
-                                      ? "text-center font-medium"
+                                      ? "text-center font-medium text-slate-800"
                                       : ""
                                   }`}
                                 >

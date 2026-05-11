@@ -449,6 +449,7 @@ const AdminFaculty = lazy(() => import("./pages/admin/AdminFaculty"));
 const AdminResearch = lazy(() => import("./pages/admin/AdminResearch"));
 const AdminDepartments = lazy(() => import("./pages/admin/AdminDepartments"));
 const AdminCoordinators = lazy(() => import("./pages/admin/AdminCoordinators"));
+const AdminApprovals = lazy(() => import("./pages/admin/AdminApprovals"));
 const AdminEditLogs = lazy(() => import("./pages/admin/AdminEditLogs"));
 const AdminMenuManager = lazy(() => import("./pages/admin/AdminMenuManager"));
 const AdminPopupBanner = lazy(() => import("./pages/admin/AdminPopupBanner"));
@@ -553,6 +554,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AdminCoordinators />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/approvals"
+                element={
+                  <ProtectedRoute>
+                    <AdminApprovals />
                   </ProtectedRoute>
                 }
               />

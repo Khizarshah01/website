@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import apiClient from "../../utils/apiClient";
 import {
   FaHome, FaFileAlt, FaNewspaper, FaBullhorn, FaCalendarAlt,
   FaUserGraduate, FaBriefcase, FaUniversity, FaFileImage, FaChartLine,
   FaUsers, FaComments, FaCog, FaChevronLeft, FaChevronRight,
   FaGraduationCap, FaClipboardList, FaFlask, FaEye, FaBars,
-  FaUserShield, FaHistory,
+  FaUserShield, FaHistory, FaCheckCircle,
 } from "react-icons/fa";
 
 const DEPT_TO_PAGEID = {
@@ -18,10 +19,37 @@ const DEPT_TO_PAGEID = {
 const AdminSidebar = ({ collapsed, setCollapsed }) => {
   const location = useLocation();
   const { isSuperAdmin, isCoordinator, userDepartment } = useAuth();
+  const [pendingApprovalCount, setPendingApprovalCount] = useState(0);
   const coordDeptPagePath = isCoordinator
     ? `/admin/visual/${DEPT_TO_PAGEID[userDepartment] || ""}`
     : null;
   const superAdminOnly = (item) => ({ ...item, superAdminOnly: true });
+
+  useEffect(() => {
+    if (!isSuperAdmin) return undefined;
+
+    let active = true;
+    const loadApprovals = async () => {
+      try {
+        const res = await apiClient.get("/pages/approvals?status=pending&limit=100");
+        if (active) {
+          const items = Array.isArray(res.data?.data) ? res.data.data : [];
+          setPendingApprovalCount(items.length);
+        }
+      } catch (_error) {
+        if (active) {
+          setPendingApprovalCount(0);
+        }
+      }
+    };
+
+    loadApprovals();
+    const timer = window.setInterval(loadApprovals, 30000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [isSuperAdmin]);
 
   const allMenuItems = [
     { title: "Overview", items: [
@@ -58,6 +86,7 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
       { name: "NIRF Data", path: "/admin/nirf", icon: FaGraduationCap },
     ]},
     { title: "System", items: [
+      superAdminOnly({ name: "Change Approvals", path: "/admin/approvals", icon: FaCheckCircle, badge: pendingApprovalCount }),
       superAdminOnly({ name: "Coordinators", path: "/admin/coordinators", icon: FaUserShield }),
       superAdminOnly({ name: "Activity Log", path: "/admin/activity-log", icon: FaHistory }),
       { name: "Settings", path: "/admin/settings", icon: FaCog },
@@ -112,7 +141,7 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
                   <li key={i}>
                     <Link
                       to={item.path}
-                      className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                      className={`relative flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all ${
                         active
                           ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
                           : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50"
@@ -125,6 +154,14 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
                         }`}
                       />
                       {!collapsed && <span>{item.name}</span>}
+                      {!collapsed && item.badge > 0 && (
+                        <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-semibold text-white">
+                          {item.badge}
+                        </span>
+                      )}
+                      {collapsed && item.badge > 0 && (
+                        <span className="absolute right-2 top-1.5 h-2.5 w-2.5 rounded-full bg-red-500" />
+                      )}
                     </Link>
                   </li>
                 );

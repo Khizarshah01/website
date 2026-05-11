@@ -27,19 +27,27 @@ const AdminToolbar = ({
   const { hasChanges, saveData, undo, canUndo, discardChanges } = useEdit();
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null); // 'success' | 'error' | null
+  const [saveMessage, setSaveMessage] = useState("");
   const [showImportModal, setShowImportModal] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
     setSaveStatus(null);
+    setSaveMessage("");
 
     const result = await saveData();
 
     if (result.success) {
       setSaveStatus("success");
+      setSaveMessage(
+        result.approvalPending
+          ? "Changes submitted for SuperAdmin approval"
+          : result.message || "Saved successfully",
+      );
       setTimeout(() => setSaveStatus(null), 3000);
     } else {
       setSaveStatus("error");
+      setSaveMessage(result.error || "Save failed");
       setTimeout(() => setSaveStatus(null), 5000);
     }
 
@@ -64,6 +72,7 @@ const AdminToolbar = ({
     if (!confirmed) return;
     discardChanges();
     setSaveStatus(null);
+    setSaveMessage("");
   };
 
   return (
@@ -92,13 +101,13 @@ const AdminToolbar = ({
                 {saveStatus === "success" && (
                   <span className="flex items-center gap-1 text-green-600">
                     <FaCheck className="text-xs" />
-                    Saved successfully
+                    {saveMessage || "Saved successfully"}
                   </span>
                 )}
                 {saveStatus === "error" && (
                   <span className="flex items-center gap-1 text-red-600">
                     <FaExclamationTriangle className="text-xs" />
-                    Save failed
+                    {saveMessage || "Save failed"}
                   </span>
                 )}
                 {!hasChanges && !saveStatus && (

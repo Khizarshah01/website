@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
 import { useAuth } from "../../hooks/useAuth";
 import { useTheme } from "../../contexts/ThemeContext";
+import apiClient from "../../utils/apiClient";
 import { FaSignOutAlt, FaBell, FaSearch, FaMoon, FaSun } from "react-icons/fa";
 
 const AdminLayout = ({ children }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [pendingApprovals, setPendingApprovals] = useState([]);
   const notifRef = useRef(null);
   const userRef = useRef(null);
   const navigate = useNavigate();
@@ -46,6 +48,31 @@ const AdminLayout = ({ children }) => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  useEffect(() => {
+    if (!isSuperAdmin) return undefined;
+
+    let active = true;
+    const loadNotifications = async () => {
+      try {
+        const res = await apiClient.get("/pages/approvals?status=pending&limit=5");
+        if (active) {
+          setPendingApprovals(Array.isArray(res.data?.data) ? res.data.data : []);
+        }
+      } catch (_error) {
+        if (active) {
+          setPendingApprovals([]);
+        }
+      }
+    };
+
+    loadNotifications();
+    const timer = window.setInterval(loadNotifications, 30000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [isSuperAdmin]);
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#f8f9fb] dark:bg-[#0f0f23]">
       <AdminSidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
@@ -82,7 +109,11 @@ const AdminLayout = ({ children }) => {
                 className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors relative"
               >
                 <FaBell className="text-sm" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-[#1a1a2e]" />
+                {pendingApprovals.length > 0 && (
+                  <span className="absolute right-0.5 top-0.5 min-w-[16px] rounded-full bg-red-500 px-1 text-center text-[10px] font-semibold leading-4 text-white ring-2 ring-white dark:ring-[#1a1a2e]">
+                    {pendingApprovals.length}
+                  </span>
+                )}
               </button>
 
               {showNotifications && (
@@ -90,7 +121,32 @@ const AdminLayout = ({ children }) => {
                   <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
                     <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Notifications</p>
                   </div>
-                  <div className="p-3 text-center text-sm text-gray-400 dark:text-gray-500">No new notifications</div>
+                  {pendingApprovals.length > 0 ? (
+                    <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                      {pendingApprovals.map((approval) => (
+                        <button
+                          key={approval._id}
+                          type="button"
+                          onClick={() => {
+                            setShowNotifications(false);
+                            navigate("/admin/approvals");
+                          }}
+                          className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                        >
+                          <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                            {approval.pageTitle || approval.pageId}
+                          </p>
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            Approval pending from {approval.requestedByDepartment || "Department"} coordinator
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-3 text-center text-sm text-gray-400 dark:text-gray-500">
+                      No new notifications
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -3,6 +3,17 @@
 Full-stack college website for Shri Sant Gajanan Maharaj College of Engineering (SSGMCE), Shegaon.
 It includes a public-facing site and an admin CMS with markdown-based content editing.
 
+## Developed By
+
+This website was developed from scratch by SSGMCE Shegaon students.  
+With the knowledge and resources available to us, we gave our best effort from our side to build and deliver this complete college website project.
+
+- Aditya Kulkarni
+- Gaurav Ghatol
+- Prajwal Kathole
+- Sagar Palhade
+- Aditya Siras
+
 ## Tech Stack
 
 - Frontend: React 18, Vite 7, React Router 6, Tailwind CSS 3
@@ -87,6 +98,14 @@ For non-loopback staging or test URLs, use HTTPS and set `AUTH_COOKIE_SECURE=tru
 - Admin visual editor for page sections (markdown, image, table, stats, etc.)
 - Structured page data seeded from `server/data/allNavPages.js`
 - News, notices, events, documents, department and placement modules
+
+## Documentation Set
+
+- [TECHNICAL_REFERENCE.md](TECHNICAL_REFERENCE.md) — full technical architecture and maintenance reference
+- [ADMIN_USER_MANUAL.md](ADMIN_USER_MANUAL.md) — non-technical admin panel usage guide
+- [MARKDOWN_REFERENCE_GUIDE.md](MARKDOWN_REFERENCE_GUIDE.md) — practical Markdown reference for content editors
+- [HANDOVER_ONBOARDING_CHECKLIST.md](HANDOVER_ONBOARDING_CHECKLIST.md) — outgoing/incoming team transfer checklist
+- [SECURITY_TESTING_REPORT.md](SECURITY_TESTING_REPORT.md) — security hardening and testing notes
 
 ## Security Status
 

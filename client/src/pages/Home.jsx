@@ -88,7 +88,7 @@ const Home = () => {
 
   const accreditations = [
     { label: 'AICTE', desc: 'Approved', logo: aicteLogo, logoAlt: 'AICTE logo' },
-    { label: 'NAAC', desc: 'Accredited', logo: naacLogo, logoAlt: 'NAAC logo' },
+    { label: 'NAAC A+', desc: 'Accredited', logo: naacLogo, logoAlt: 'NAAC A+ logo' },
     { label: 'NBA', desc: 'Accredited', logo: nbaLogo, logoAlt: 'NBA logo' },
     { label: 'ISO 9001:2015', desc: 'Certified', logo: isoLogo, logoAlt: 'ISO logo' },
     { label: 'NIRF', desc: 'Ranked', logo: nirfLogo, logoAlt: 'NIRF logo' },

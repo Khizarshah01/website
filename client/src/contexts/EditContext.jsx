@@ -114,20 +114,27 @@ export const EditProvider = ({ children, pageId, initialData = {} }) => {
         const savedPageData = response.data.data || data;
         const relatedPageIds = getRelatedPageIds(pageId);
         const cacheIds = relatedPageIds.length ? relatedPageIds : [pageId];
+        const approvalPending = Boolean(response.data.approvalPending);
 
         cacheIds.forEach((relatedPageId) => {
           clearCachedPageEntry(relatedPageId);
-          setCachedPageEntry(relatedPageId, {
-            data: savedPageData,
-            timestamp: Date.now(),
-          });
+          if (!approvalPending) {
+            setCachedPageEntry(relatedPageId, {
+              data: savedPageData,
+              timestamp: Date.now(),
+            });
+          }
         });
 
         savedDataRef.current = savedPageData;
         setData(savedPageData);
         setHasChanges(false);
         setHistory([]);
-        return { success: true };
+        return {
+          success: true,
+          message: response.data.message || "Changes saved successfully.",
+          approvalPending,
+        };
       } else {
         return { success: false, error: response.data.message };
       }

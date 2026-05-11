@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const { protect, adminOnly, adminOrCoordinator } = require("../middleware/authMiddleware");
+const {
+  protect,
+  adminOnly,
+  adminOrCoordinator,
+  optionalProtect,
+} = require("../middleware/authMiddleware");
 const {
   getAllPages,
   getPageById,
@@ -11,6 +16,9 @@ const {
   seedAllNavPages,
   getMenuStructure,
   getEditLogs,
+  getPendingApprovals,
+  approvePendingChange,
+  rejectPendingChange,
   resetPageToVersion,
 } = require("../controllers/pageContentController");
 
@@ -20,9 +28,12 @@ router.get("/menu-structure", getMenuStructure);
 
 // Edit logs & reset (SuperAdmin only) — must come before /:pageId
 router.get("/edit-logs", protect, adminOnly, getEditLogs);
+router.get("/approvals", protect, adminOnly, getPendingApprovals);
+router.post("/approvals/:approvalId/approve", protect, adminOnly, approvePendingChange);
+router.post("/approvals/:approvalId/reject", protect, adminOnly, rejectPendingChange);
 router.post("/reset/:logId", protect, adminOnly, resetPageToVersion);
 
-router.get("/:pageId", getPageById);
+router.get("/:pageId", optionalProtect, getPageById);
 
 // Protected routes
 router.post("/", protect, adminOnly, createPage);

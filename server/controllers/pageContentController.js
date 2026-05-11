@@ -1,5 +1,6 @@
 const PageContent = require("../models/PageContent");
 const EditLog = require("../models/EditLog");
+const PageApproval = require("../models/PageApproval");
 const {
   resolveCanonicalPageId,
   getRelatedPageIds,
@@ -2185,13 +2186,25 @@ const getPageById = async (req, res) => {
       }
     }
 
-    const responsePage =
+    let responsePage =
       page.pageId === canonicalPageId
         ? page
         : {
             ...page.toObject(),
             pageId: canonicalPageId,
           };
+
+    if (isCoordinatorReviewRequestForPage(req, canonicalPageId)) {
+      const pendingApproval = await PageApproval.findOne({
+        pageId: canonicalPageId,
+        status: "pending",
+        requestedBy: req.user._id,
+      }).sort({ updatedAt: -1 });
+
+      if (pendingApproval) {
+        responsePage = buildPageResponseWithPendingData(responsePage, pendingApproval);
+      }
+    }
 
     res.json({
       success: true,
@@ -2261,6 +2274,134 @@ const DEPT_TO_PAGEID = {
   ASH: "departments-applied-sciences",
 };
 
+const MUTABLE_PAGE_FIELDS = new Set([
+  "pageTitle",
+  "pageDescription",
+  "route",
+  "category",
+  "sections",
+  "template",
+  "templateData",
+  "isPublished",
+  "parentMenu",
+  "menuLabel",
+  "menuOrder",
+  "showInMenu",
+]);
+
+const VALID_SECTION_TYPES = new Set([
+  "text",
+  "richtext",
+  "markdown",
+  "list",
+  "image",
+  "stats",
+  "timeline",
+  "cards",
+  "table",
+  "quote",
+  "tabs",
+  "accordion",
+  "faculty",
+  "gallery",
+  "video",
+  "pdf",
+  "sidebar",
+  "hod",
+  "link",
+  "iqac-stats",
+  "meeting-records",
+  "year-reports",
+  "naac-criteria",
+  "video-gallery",
+  "document-grid",
+  "process-steps",
+  "info-cards",
+]);
+
+const deepClone = (value) => {
+  if (value === undefined) return undefined;
+  return JSON.parse(JSON.stringify(value));
+};
+
+const sanitizeSectionsForSave = (sections) => {
+  if (!Array.isArray(sections)) return undefined;
+
+  return sections
+    .filter((section) => section && VALID_SECTION_TYPES.has(section.type))
+    .map((section, index) => ({
+      sectionId:
+        typeof section.sectionId === "string" && section.sectionId.trim()
+          ? section.sectionId.trim()
+          : `section-${index + 1}`,
+      title: typeof section.title === "string" ? section.title : "",
+      type: section.type,
+      order:
+        typeof section.order === "number" && Number.isFinite(section.order)
+          ? section.order
+          : index + 1,
+      isVisible:
+        typeof section.isVisible === "boolean" ? section.isVisible : true,
+      content: deepClone(section.content) ?? {},
+    }));
+};
+
+const buildPageUpdatePayload = (body, page) => {
+  const payload = {};
+
+  Object.entries(body || {}).forEach(([key, value]) => {
+    if (!MUTABLE_PAGE_FIELDS.has(key)) return;
+
+    if (key === "sections") {
+      payload.sections = sanitizeSectionsForSave(value);
+      return;
+    }
+
+    if (key === "templateData") {
+      payload.templateData = deepClone(value) ?? {};
+      return;
+    }
+
+    payload[key] = value;
+  });
+
+  if (Array.isArray(payload.sections) && isDocumentsMarkdownPageId(page.pageId)) {
+    payload.sections = toSingleMarkdownSection(payload.sections, page.pageTitle);
+  }
+
+  return payload;
+};
+
+const buildPageResponseWithPendingData = (pageDoc, pendingApproval) => {
+  const basePage =
+    typeof pageDoc?.toObject === "function" ? pageDoc.toObject() : deepClone(pageDoc);
+
+  if (!pendingApproval?.proposedData) {
+    return basePage;
+  }
+
+  return {
+    ...basePage,
+    ...deepClone(pendingApproval.proposedData),
+    _approval: {
+      id: pendingApproval._id,
+      status: pendingApproval.status,
+      requestedByName: pendingApproval.requestedByName,
+      requestedByDepartment: pendingApproval.requestedByDepartment,
+      updatedAt: pendingApproval.updatedAt,
+    },
+  };
+};
+
+const isCoordinatorReviewRequestForPage = (req, pageId) => {
+  if (!req.user || req.user.role !== "Coordinator" || req.user.department === "All") {
+    return false;
+  }
+
+  const allowedPageId = DEPT_TO_PAGEID[req.user.department];
+  return Boolean(allowedPageId && allowedPageId === pageId);
+};
+
 const updatePage = async (req, res) => {
   try {
     const requestedPageId = String(req.params.pageId || "").trim().toLowerCase();
@@ -2294,6 +2435,106 @@ const updatePage = async (req, res) => {
 
     // ── Save snapshot BEFORE applying the edit (for reset) ───
     const previousSnapshot = page.toObject();
+    const updatePayload = buildPageUpdatePayload(req.body, page);
+    updatePayload.lastEditedBy = req.user._id;
+
+    if (req.user.role === "Coordinator") {
+      const stagedPageData = {
+        ...buildPageResponseWithPendingData(page),
+        ...deepClone(updatePayload),
+      };
+
+      const approval = await PageApproval.findOneAndUpdate(
+        {
+          pageId: page.pageId,
+          requestedBy: req.user._id,
+          status: "pending",
+        },
+        {
+          $set: {
+            pageId: page.pageId,
+            pageTitle: updatePayload.pageTitle || page.pageTitle || page.pageId,
+            route: updatePayload.route || page.route || "",
+            requestedByName: req.user.name || req.user.email || "Unknown",
+            requestedByRole: req.user.role,
+            requestedByDepartment: req.user.department || "",
+            previousData: previousSnapshot,
+            proposedData: updatePayload,
+            summary: `${req.user.department || "Department"} coordinator submitted changes for approval`,
+          },
+          $setOnInsert: {
+            requestedBy: req.user._id,
+          },
+        },
+        {
+          new: true,
+          upsert: true,
+          runValidators: true,
+        },
+      );
+
+      try {
+        await EditLog.create({
+          user: req.user._id,
+          userName: req.user.name || req.user.email || "Unknown",
+          userRole: req.user.role,
+          userDepartment: req.user.department || "",
+          pageId: page.pageId,
+          pageTitle: updatePayload.pageTitle || page.pageTitle || page.pageId,
+          action: "approval-submitted",
+          previousData: previousSnapshot,
+          summary: `${req.user.department || "Department"} coordinator submitted ${page.pageId} for approval`,
+        });
+      } catch (logErr) {
+        console.error("EditLog write failed (non-blocking):", logErr.message);
+      }
+
+      return res.json({
+        success: true,
+        message: "Changes submitted for SuperAdmin approval.",
+        approvalPending: true,
+        data: {
+          ...stagedPageData,
+          _approval: {
+            id: approval._id,
+            status: approval.status,
+            requestedByName: approval.requestedByName,
+            requestedByDepartment: approval.requestedByDepartment,
+            updatedAt: approval.updatedAt,
+          },
+        },
+      });
+    }
+
+    const updatedPage = await PageContent.findOneAndUpdate(
+      { _id: page._id },
+      { $set: updatePayload },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    try {
+      await EditLog.create({
+        user: req.user._id,
+        userName: req.user.name || req.user.email || "Unknown",
+        userRole: req.user.role,
+        userDepartment: req.user.department || "",
+        pageId: updatedPage.pageId,
+        pageTitle: updatedPage.pageTitle || updatedPage.pageId,
+        action: "edit",
+        previousData: previousSnapshot,
+        summary: `${req.user.role} ${req.user.name || ""} edited ${updatedPage.pageId}`,
+      });
+    } catch (logErr) {
+      console.error("EditLog write failed (non-blocking):", logErr.message);
+    }
+
+    return res.json({
+      success: true,
+      data: updatedPage,
+    });
 
     const immutableFields = new Set([
       "_id",
@@ -2556,6 +2797,154 @@ const getEditLogs = async (req, res) => {
   }
 };
 
+const getPendingApprovals = async (req, res) => {
+  try {
+    const status = String(req.query.status || "pending").trim().toLowerCase();
+    const filter =
+      status === "all"
+        ? {}
+        : {
+            status,
+          };
+
+    const approvals = await PageApproval.find(filter)
+      .sort({ updatedAt: -1 })
+      .limit(parseInt(req.query.limit, 10) || 100);
+
+    res.json({
+      success: true,
+      count: approvals.length,
+      data: approvals,
+    });
+  } catch (error) {
+    sendSafeError(res, error, { message: "Page approval request failed" });
+  }
+};
+
+const approvePendingChange = async (req, res) => {
+  try {
+    const approval = await PageApproval.findById(req.params.approvalId);
+
+    if (!approval) {
+      return res.status(404).json({
+        success: false,
+        message: "Approval request not found",
+      });
+    }
+
+    if (approval.status !== "pending") {
+      return res.status(400).json({
+        success: false,
+        message: `This request is already ${approval.status}.`,
+      });
+    }
+
+    const page = await PageContent.findOne({ pageId: approval.pageId });
+
+    if (!page) {
+      return res.status(404).json({
+        success: false,
+        message: "Page not found",
+      });
+    }
+
+    const previousSnapshot = page.toObject();
+    const approvedPayload = buildPageUpdatePayload(approval.proposedData, page);
+    approvedPayload.lastEditedBy = req.user._id;
+
+    const updatedPage = await PageContent.findOneAndUpdate(
+      { _id: page._id },
+      { $set: approvedPayload },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    approval.status = "approved";
+    approval.reviewedBy = req.user._id;
+    approval.reviewedByName = req.user.name || req.user.email || "Unknown";
+    approval.reviewNote = String(req.body?.reviewNote || "").trim();
+    approval.reviewedAt = new Date();
+    await approval.save();
+
+    try {
+      await EditLog.create({
+        user: req.user._id,
+        userName: req.user.name || req.user.email || "Unknown",
+        userRole: req.user.role,
+        userDepartment: req.user.department || "",
+        pageId: updatedPage.pageId,
+        pageTitle: updatedPage.pageTitle || updatedPage.pageId,
+        action: "approval-approved",
+        previousData: previousSnapshot,
+        summary: `SuperAdmin approved coordinator changes for ${updatedPage.pageId}`,
+      });
+    } catch (logErr) {
+      console.error("EditLog write failed (non-blocking):", logErr.message);
+    }
+
+    res.json({
+      success: true,
+      message: "Pending changes approved and published.",
+      data: updatedPage,
+    });
+  } catch (error) {
+    sendSafeError(res, error, { message: "Page approval request failed" });
+  }
+};
+
+const rejectPendingChange = async (req, res) => {
+  try {
+    const approval = await PageApproval.findById(req.params.approvalId);
+
+    if (!approval) {
+      return res.status(404).json({
+        success: false,
+        message: "Approval request not found",
+      });
+    }
+
+    if (approval.status !== "pending") {
+      return res.status(400).json({
+        success: false,
+        message: `This request is already ${approval.status}.`,
+      });
+    }
+
+    approval.status = "rejected";
+    approval.reviewedBy = req.user._id;
+    approval.reviewedByName = req.user.name || req.user.email || "Unknown";
+    approval.reviewNote = String(req.body?.reviewNote || "").trim();
+    approval.reviewedAt = new Date();
+    await approval.save();
+
+    try {
+      await EditLog.create({
+        user: req.user._id,
+        userName: req.user.name || req.user.email || "Unknown",
+        userRole: req.user.role,
+        userDepartment: req.user.department || "",
+        pageId: approval.pageId,
+        pageTitle: approval.pageTitle || approval.pageId,
+        action: "approval-rejected",
+        previousData: approval.previousData,
+        summary: `SuperAdmin rejected coordinator changes for ${approval.pageId}`,
+      });
+    } catch (logErr) {
+      console.error("EditLog write failed (non-blocking):", logErr.message);
+    }
+
+    res.json({
+      success: true,
+      message: "Pending changes rejected.",
+      data: approval,
+    });
+  } catch (error) {
+    sendSafeError(res, error, { message: "Page approval request failed" });
+  }
+};
+
 // @desc    Reset a page to the state it was in before a specific edit log entry
 // @route   POST /api/pages/reset/:logId
 // @access  Private/SuperAdmin
@@ -2640,6 +3029,9 @@ module.exports = {
   upsertDefaultPages,
   getMenuStructure,
   getEditLogs,
+  getPendingApprovals,
+  approvePendingChange,
+  rejectPendingChange,
   resetPageToVersion,
 };
 

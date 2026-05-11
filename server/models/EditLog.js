@@ -19,7 +19,15 @@ const editLogSchema = new mongoose.Schema(
     // The action performed
     action: {
       type: String,
-      enum: ["edit", "reset", "login", "logout"],
+      enum: [
+        "edit",
+        "reset",
+        "login",
+        "logout",
+        "approval-submitted",
+        "approval-approved",
+        "approval-rejected",
+      ],
       default: "edit",
     },
 

@@ -12,6 +12,16 @@ import {
   FaSignInAlt,
 } from "react-icons/fa";
 
+const ACTION_GROUPS = {
+  edit: "editing",
+  reset: "editing",
+  "approval-submitted": "approval",
+  "approval-approved": "approval",
+  "approval-rejected": "approval",
+  login: "login",
+  logout: "other",
+};
+
 const AdminEditLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +29,7 @@ const AdminEditLogs = () => {
   const [success, setSuccess] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPage, setFilterPage] = useState("");
+  const [filterGroup, setFilterGroup] = useState("all");
   const [resettingId, setResettingId] = useState(null);
 
   const authHeader = useCallback(
@@ -72,6 +83,8 @@ const AdminEditLogs = () => {
 
   // Client-side search
   const filtered = logs.filter((log) => {
+    const group = ACTION_GROUPS[log.action] || "other";
+    if (filterGroup !== "all" && group !== filterGroup) return false;
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
     return (
@@ -85,6 +98,12 @@ const AdminEditLogs = () => {
 
   // Unique page IDs for filter dropdown
   const uniquePages = [...new Set(logs.map((l) => l.pageId))].sort();
+  const groupedLogs = {
+    approval: filtered.filter((log) => (ACTION_GROUPS[log.action] || "other") === "approval"),
+    editing: filtered.filter((log) => (ACTION_GROUPS[log.action] || "other") === "editing"),
+    login: filtered.filter((log) => (ACTION_GROUPS[log.action] || "other") === "login"),
+    other: filtered.filter((log) => (ACTION_GROUPS[log.action] || "other") === "other"),
+  };
 
   const formatTime = (dateStr) => {
     const d = new Date(dateStr);
@@ -160,6 +179,17 @@ const AdminEditLogs = () => {
               ))}
             </select>
           </div>
+          <select
+            value={filterGroup}
+            onChange={(e) => setFilterGroup(e.target.value)}
+            className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none min-w-[180px]"
+          >
+            <option value="all">All Activity</option>
+            <option value="approval">Approvals</option>
+            <option value="editing">Editing</option>
+            <option value="login">Login</option>
+            <option value="other">Other</option>
+          </select>
         </div>
 
         {/* Log Entries */}
@@ -180,8 +210,24 @@ const AdminEditLogs = () => {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filtered.map((log) => (
+          <div className="space-y-6">
+            {[
+              { key: "approval", title: "Change Approvals" },
+              { key: "editing", title: "Page Editing" },
+              { key: "login", title: "Login Activity" },
+              { key: "other", title: "Other Activity" },
+            ].map((section) =>
+              groupedLogs[section.key].length > 0 ? (
+                <div key={section.key} className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">
+                      {section.title}
+                    </h2>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                      {groupedLogs[section.key].length}
+                    </span>
+                  </div>
+                  {groupedLogs[section.key].map((log) => (
               <div
                 key={log._id}
                 className={`bg-white dark:bg-[#1a1a2e] rounded-xl border shadow-sm overflow-hidden transition-all ${
@@ -208,6 +254,12 @@ const AdminEditLogs = () => {
                         className="text-orange-600 dark:text-orange-400"
                         title="Reset action"
                       />
+                    ) : log.action === "approval-submitted" ? (
+                      <FaEdit className="text-amber-600 dark:text-amber-400" title="Approval submitted" />
+                    ) : log.action === "approval-approved" ? (
+                      <FaCheck className="text-emerald-600 dark:text-emerald-400" title="Approval approved" />
+                    ) : log.action === "approval-rejected" ? (
+                      <FaUndo className="text-red-600 dark:text-red-400" title="Approval rejected" />
                     ) : log.action === "login" ? (
                       <FaSignInAlt
                         className="text-green-600 dark:text-green-400"
@@ -248,12 +300,28 @@ const AdminEditLogs = () => {
                         className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           log.action === "reset"
                             ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300"
+                            : log.action === "approval-submitted"
+                              ? "bg-amber-100 text-amber-700"
+                              : log.action === "approval-approved"
+                                ? "bg-emerald-100 text-emerald-700"
+                                : log.action === "approval-rejected"
+                                  ? "bg-red-100 text-red-700"
                             : log.action === "login"
-                            ? "bg-emerald-100 text-emerald-700"
+                              ? "bg-emerald-100 text-emerald-700"
                             : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
                         }`}
                       >
-                        {log.action === "reset" ? "RESET" : log.action === "login" ? "LOGIN" : "EDIT"}
+                        {log.action === "reset"
+                          ? "RESET"
+                          : log.action === "login"
+                            ? "LOGIN"
+                            : log.action === "approval-submitted"
+                              ? "SUBMITTED"
+                              : log.action === "approval-approved"
+                                ? "APPROVED"
+                                : log.action === "approval-rejected"
+                                  ? "REJECTED"
+                                  : "EDIT"}
                       </span>
                     </div>
 
@@ -269,6 +337,28 @@ const AdminEditLogs = () => {
                       ) : log.action === "login" ? (
                         <>
                           Logged in to the admin panel
+                        </>
+                      ) : log.action === "approval-submitted" ? (
+                        <>
+                          Submitted{" "}
+                          <span className="font-medium text-gray-800 dark:text-gray-200">
+                            {log.pageTitle || log.pageId}
+                          </span>{" "}
+                          for SuperAdmin approval
+                        </>
+                      ) : log.action === "approval-approved" ? (
+                        <>
+                          Approved pending changes for{" "}
+                          <span className="font-medium text-gray-800 dark:text-gray-200">
+                            {log.pageTitle || log.pageId}
+                          </span>
+                        </>
+                      ) : log.action === "approval-rejected" ? (
+                        <>
+                          Rejected pending changes for{" "}
+                          <span className="font-medium text-gray-800 dark:text-gray-200">
+                            {log.pageTitle || log.pageId}
+                          </span>
                         </>
                       ) : (
                         <>
@@ -301,7 +391,10 @@ const AdminEditLogs = () => {
                   )}
                 </div>
               </div>
-            ))}
+                  ))}
+                </div>
+              ) : null,
+            )}
           </div>
         )}
 

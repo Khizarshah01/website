@@ -12,6 +12,7 @@ import placementsNavbarImage from "../assets/images/navbar/placements.png";
 import nirfNavbarImage from "../assets/images/about/NIRF.png";
 import documentsNavbarImage from "../assets/images/navbar/documents.jpg";
 import activitiesNavbarImage from "../assets/images/navbar/activities.png";
+import naacLogo from "../assets/images/about/NAAC.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -365,29 +366,71 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/20 bg-white/5 px-3 py-3 backdrop-blur-[2px] md:px-5 md:py-4">
-            <div className="flex items-center justify-center gap-3 md:gap-5">
-              <span className="hidden h-px flex-1 bg-gradient-to-r from-transparent via-white/70 to-white/10 lg:block" />
+          <div className="rounded-2xl border border-white/20 bg-white/5 px-4 py-4 backdrop-blur-[2px] md:px-6 md:py-5">
+            <div className="mx-auto flex max-w-6xl items-center gap-4 md:gap-6 lg:gap-8">
+              <div className="flex shrink-0 flex-col items-center gap-3 self-center lg:hidden">
+                <img
+                  src="/favicon.svg"
+                  alt="SSGMCE Emblem"
+                  className="h-[4.75rem] w-20 object-contain drop-shadow-[0_10px_24px_rgba(7,29,61,0.28)]"
+                  onError={(e) => {
+                    e.currentTarget.src = logo;
+                  }}
+                />
+                <div className="flex w-20 flex-col items-center justify-center">
+                  <img
+                    src={naacLogo}
+                    alt='NAAC "A+" logo'
+                    className="h-8 w-auto object-contain drop-shadow-[0_10px_24px_rgba(7,29,61,0.22)]"
+                  />
+                  <p className="mt-1 text-center text-[0.95rem] font-extrabold leading-none text-white">
+                    NAAC
+                  </p>
+                  <p className="mt-1 text-center text-[8px] font-semibold uppercase tracking-[0.12em] text-orange-200">
+                    A+ Accredited
+                  </p>
+                </div>
+              </div>
               <img
                 src="/favicon.svg"
                 alt="SSGMCE Emblem"
-                className="h-12 w-24 rounded-xl border border-white/35 bg-white/95 object-contain p-0.5 shadow-lg md:h-14 md:w-28"
+                className="hidden h-20 w-32 shrink-0 object-contain drop-shadow-[0_10px_24px_rgba(7,29,61,0.28)] md:h-24 md:w-36 lg:block"
                 onError={(e) => {
                   e.currentTarget.src = logo;
                 }}
               />
-              <div className="text-center">
-                <p className="text-[11px] font-semibold tracking-[0.18em] text-orange-200 md:text-xs">
+              <div className="min-w-0 flex-1 text-left lg:text-center">
+                <p className="text-[10px] font-semibold tracking-[0.12em] text-orange-200/95 md:text-xs">
                   Shri Gajanan Shikshan Sansthan's
                 </p>
-                <p className="mt-1 text-base font-semibold tracking-wide text-white/95 md:text-lg">
+                <p className="mt-1 text-[1.05rem] font-semibold leading-tight tracking-[0.01em] text-white/95 md:text-[1.9rem]">
                   Shri Sant Gajanan Maharaj College of Engineering, Shegaon
                 </p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.24em] text-white/75 md:text-xs">
-                  Autonomous Institute | NAAC Accredited | Estd. 1983
+                <p className="mt-2 flex flex-col gap-1 text-[9px] uppercase tracking-[0.14em] text-white/80 sm:block sm:text-xs lg:text-sm">
+                  <span className="block sm:inline">Autonomous Institute</span>
+                  <span className="mx-2 hidden text-white/45 sm:inline">|</span>
+                  <span className="block font-bold text-white sm:inline">
+                    NAAC <span className="tracking-[0.08em]">"A+"</span> Accredited
+                  </span>
+                  <span className="mx-2 hidden text-white/45 sm:inline">|</span>
+                  <span className="block sm:inline">Estd. 1983</span>
                 </p>
               </div>
-              <span className="hidden h-px flex-1 bg-gradient-to-l from-transparent via-white/70 to-white/10 lg:block" />
+              <div className="hidden shrink-0 items-center justify-center lg:flex">
+                <div className="flex min-h-[96px] w-[96px] flex-col items-center justify-center px-1">
+                  <img
+                    src={naacLogo}
+                    alt='NAAC "A+" logo'
+                    className="h-11 w-auto object-contain drop-shadow-[0_10px_24px_rgba(7,29,61,0.22)]"
+                  />
+                  <p className="mt-2 text-center text-base font-extrabold leading-none text-white">
+                    NAAC
+                  </p>
+                  <p className="mt-1 text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-orange-200">
+                    A+ Accredited
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

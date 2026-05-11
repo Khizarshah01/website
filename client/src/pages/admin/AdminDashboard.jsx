@@ -56,11 +56,16 @@ const AdminDashboard = () => {
   const [error, setError] = useState("");
   const [trafficData, setTrafficData] = useState([]);
   const [seeding, setSeeding] = useState(false);
+  const [pendingApprovals, setPendingApprovals] = useState([]);
+  const [processingApprovalId, setProcessingApprovalId] = useState("");
 
   useEffect(() => {
     fetchDashboardData();
     generateTrafficData();
-  }, []);
+    if (isSuperAdmin) {
+      fetchPendingApprovals();
+    }
+  }, [isSuperAdmin]);
 
   const fetchDashboardData = async () => {
     try {
@@ -103,6 +108,29 @@ const AdminDashboard = () => {
       });
     }
     setTrafficData(data);
+  };
+
+  const fetchPendingApprovals = async () => {
+    try {
+      const res = await apiClient.get("/pages/approvals?status=pending&limit=6");
+      setPendingApprovals(Array.isArray(res.data?.data) ? res.data.data : []);
+    } catch (err) {
+      logUnexpectedError("Error fetching pending approvals:", err);
+    }
+  };
+
+  const handleApprovalDecision = async (approvalId, decision) => {
+    if (!approvalId || !decision) return;
+
+    setProcessingApprovalId(approvalId);
+    try {
+      await apiClient.post(`/pages/approvals/${approvalId}/${decision}`, {});
+      await Promise.all([fetchPendingApprovals(), fetchDashboardData()]);
+    } catch (err) {
+      window.alert(getErrorMessage(err, `Failed to ${decision} changes`));
+    } finally {
+      setProcessingApprovalId("");
+    }
   };
 
   const formatDate = (dateString) => {
@@ -191,7 +219,13 @@ const AdminDashboard = () => {
               <StatCard label="Total Pages" value={totalPages} icon={FaFileAlt} accent="blue" />
               <StatCard label="Categories" value={`${activeCats}/${DASHBOARD_SECTIONS.length}`} icon={FaChartPie} accent="amber" />
               <StatCard label="Content Sections" value={DASHBOARD_SECTIONS.length} icon={FaDatabase} accent="emerald" />
-              <StatCard label="Recent Updates" value={recentPages.length} icon={FaClock} accent="violet" />
+              <StatCard
+                label="Pending Approvals"
+                value={pendingApprovals.length}
+                sub="Coordinator changes awaiting review"
+                icon={FaClock}
+                accent="violet"
+              />
             </div>
 
             {/* Charts row */}
@@ -300,6 +334,53 @@ const AdminDashboard = () => {
               </div>
 
               <div className="space-y-4">
+                <div className="bg-white dark:bg-[#1a1a2e] rounded-xl border border-gray-200/80 dark:border-gray-800 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Pending Approvals</h3>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                      {pendingApprovals.length} waiting
+                    </span>
+                  </div>
+                  <div className="divide-y divide-gray-50 dark:divide-gray-800">
+                    {pendingApprovals.length > 0 ? (
+                      pendingApprovals.map((approval) => (
+                        <div key={approval._id} className="px-4 py-3">
+                          <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+                            {approval.pageTitle || approval.pageId}
+                          </p>
+                          <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
+                            {approval.requestedByDepartment || "Department"} coordinator:
+                            {" "}
+                            {approval.requestedByName}
+                          </p>
+                          <div className="mt-2 flex gap-2">
+                            <button
+                              type="button"
+                              disabled={processingApprovalId === approval._id}
+                              onClick={() => handleApprovalDecision(approval._id, "approve")}
+                              className="rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              type="button"
+                              disabled={processingApprovalId === approval._id}
+                              onClick={() => handleApprovalDecision(approval._id, "reject")}
+                              className="rounded-md border border-red-200 px-2.5 py-1 text-[11px] font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="py-8 text-center text-sm text-gray-300 dark:text-gray-600">
+                        No pending coordinator approvals
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* Recent */}
                 <div className="bg-white dark:bg-[#1a1a2e] rounded-xl border border-gray-200/80 dark:border-gray-800 overflow-hidden">
                   <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
