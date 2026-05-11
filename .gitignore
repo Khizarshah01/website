@@ -18,19 +18,21 @@ client/build/
 server/dist/
 server/build/
 
-# Documents - served via API from server/uploads/documents
-client/public/documents/
-!client/public/documents/
-client/public/documents/*
-!client/public/documents/research/
-!client/public/documents/research/**
-
-# Ignore uploaded document files but keep the folder skeleton tracked
-server/uploads/documents/**/*
-!server/uploads/documents/**/
-!server/uploads/documents/README.md
-!server/uploads/documents/**/.gitkeep
-!server/uploads/documents/**/README.md
+# Exclude only the oversized Tatwadarshi PDFs that exceed GitHub's file-size limit
+client/public/documents/institution/others/e-tattwadarshi/Tattwadarshi 2019.pdf
+client/public/documents/institution/others/e-tattwadarshi/Tattwadarshi 2020.pdf
+client/public/documents/institution/others/e-tattwadarshi/Tattwadarshi 2021.pdf
+client/public/documents/institution/others/e-tattwadarshi/Tattwadarshi 2023.pdf
+client/public/documents/institution/others/e-tattwadarshi/Tattwadarshi 2024.pdf
+client/public/documents/institution/others/e-tattwadarshi/Tattwadarshi 2025.pdf
+client/public/documents/institution/others/newsletters/Tattwadarshi 2023.pdf
+server/uploads/documents/institution/others/e-tattwadarshi/Tattwadarshi 2019.pdf
+server/uploads/documents/institution/others/e-tattwadarshi/Tattwadarshi 2020.pdf
+server/uploads/documents/institution/others/e-tattwadarshi/Tattwadarshi 2021.pdf
+server/uploads/documents/institution/others/e-tattwadarshi/Tattwadarshi 2023.pdf
+server/uploads/documents/institution/others/e-tattwadarshi/Tattwadarshi 2024.pdf
+server/uploads/documents/institution/others/e-tattwadarshi/Tattwadarshi 2025.pdf
+server/uploads/documents/institution/others/newsletters/Tattwadarshi 2023.pdf
 
 # Logs
 logs/
