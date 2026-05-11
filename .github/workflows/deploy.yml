@@ -1,0 +1,34 @@
+name: Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Sync Files to VPS Folder
+        run: |
+          # Copies the fresh code to your live directory
+          # We exclude .env so it doesn't overwrite your server secrets
+          rsync -av --delete --exclude='.git' --exclude='node_modules' --exclude='.env' . /var/www/website/
+
+      - name: Install and Build Frontend
+        run: |
+          cd /var/www/website/client
+          npm install
+          npm run build
+
+      - name: Install Backend and Restart App
+        run: |
+          cd /var/www/website/server
+          npm install
+          # Restarts the server, or starts it if it crashed
+          pm2 restart website || pm2 start server.js --name website
+          pm2 save
