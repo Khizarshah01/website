@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const fs = require("fs");
 const path = require("path");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
@@ -20,6 +21,15 @@ dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 getJwtSecret();
 
 const app = express();
+const clientDistPath = path.resolve(__dirname, "..", "client", "dist");
+const clientIndexPath = path.join(clientDistPath, "index.html");
+const hasClientBuild = () => {
+  try {
+    return fs.existsSync(clientIndexPath);
+  } catch {
+    return false;
+  }
+};
 const { protect, adminOnly } = require("./middleware/authMiddleware");
 app.set("trust proxy", 1);
 app.set("query parser", "simple");
@@ -52,7 +62,6 @@ const allowedOrigins = Array.from(
       process.env.CLIENT_URL,
       "http://localhost:3000",
       "http://127.0.0.1:3000",
-      "https://website-one-sigma-90.vercel.app",
     ]
       .flatMap((value) => String(value || "").split(","))
       .map((value) => value.trim())
@@ -327,6 +336,13 @@ app.use("/api/document-download", documentDownloadRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/nirf", nirfRoutes);
 app.use("/api/convert", convertRoutes);
+app.get("/api/health", (_req, res) => {
+  res.json({
+    success: true,
+    status: "ok",
+    timestamp: new Date().toISOString(),
+  });
+});
 
 app.use("/api", (_req, res) => {
   res.status(404).json({
@@ -335,8 +351,26 @@ app.use("/api", (_req, res) => {
   });
 });
 
+if (hasClientBuild()) {
+  app.use(
+    express.static(clientDistPath, {
+      index: false,
+      maxAge: process.env.NODE_ENV === "production" ? "7d" : 0,
+      etag: true,
+    }),
+  );
+
+  app.get(/^\/(?!api\/|uploads\/).*/, (_req, res) => {
+    res.sendFile(clientIndexPath);
+  });
+}
+
 // Health Check
 app.get("/", (req, res) => {
+  if (hasClientBuild()) {
+    return res.sendFile(clientIndexPath);
+  }
+
   res.json({
     message: "SSGMCE API Server Running",
     status: "Active",
