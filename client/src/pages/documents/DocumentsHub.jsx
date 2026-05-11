@@ -38,15 +38,6 @@ const DocumentsHub = () => {
     document.title = `${activeSection?.label || "Documents"} | SSGMCE Documents`;
   }, [activeSection]);
 
-  const openDocumentInNewTab = (href) => {
-    const documentUrl = getDocumentAssetUrl(href);
-    const newWindow = window.open(documentUrl, "_blank", "noopener,noreferrer");
-
-    if (!newWindow) {
-      window.location.assign(documentUrl);
-    }
-  };
-
   if (!activeSection) return null;
 
   return (
@@ -116,13 +107,14 @@ const DocumentsHub = () => {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right align-top">
-                        <button
-                          type="button"
-                          onClick={() => openDocumentInNewTab(document.href)}
+                        <a
+                          href={getDocumentAssetUrl(document.href)}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 text-sm font-medium text-ssgmce-blue hover:underline"
                         >
                           Open
-                        </button>
+                        </a>
                       </td>
                     </tr>
                   ))

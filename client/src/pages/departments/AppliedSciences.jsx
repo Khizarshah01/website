@@ -8,6 +8,7 @@ import EditableImage from "../../components/admin/EditableImage";
 import MarkdownEditor from "../../components/admin/MarkdownEditor";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { resolveDocumentUrl } from "../../utils/contentUrls";
 import { resolveUploadedAssetUrl } from "../../utils/uploadUrls";
 import appliedSciencesBanner from "../../assets/images/departments/applied-sciences/banner.png";
 import { AnimatePresence, motion } from "framer-motion";
@@ -2645,7 +2646,10 @@ The department has three well equipped laboratories namely **Physics, Chemistry 
                         )}
                         {!isEditing && (
                           <a
-                            href={item.fileUrl || item.link || "#"}
+                            href={
+                              resolveDocumentUrl(item.fileUrl || item.link || "")
+                              || "#"
+                            }
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-xs font-bold text-ssgmce-blue hover:text-ssgmce-orange hover:underline uppercase tracking-wide shrink-0"
@@ -2942,7 +2946,7 @@ The department has three well equipped laboratories namely **Physics, Chemistry 
                       </td>
                       <td className="px-6 py-4 text-center">
                         <a
-                          href={material.link}
+                          href={resolveDocumentUrl(material.link || "") || "#"}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 text-ssgmce-orange hover:text-orange-700 font-medium text-xs border border-gray-200 hover:border-orange-400 bg-orange-50 hover:bg-orange-100 px-4 py-2 rounded-full transition-all"

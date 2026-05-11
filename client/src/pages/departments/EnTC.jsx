@@ -9542,15 +9542,29 @@ const getLocalEntcActivityImageUrl = (imageUrl = "") => {
   const normalizedUrl = String(imageUrl || "").trim();
   if (!normalizedUrl) return "";
 
-  if (
-    normalizedUrl
-      .toLowerCase()
-      .startsWith(ENTC_ACTIVITY_REMOTE_IMAGE_PREFIX.toLowerCase())
-  ) {
-    const fileName = normalizedUrl.split("/").pop()?.split("?")[0] || "";
-    return resolveUploadedAssetUrl(
-      fileName ? `/uploads/images/entc/activities/${fileName}` : normalizedUrl,
+  try {
+    const parsedUrl = new URL(
+      normalizedUrl.startsWith("//") ? `https:${normalizedUrl}` : normalizedUrl,
+      window.location.origin,
     );
+    if (/\/images\/extc_faculty\//i.test(parsedUrl.pathname)) {
+      const fileName =
+        parsedUrl.pathname.split("/").filter(Boolean).pop() || "";
+      return resolveUploadedAssetUrl(
+        fileName ? `/uploads/images/entc/activities/${fileName}` : normalizedUrl,
+      );
+    }
+  } catch {
+    if (
+      normalizedUrl
+        .toLowerCase()
+        .startsWith(ENTC_ACTIVITY_REMOTE_IMAGE_PREFIX.toLowerCase())
+    ) {
+      const fileName = normalizedUrl.split("/").pop()?.split("?")[0] || "";
+      return resolveUploadedAssetUrl(
+        fileName ? `/uploads/images/entc/activities/${fileName}` : normalizedUrl,
+      );
+    }
   }
 
   return resolveUploadedAssetUrl(normalizedUrl);
