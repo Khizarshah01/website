@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 const { seedHomepageContent } = require("../utils/seedHomepageContent");
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
-dotenv.config({ path: path.resolve(__dirname, "../../env") });
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const uri =
   process.env.MONGODB_URI ||

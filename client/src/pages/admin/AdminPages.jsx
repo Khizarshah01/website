@@ -32,6 +32,7 @@ const CATEGORY_ORDER = [
   "documents",
   "activities",
   "departments",
+  "other",
 ];
 
 const CATEGORY_COLORS = {

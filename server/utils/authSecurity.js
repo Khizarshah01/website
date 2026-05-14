@@ -86,6 +86,10 @@ const getHostname = (value = "") => {
 const isLoopbackHost = (host = "") =>
   /^(localhost|127(?:\.\d{1,3}){3}|\[?::1\]?)$/i.test(String(host || ""));
 
+// Matches RFC-1918 private network IP ranges: 10.x.x.x / 172.16-31.x.x / 192.168.x.x
+const isPrivateNetworkHost = (host = "") =>
+  /^(10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+)$/.test(String(host || ""));
+
 const isLoopbackRequest = (req) => {
   if (!req) return false;
 
@@ -99,25 +103,49 @@ const isLoopbackRequest = (req) => {
   return hostCandidates.some((host) => isLoopbackHost(host));
 };
 
+const isPrivateNetworkRequest = (req) => {
+  if (!req) return false;
+
+  const hostCandidates = [
+    req.hostname,
+    req.headers?.host,
+    getHostname(req.headers?.origin || ""),
+    getHostname(req.headers?.referer || ""),
+  ];
+
+  return hostCandidates.some((host) => isPrivateNetworkHost(host));
+};
+
 const getAuthCookieName = () =>
   String(process.env.AUTH_COOKIE_NAME || DEFAULT_COOKIE_NAME).trim() ||
   DEFAULT_COOKIE_NAME;
 
 const shouldUseSecureCookie = (req) => {
+  // 1. Force secure if explicitly configured
   if (parseBoolean(process.env.AUTH_COOKIE_SECURE, false)) {
     return true;
   }
 
+  // 2. Force secure in production
   if (isProduction()) {
     return true;
   }
 
+  // 3. Check development exceptions
   const allowInsecureLoopback = parseBoolean(
     process.env.AUTH_COOKIE_ALLOW_INSECURE_LOOPBACK,
     true,
   );
+  const allowInsecureLAN = parseBoolean(
+    process.env.AUTH_COOKIE_ALLOW_INSECURE_LAN,
+    false, // Default to false if not set in .env
+  );
 
-  return !(allowInsecureLoopback && isLoopbackRequest(req));
+  const isAllowedInsecureLoopback = allowInsecureLoopback && isLoopbackRequest(req);
+  const isAllowedInsecureLAN = allowInsecureLAN && isPrivateNetworkRequest(req);
+
+  // If either exception matches, do NOT use a secure cookie
+  return !(isAllowedInsecureLoopback || isAllowedInsecureLAN);
 };
 
 const getAuthCookieOptions = (req) => {

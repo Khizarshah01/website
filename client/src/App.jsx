@@ -469,6 +469,9 @@ const AdminRecruiters = lazy(() => import("./pages/admin/AdminRecruiters"));
 const AdminAlumni = lazy(() => import("./pages/admin/AdminAlumni"));
 const AdminTestimonials = lazy(() => import("./pages/admin/AdminTestimonials"));
 const AdminNIRF = lazy(() => import("./pages/admin/AdminNIRF"));
+const AdminHomepageEditor = lazy(
+  () => import("./pages/admin/AdminHomepageEditor"),
+);
 
 // ─── Page loading fallback ────────────────────────────────────────────────────
 const PageLoader = () => (
@@ -522,6 +525,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <VisualPageEditor />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/homepage"
+                element={
+                  <ProtectedRoute>
+                    <AdminHomepageEditor />
                   </ProtectedRoute>
                 }
               />

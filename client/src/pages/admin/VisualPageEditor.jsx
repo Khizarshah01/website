@@ -44,6 +44,9 @@ const VALID_DEPT_PAGEIDS = new Set([
 
 /** Derive a human-readable title and category from a pageId slug */
 const derivePageMeta = (pageId) => {
+  if (pageId === "home") {
+    return { pageTitle: "Homepage", category: "other", route: "/" };
+  }
   const parts = pageId.split("-");
   let category = parts[0]; // e.g. "placements", "iqac"
   // If it looks like a department sub-page but isn't a known top-level dept, recategorize as 'other'

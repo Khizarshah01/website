@@ -67,6 +67,24 @@ export const AuthProvider = ({ children }) => {
 
       if (response.data.success) {
         const { token: _token, ...userData } = response.data.data;
+        try {
+          const meResponse = await apiClient.get(`/auth/me`, {
+            skipAuthRedirect: true,
+          });
+          if (meResponse.data?.success) {
+            const authenticatedUser = meResponse.data.data;
+            setStoredAdminUser(authenticatedUser);
+            setUser(authenticatedUser);
+            return { success: true };
+          }
+        } catch {
+          clearStoredAuth();
+          setUser(null);
+          const message =
+            "Login response received, but session was not persisted. Check API base URL/proxy and cookie settings for local vs VPS.";
+          setError(message);
+          return { success: false, message };
+        }
 
         setStoredAdminUser(userData);
         setUser(userData);

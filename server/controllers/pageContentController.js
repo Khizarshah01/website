@@ -1574,6 +1574,37 @@ const basePages = [
 
 const supplementalPages = [
   {
+    pageId: "home",
+    pageTitle: "Homepage",
+    pageDescription: "Public website homepage",
+    route: "/",
+    category: "other",
+    template: "home",
+    isPublished: true,
+    parentMenu: "none",
+    showInMenu: false,
+    sections: [
+      {
+        sectionId: "home-config",
+        title: "Homepage Configuration",
+        type: "info-cards",
+        order: 1,
+        isVisible: true,
+        content: {
+          note: "Edit this JSON to control homepage content blocks.",
+          items: [
+            {
+              title: "How to edit",
+              description:
+                "Use the section JSON editor in visual page editor to update text, images, links, and homepage block settings.",
+            },
+          ],
+          config: {},
+        },
+      },
+    ],
+  },
+  {
     pageId: "about-governing",
     pageTitle: "Governing Body",
     pageDescription: "Governing Body",
@@ -1953,6 +1984,11 @@ const {
   RESEARCH_MARKDOWN_PAGE_IDS,
 } = require("../data/researchMarkdownContent");
 const { IQAC_MARKDOWN_PAGE_IDS } = require("../data/iqacMarkdownContent");
+const { homePageConfig } = require("../data/homePageConfig");
+
+if (supplementalPages[0]?.pageId === "home") {
+  supplementalPages[0].sections[0].content.config = homePageConfig;
+}
 
 const DOCUMENTS_MARKDOWN_PAGE_IDS = [
   "documents-naac",
@@ -2289,6 +2325,17 @@ const MUTABLE_PAGE_FIELDS = new Set([
   "showInMenu",
 ]);
 
+const IMMUTABLE_PAGE_FIELDS = new Set([
+  "_id",
+  "__v",
+  "createdAt",
+  "updatedAt",
+  "lastEditedBy",
+  "pageId",
+]);
+
+const CLIENT_ONLY_PAGE_FIELDS = new Set(["_approval"]);
+
 const VALID_SECTION_TYPES = new Set([
   "text",
   "richtext",
@@ -2350,19 +2397,29 @@ const buildPageUpdatePayload = (body, page) => {
   const payload = {};
 
   Object.entries(body || {}).forEach(([key, value]) => {
-    if (!MUTABLE_PAGE_FIELDS.has(key)) return;
+    if (MUTABLE_PAGE_FIELDS.has(key)) {
+      if (key === "sections") {
+        payload.sections = sanitizeSectionsForSave(value);
+        return;
+      }
 
-    if (key === "sections") {
-      payload.sections = sanitizeSectionsForSave(value);
+      if (key === "templateData") {
+        payload.templateData = deepClone(value) ?? {};
+        return;
+      }
+
+      payload[key] = value;
       return;
     }
 
-    if (key === "templateData") {
-      payload.templateData = deepClone(value) ?? {};
+    // Department pages (and some legacy pages) store editable content in
+    // top-level keys beyond the schema allowlist. Persist those as long as
+    // they are not immutable/server-managed fields.
+    if (IMMUTABLE_PAGE_FIELDS.has(key) || CLIENT_ONLY_PAGE_FIELDS.has(key)) {
       return;
     }
 
-    payload[key] = value;
+    payload[key] = deepClone(value);
   });
 
   if (Array.isArray(payload.sections) && isDocumentsMarkdownPageId(page.pageId)) {

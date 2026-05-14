@@ -32,12 +32,38 @@ const Home = () => {
   const { data: upcomingEventsData, error: upcomingEventsError } = useFetch('/events/upcoming');
   const { data: allEventsData, error: allEventsError } = useFetch('/events');
   const [activeCorner, setActiveCorner] = useState('co-curricular');
+  const [homeConfig, setHomeConfig] = useState({});
+  const [resolvedHeroVideoSrc, setResolvedHeroVideoSrc] = useState(droneVideo);
   const [recruiters, setRecruiters] = useState([]);
   const [alumniHighlights, setAlumniHighlights] = useState([]);
   const [isLeadershipPaused, setIsLeadershipPaused] = useState(false);
   const [leadershipAnimationKey, setLeadershipAnimationKey] = useState(0);
   const leadershipSectionRef = useRef(null);
   const leadershipCarouselRef = useRef(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    apiClient
+      .get('/pages/home')
+      .then((response) => {
+        const pageData = response?.data?.data;
+        const sections = Array.isArray(pageData?.sections) ? pageData.sections : [];
+        const homeConfigSection = sections.find((section) => section?.sectionId === 'home-config');
+        const sectionConfig = homeConfigSection?.content?.config || homeConfigSection?.content || {};
+
+        if (isMounted && sectionConfig && typeof sectionConfig === 'object') {
+          setHomeConfig(sectionConfig);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setHomeConfig({});
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Fallback data from official SSGMCE website
   const staticNews = [
@@ -86,7 +112,7 @@ const Home = () => {
         ? staticUpcomingEvents
         : [];
 
-  const accreditations = [
+  const defaultAccreditations = [
     { label: 'AICTE', desc: 'Approved', logo: aicteLogo, logoAlt: 'AICTE logo' },
     { label: 'NAAC A+', desc: 'Accredited', logo: naacLogo, logoAlt: 'NAAC A+ logo' },
     { label: 'NBA', desc: 'Accredited', logo: nbaLogo, logoAlt: 'NBA logo' },
@@ -95,7 +121,7 @@ const Home = () => {
     { label: 'AAA', desc: 'Careers360', logo: aaPlusLogo, logoAlt: 'AA+ logo' },
   ];
 
-  const studentCornerItems = [
+  const defaultStudentCornerItems = [
     {
       id: 'co-curricular',
       title: 'Co-Curricular Activities',
@@ -165,8 +191,6 @@ const Home = () => {
     },
   ];
 
-  const activeStudentCorner =
-    studentCornerItems.find((item) => item.id === activeCorner) || studentCornerItems[0];
   const fallbackRecruiters = [
     {
       id: 'infosys',
@@ -191,6 +215,40 @@ const Home = () => {
     String(name || '')
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '');
+  const isBundlerOnlyAssetPath = (value = '') =>
+    String(value || '').trim().startsWith('/src/');
+  const accreditationLogoByLabel = {
+    AICTE: aicteLogo,
+    'NAAC A+': naacLogo,
+    NBA: nbaLogo,
+    'ISO 9001:2015': isoLogo,
+    NIRF: nirfLogo,
+    AAA: aaPlusLogo,
+  };
+
+  const heroConfig = homeConfig?.hero || {};
+  const accreditations = Array.isArray(homeConfig?.accreditations?.items)
+    ? homeConfig.accreditations.items.map((item) => ({
+        label: item?.label || '',
+        desc: item?.desc || '',
+        logo: isBundlerOnlyAssetPath(item?.logoUrl || item?.logo)
+          ? accreditationLogoByLabel[item?.label] || ''
+          : resolveUploadedAssetUrl(item?.logoUrl || item?.logo || ''),
+        logoAlt: item?.logoAlt || `${item?.label || 'Accreditation'} logo`,
+      }))
+    : defaultAccreditations;
+  const studentCornerItems = Array.isArray(homeConfig?.studentCorner?.items)
+    ? homeConfig.studentCorner.items.map((item, index) => ({
+        id: item?.id || `student-corner-${index + 1}`,
+        title: item?.title || '',
+        image: isBundlerOnlyAssetPath(item?.imageUrl || item?.image)
+          ? defaultStudentCornerItems[index]?.image || ''
+          : resolveUploadedAssetUrl(item?.imageUrl || item?.image || ''),
+        text: item?.text || '',
+      }))
+    : defaultStudentCornerItems;
+  const activeStudentCorner =
+    studentCornerItems.find((item) => item.id === activeCorner) || studentCornerItems[0];
 
   const recruiterDefaultsByName = fallbackRecruiters.reduce((acc, recruiter) => {
     acc[normalizeRecruiterName(recruiter.name)] = recruiter;
@@ -234,9 +292,101 @@ const Home = () => {
   const marqueeAlumni = homepageAlumni.length > 0
     ? [...homepageAlumni, ...homepageAlumni]
     : [];
-  const marqueeLeadership = HOME_LEADERSHIP.length > 0
-    ? [...HOME_LEADERSHIP, ...HOME_LEADERSHIP]
+  const homepageLeadership = Array.isArray(homeConfig?.leadershipCards) && homeConfig.leadershipCards.length > 0
+    ? homeConfig.leadershipCards.map((member, index) => ({
+        id: member?.id || `leadership-${index + 1}`,
+        name: member?.name || '',
+        designation: member?.designation || '',
+        department: member?.department || '',
+        email: member?.email || '',
+        image: isBundlerOnlyAssetPath(member?.imageUrl || member?.image)
+          ? HOME_LEADERSHIP[index]?.image || ''
+          : resolveUploadedAssetUrl(member?.imageUrl || member?.image || ''),
+        accentClass: member?.accentClass || "bg-gray-200",
+        link: member?.link || "/faculty",
+      }))
+    : HOME_LEADERSHIP;
+  const marqueeLeadership = homepageLeadership.length > 0
+    ? [...homepageLeadership, ...homepageLeadership]
     : [];
+  const coreStrengthsConfig = homeConfig?.coreStrengths || {};
+  const coreStrengthItems = Array.isArray(coreStrengthsConfig?.items) && coreStrengthsConfig.items.length > 0
+    ? coreStrengthsConfig.items
+    : [
+        {
+          kicker: "Academics",
+          title: "Academic Excellence",
+          text: "B.E., M.E., MBA and Ph.D. programs across 7 departments affiliated to SGBAU, Amravati with NAAC and NBA accreditation.",
+          link: "/departments/applied-sciences",
+          linkLabel: "Explore Programs",
+        },
+        {
+          kicker: "Campus",
+          title: "Student Life",
+          text: "IEEE, ISTE, ACM chapters, GDG club, Drone Club, E-Cell, NSS, NCC and cultural festivals like Pursuit and Parishkriti.",
+          link: "/gallery",
+          linkLabel: "View Gallery",
+        },
+        {
+          kicker: "Outcomes",
+          title: "Placements",
+          text: "TCS Top Priority College with 35+ recruiters including Infosys, Wipro, Cognizant, Capgemini and more visiting annually.",
+          link: "/placements/brochure",
+          linkLabel: "Placement Stats",
+        },
+      ];
+  const welcomeConfig = homeConfig?.welcome || {};
+  const whyChooseConfig = homeConfig?.whyChooseUs || {};
+  const whyChooseItems = Array.isArray(whyChooseConfig?.items) && whyChooseConfig.items.length > 0
+    ? whyChooseConfig.items
+    : [
+        {
+          title: "Best Labs",
+          text: "State-of-the-art laboratories help students build practical knowledge through experimentation, projects and applied engineering work.",
+          imageUrl: electronicsLabImg,
+          link: "/facilities/computing",
+        },
+        {
+          title: "Best Teachers",
+          text: "Faculty mentorship strengthens communication, teamwork, time management and problem-solving alongside core academics.",
+          imageUrl: campusViewImg,
+          link: "/faculty",
+        },
+        {
+          title: "Best Library",
+          text: "The fully automated and digitalised library functions as an excellent information center for students, faculty and researchers.",
+          imageUrl: extraCurricularImg,
+          link: "/facilities/library",
+        },
+      ];
+  const statsConfig = homeConfig?.stats || {};
+  const statsItems = Array.isArray(statsConfig?.items) && statsConfig.items.length > 0
+    ? statsConfig.items
+    : [
+        { number: "7", label: "Departments" },
+        { number: "3000+", label: "Students" },
+        { number: "150+", label: "Faculty Members" },
+        { number: "12000+", label: "Alumni Network" },
+      ];
+  const leadershipConfig = homeConfig?.leadership || {};
+  const newsEventsConfig = homeConfig?.newsEvents || {};
+  const studentCornerConfig = homeConfig?.studentCorner || {};
+  const alumniConfig = homeConfig?.alumni || {};
+  const recruitersConfig = homeConfig?.recruiters || {};
+
+  const resolveHomeAsset = (candidate, fallback) => {
+    if (isBundlerOnlyAssetPath(candidate)) return fallback;
+    return resolveUploadedAssetUrl(candidate) || fallback;
+  };
+  const heroVideoSrc = resolveHomeAsset(heroConfig?.videoUrl, droneVideo);
+  const welcomeMainImageSrc = resolveHomeAsset(welcomeConfig?.mainImageUrl, mainGateImg);
+  const welcomeSideImageSrc = resolveHomeAsset(welcomeConfig?.sideImageUrl, campusViewImg);
+  const newsItemsToShow = Number.isFinite(Number(newsEventsConfig?.newsCount))
+    ? Math.max(1, Number(newsEventsConfig.newsCount))
+    : 4;
+  const eventsToShow = Number.isFinite(Number(newsEventsConfig?.eventsCount))
+    ? Math.max(1, Number(newsEventsConfig.eventsCount))
+    : 3;
   const scrollLeadership = (direction) => {
     if (!leadershipCarouselRef.current) {
       return;
@@ -275,6 +425,10 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    setResolvedHeroVideoSrc(heroVideoSrc || droneVideo);
+  }, [heroVideoSrc]);
+
+  useEffect(() => {
     apiClient
       .get("/placements/recruiters")
       .then((response) => {
@@ -311,16 +465,23 @@ const Home = () => {
       <section className="relative h-[320px] sm:h-[420px] md:h-[520px] lg:h-[620px] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10"></div>
         <video
-          src={droneVideo}
+          src={resolvedHeroVideoSrc}
           autoPlay
           loop
           muted
           playsInline
           className="w-full h-full object-cover"
+          onError={() => {
+            setResolvedHeroVideoSrc(droneVideo);
+          }}
         />
         <div className="absolute bottom-14 left-0 right-0 z-20 px-4 text-center text-white sm:bottom-24 md:bottom-32">
-          <h2 className="mb-3 text-2xl font-bold tracking-wide drop-shadow-lg sm:text-3xl md:mb-4 md:text-5xl">सर्वे भवन्तु सुखिनः</h2>
-          <p className="mx-auto max-w-2xl text-sm font-light drop-shadow-md opacity-90 sm:text-base md:text-xl">Bestowed by the blessings of Shri Sant Gajanan Maharaj</p>
+          <h2 className="mb-3 text-2xl font-bold tracking-wide drop-shadow-lg sm:text-3xl md:mb-4 md:text-5xl">
+            {heroConfig?.heading || 'सर्वे भवन्तु सुखिनः'}
+          </h2>
+          <p className="mx-auto max-w-2xl text-sm font-light drop-shadow-md opacity-90 sm:text-base md:text-xl">
+            {heroConfig?.subheading || 'Bestowed by the blessings of Shri Sant Gajanan Maharaj'}
+          </p>
         </div>
       </section>
 
@@ -354,81 +515,71 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="mx-auto mb-8 max-w-3xl text-center md:mb-10">
             <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-ssgmce-blue/70">
-              Core Strengths
+              {coreStrengthsConfig?.badge || 'Core Strengths'}
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 md:text-[2.2rem]">
-              What We <span className="text-ssgmce-blue">Offer</span>
+              {coreStrengthsConfig?.heading || 'What We Offer'}
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-500 md:text-[0.95rem]">
-              AICTE approved, NAAC accredited, and NBA accredited programs backed by a disciplined campus culture, strong student ecosystem, and placement-driven outcomes.
+              {coreStrengthsConfig?.description || 'AICTE approved, NAAC accredited, and NBA accredited programs backed by a disciplined campus culture, strong student ecosystem, and placement-driven outcomes.'}
             </p>
           </div>
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-3 lg:gap-5">
-            {/* Academic Excellence */}
-            <div className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-5 shadow-[0_18px_42px_-34px_rgba(15,23,42,0.32)] transition-all duration-300 hover:-translate-y-0.5 hover:border-ssgmce-blue/25 hover:shadow-[0_22px_48px_-34px_rgba(15,23,42,0.38)]">
-              <div className="absolute inset-y-5 left-0 w-1 rounded-r-full bg-ssgmce-blue/70" />
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-ssgmce-blue/8 transition-colors group-hover:bg-ssgmce-blue/12">
-                  <FaMicroscope className="text-lg text-ssgmce-blue" />
+            {coreStrengthItems.slice(0, 3).map((item, index) => {
+              const variants = [
+                {
+                  strip: "bg-ssgmce-blue/70",
+                  chip: "bg-ssgmce-blue/8",
+                  chipHover: "group-hover:bg-ssgmce-blue/12",
+                  icon: FaMicroscope,
+                  iconClass: "text-ssgmce-blue",
+                  borderHover: "hover:border-ssgmce-blue/25",
+                },
+                {
+                  strip: "bg-ssgmce-orange/75",
+                  chip: "bg-orange-50",
+                  chipHover: "group-hover:bg-ssgmce-orange/12",
+                  icon: FaUsers,
+                  iconClass: "text-ssgmce-orange",
+                  borderHover: "hover:border-ssgmce-orange/30",
+                },
+                {
+                  strip: "bg-ssgmce-accent/70",
+                  chip: "bg-teal-50",
+                  chipHover: "group-hover:bg-ssgmce-accent/12",
+                  icon: FaHandshake,
+                  iconClass: "text-ssgmce-accent",
+                  borderHover: "hover:border-ssgmce-accent/30",
+                },
+              ];
+              const variant = variants[index] || variants[0];
+              const Icon = variant.icon;
+              return (
+                <div
+                  key={`${item?.title || 'core-strength'}-${index}`}
+                  className={`group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-5 shadow-[0_18px_42px_-34px_rgba(15,23,42,0.32)] transition-all duration-300 hover:-translate-y-0.5 ${variant.borderHover} hover:shadow-[0_22px_48px_-34px_rgba(15,23,42,0.38)]`}
+                >
+                  <div className={`absolute inset-y-5 left-0 w-1 rounded-r-full ${variant.strip}`} />
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${variant.chip} transition-colors ${variant.chipHover}`}>
+                      <Icon className={`text-lg ${variant.iconClass}`} />
+                    </div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                      {item?.kicker || ''}
+                    </p>
+                  </div>
+                  <h3 className="mb-3 text-[1.25rem] font-bold leading-tight text-slate-900 md:text-[1.35rem]">
+                    {item?.title || ''}
+                  </h3>
+                  <p className="mb-5 text-sm leading-6 text-slate-600">
+                    {item?.text || ''}
+                  </p>
+                  <Link to={item?.link || '#'} className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-ssgmce-blue transition-colors hover:text-ssgmce-orange">
+                    {item?.linkLabel || 'Explore'} <FaArrowRight className="text-xs transition-transform duration-300 group-hover:translate-x-1" />
+                  </Link>
                 </div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-                  Academics
-                </p>
-              </div>
-              <h3 className="mb-3 text-[1.25rem] font-bold leading-tight text-slate-900 md:text-[1.35rem]">
-                Academic Excellence
-              </h3>
-              <p className="mb-5 text-sm leading-6 text-slate-600">
-                B.E., M.E., MBA and Ph.D. programs across 7 departments affiliated to SGBAU, Amravati with NAAC and NBA accreditation.
-              </p>
-              <Link to="/departments/applied-sciences" className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-ssgmce-blue transition-colors hover:text-ssgmce-orange">
-                Explore Programs <FaArrowRight className="text-xs transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
-            </div>
-
-            {/* Student Life */}
-            <div className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-5 shadow-[0_18px_42px_-34px_rgba(15,23,42,0.32)] transition-all duration-300 hover:-translate-y-0.5 hover:border-ssgmce-orange/30 hover:shadow-[0_22px_48px_-34px_rgba(15,23,42,0.38)]">
-              <div className="absolute inset-y-5 left-0 w-1 rounded-r-full bg-ssgmce-orange/75" />
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-orange-50 transition-colors group-hover:bg-ssgmce-orange/12">
-                  <FaUsers className="text-lg text-ssgmce-orange" />
-                </div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-                  Campus
-                </p>
-              </div>
-              <h3 className="mb-3 text-[1.25rem] font-bold leading-tight text-slate-900 md:text-[1.35rem]">
-                Student Life
-              </h3>
-              <p className="mb-5 text-sm leading-6 text-slate-600">
-                IEEE, ISTE, ACM chapters, GDG club, Drone Club, E-Cell, NSS, NCC and cultural festivals like Pursuit and Parishkriti.
-              </p>
-              <Link to="/gallery" className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-ssgmce-blue transition-colors hover:text-ssgmce-orange">
-                View Gallery <FaArrowRight className="text-xs transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
-            </div>
-
-            {/* Placements */}
-            <div className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-5 shadow-[0_18px_42px_-34px_rgba(15,23,42,0.32)] transition-all duration-300 hover:-translate-y-0.5 hover:border-ssgmce-accent/30 hover:shadow-[0_22px_48px_-34px_rgba(15,23,42,0.38)]">
-              <div className="absolute inset-y-5 left-0 w-1 rounded-r-full bg-ssgmce-accent/70" />
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-teal-50 transition-colors group-hover:bg-ssgmce-accent/12">
-                  <FaHandshake className="text-lg text-ssgmce-accent" />
-                </div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-                  Outcomes
-                </p>
-              </div>
-              <h3 className="mb-3 text-[1.25rem] font-bold leading-tight text-slate-900 md:text-[1.35rem]">
-                Placements
-              </h3>
-              <p className="mb-5 text-sm leading-6 text-slate-600">
-                TCS Top Priority College with 35+ recruiters including Infosys, Wipro, Cognizant, Capgemini and more visiting annually.
-              </p>
-              <Link to="/placements/brochure" className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-ssgmce-blue transition-colors hover:text-ssgmce-orange">
-                Placement Stats <FaArrowRight className="text-xs transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
-            </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -440,61 +591,61 @@ const Home = () => {
             <div className="relative">
               <div className="grid grid-cols-[0.82fr,0.58fr] gap-3">
                 <img
-                  src={mainGateImg}
+                  src={welcomeMainImageSrc}
                   alt="SSGMCE Main Gate"
                   className="h-[210px] w-full rounded-xl object-cover shadow-[0_18px_48px_-34px_rgba(15,23,42,0.35)] sm:h-[250px]"
                 />
                 <div className="flex flex-col gap-3">
                   <img
-                    src={campusViewImg}
+                    src={welcomeSideImageSrc}
                     alt="SSGMCE campus view"
                     className="h-[99px] w-full rounded-xl object-cover shadow-sm sm:h-[119px]"
                   />
                   <div className="flex min-h-[99px] flex-col justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm sm:min-h-[119px]">
-                    <p className="text-[1.55rem] font-bold leading-none text-ssgmce-orange">1983</p>
+                    <p className="text-[1.55rem] font-bold leading-none text-ssgmce-orange">{welcomeConfig?.establishedYear || '1983'}</p>
                     <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                      Established in Shegaon
+                      {welcomeConfig?.establishedLabel || 'Established in Shegaon'}
                     </p>
                   </div>
                 </div>
               </div>
               <div className="absolute -bottom-3 left-4 z-20 hidden max-w-[230px] rounded-xl border border-white/80 bg-white/95 px-4 py-3 shadow-[0_18px_44px_-30px_rgba(15,23,42,0.45)] backdrop-blur-sm sm:block">
-                <p className="text-[13px] font-bold text-slate-900">Smart & Green Campus</p>
+                <p className="text-[13px] font-bold text-slate-900">{welcomeConfig?.floatingTitle || 'Smart & Green Campus'}</p>
                 <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
-                  Re-modeled as a clean, technology-enabled academic environment.
+                  {welcomeConfig?.floatingText || 'Re-modeled as a clean, technology-enabled academic environment.'}
                 </p>
               </div>
             </div>
 
             <div className="space-y-4">
               <p className="inline-flex rounded-full bg-ssgmce-orange/10 px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-[0.14em] text-ssgmce-orange">
-                Welcome to SSGMCE
+                {welcomeConfig?.badge || 'Welcome to SSGMCE'}
               </p>
               <h2 className="max-w-3xl text-[1.9rem] font-bold leading-tight text-slate-900 md:text-[2.35rem]">
-                A purposeful engineering campus with a proven academic legacy.
+                {welcomeConfig?.heading || 'A purposeful engineering campus with a proven academic legacy.'}
               </h2>
               <p className="text-base leading-7 text-slate-600">
-                Shri Sant Gajanan Maharaj College of Engineering, Shegaon is one of the premier engineering institutes in Maharashtra, established in 1983 by Shri Gajanan Shikshan Sanstha, Shegaon.
+                {welcomeConfig?.para1 || 'Shri Sant Gajanan Maharaj College of Engineering, Shegaon is one of the premier engineering institutes in Maharashtra, established in 1983 by Shri Gajanan Shikshan Sanstha, Shegaon.'}
               </p>
               <p className="text-base leading-7 text-slate-600">
-                The institute is affiliated to Sant Gadge Baba Amravati University, Amravati, recognized by AICTE, New Delhi and approved by DTE, Maharashtra State, Mumbai.
+                {welcomeConfig?.para2 || 'The institute is affiliated to Sant Gadge Baba Amravati University, Amravati, recognized by AICTE, New Delhi and approved by DTE, Maharashtra State, Mumbai.'}
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border border-slate-200 bg-white p-3.5">
-                  <p className="text-sm font-bold text-slate-900">Brief History</p>
+                  <p className="text-sm font-bold text-slate-900">{welcomeConfig?.historyTitle || 'Brief History'}</p>
                   <p className="mt-1 text-[0.9rem] leading-relaxed text-slate-500">
-                    The Government of Maharashtra entrusted the Sansthan to start an engineering college in 1983.
+                    {welcomeConfig?.historyText || 'The Government of Maharashtra entrusted the Sansthan to start an engineering college in 1983.'}
                   </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-white p-3.5">
-                  <p className="text-sm font-bold text-slate-900">Accredited Growth</p>
+                  <p className="text-sm font-bold text-slate-900">{welcomeConfig?.growthTitle || 'Accredited Growth'}</p>
                   <p className="mt-1 text-[0.9rem] leading-relaxed text-slate-500">
-                    AICTE approved, NAAC accredited, NBA accredited programs with a strong academic culture.
+                    {welcomeConfig?.growthText || 'AICTE approved, NAAC accredited, NBA accredited programs with a strong academic culture.'}
                   </p>
                 </div>
               </div>
-              <Link to="/about" className="inline-flex items-center gap-2 rounded-lg bg-ssgmce-blue px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-ssgmce-dark-blue">
-                Read More About Us <FaArrowRight className="text-xs" />
+              <Link to={welcomeConfig?.ctaLink || '/about'} className="inline-flex items-center gap-2 rounded-lg bg-ssgmce-blue px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-ssgmce-dark-blue">
+                {welcomeConfig?.ctaLabel || 'Read More About Us'} <FaArrowRight className="text-xs" />
               </Link>
             </div>
           </div>
@@ -506,69 +657,49 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="mx-auto mb-8 max-w-4xl text-center">
             <p className="inline-flex rounded-full bg-ssgmce-blue/8 px-5 py-2 text-lg font-bold text-ssgmce-blue md:text-2xl">
-              Why to Choose Us
+              {whyChooseConfig?.badge || 'Why to Choose Us'}
             </p>
             <h2 className="mt-2 text-[2rem] font-bold leading-tight text-slate-900 md:text-[2.65rem]">
-              Built for practical learning and academic confidence.
+              {whyChooseConfig?.heading || 'Built for practical learning and academic confidence.'}
             </h2>
             <p className="mx-auto mt-3 max-w-3xl text-base leading-7 text-slate-600 md:text-[1.05rem]">
-              The SSGMCE experience blends strong laboratories, committed faculty mentorship, and knowledge infrastructure that supports repeated, hands-on learning.
+              {whyChooseConfig?.description || 'The SSGMCE experience blends strong laboratories, committed faculty mentorship, and knowledge infrastructure that supports repeated, hands-on learning.'}
             </p>
           </div>
 
           <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-3">
-            {[
-              {
-                title: "Best Labs",
-                text: "State-of-the-art laboratories help students build practical knowledge through experimentation, projects and applied engineering work.",
-                image: electronicsLabImg,
-                icon: FaMicroscope,
-                color: "text-ssgmce-blue",
-                chip: "bg-ssgmce-blue/8",
-                link: "/facilities/computing",
-              },
-              {
-                title: "Best Teachers",
-                text: "Faculty mentorship strengthens communication, teamwork, time management and problem-solving alongside core academics.",
-                image: campusViewImg,
-                icon: FaChalkboardTeacher,
-                color: "text-ssgmce-orange",
-                chip: "bg-orange-50",
-                link: "/faculty",
-              },
-              {
-                title: "Best Library",
-                text: "The fully automated and digitalised library functions as an excellent information center for students, faculty and researchers.",
-                image: extraCurricularImg,
-                icon: FaBookOpen,
-                color: "text-ssgmce-accent",
-                chip: "bg-teal-50",
-                link: "/facilities/library",
-              },
-            ].map((item) => {
-              const Icon = item.icon;
+            {whyChooseItems.slice(0, 3).map((item, index) => {
+              const fallbackImages = [electronicsLabImg, campusViewImg, extraCurricularImg];
+              const resolvedImage = resolveHomeAsset(item?.imageUrl || item?.image, fallbackImages[index] || campusViewImg);
+              const styleVariants = [
+                { icon: FaMicroscope, color: "text-ssgmce-blue", chip: "bg-ssgmce-blue/8" },
+                { icon: FaChalkboardTeacher, color: "text-ssgmce-orange", chip: "bg-orange-50" },
+                { icon: FaBookOpen, color: "text-ssgmce-accent", chip: "bg-teal-50" },
+              ];
+              const variant = styleVariants[index] || styleVariants[0];
+              const Icon = variant.icon;
 
               return (
                 <Link
-                  key={item.title}
-                  to={item.link}
+                  key={`${item?.title || 'why-choose'}-${index}`}
+                  to={item?.link || '#'}
                   className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_18px_42px_-34px_rgba(15,23,42,0.32)] transition-all duration-300 hover:-translate-y-0.5 hover:border-ssgmce-blue/25 hover:shadow-[0_24px_52px_-34px_rgba(15,23,42,0.42)]"
                 >
                   <div className="relative h-40 overflow-hidden bg-slate-100">
                     <img
-                      src={item.image}
-                      alt={item.title}
+                      src={resolvedImage}
+                      alt={item?.title || 'Highlight'}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent" />
-                    <div className={`absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-lg ${item.chip} bg-white/92 backdrop-blur-sm`}>
-                      <Icon className={`text-base ${item.color}`} />
+                    <div className={`absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-lg ${variant.chip} bg-white/92 backdrop-blur-sm`}>
+                      <Icon className={`text-base ${variant.color}`} />
                     </div>
                   </div>
                   <div className="p-5">
-                    <h3 className="text-[1.22rem] font-bold text-slate-900">{item.title}</h3>
-                    <p className="mt-2 text-[0.98rem] leading-7 text-slate-600">{item.text}</p>
+                    <h3 className="text-[1.22rem] font-bold text-slate-900">{item?.title || ''}</h3>
+                    <p className="mt-2 text-[0.98rem] leading-7 text-slate-600">{item?.text || ''}</p>
                     <span className="mt-4 inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-ssgmce-blue">
                       Explore <FaArrowRight className="text-xs transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
@@ -584,14 +715,24 @@ const Home = () => {
       <section className="py-20 md:py-24 bg-gradient-to-r from-ssgmce-blue/[0.04] via-ssgmce-surface to-ssgmce-blue/[0.04] border-y border-gray-100">
         <div className="container mx-auto px-4">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800">SSGMCE in <span className="text-ssgmce-blue">Numbers</span></h2>
-            <p className="text-ssgmce-muted mt-3">41 years of academic excellence and holistic development</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
+              {statsConfig?.heading || 'SSGMCE in Numbers'}
+            </h2>
+            <p className="text-ssgmce-muted mt-3">{statsConfig?.description || '41 years of academic excellence and holistic development'}</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6 max-w-4xl mx-auto">
-            <StatCard icon={FaBuilding} number="7" label="Departments" />
-            <StatCard icon={FaUsers} number="3000+" label="Students" />
-            <StatCard icon={FaGraduationCap} number="150+" label="Faculty Members" />
-            <StatCard icon={FaTrophy} number="12000+" label="Alumni Network" />
+            {statsItems.slice(0, 4).map((item, index) => {
+              const iconSet = [FaBuilding, FaUsers, FaGraduationCap, FaTrophy];
+              const Icon = iconSet[index] || FaBuilding;
+              return (
+                <StatCard
+                  key={`${item?.label || 'stat'}-${index}`}
+                  icon={Icon}
+                  number={item?.number || item?.value || '--'}
+                  label={item?.label || ''}
+                />
+              );
+            })}
           </div>
         </div>
       </section>
@@ -600,13 +741,13 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-6xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gray-500">
-              Leadership Desk
+              {leadershipConfig?.eyebrow || 'Leadership Desk'}
             </p>
             <h2 className="mt-3 text-3xl font-bold text-gray-900 md:text-4xl">
-              Faculty <span className="text-ssgmce-blue">Members</span>
+              {leadershipConfig?.heading || 'Faculty Members'}
             </h2>
             <p className="mx-auto mt-4 max-w-3xl text-sm leading-relaxed text-gray-600 md:text-base">
-              Key academic leaders of SSGMCE, including the Principal and all Heads of Department, presented with verified details and direct access to the institute&apos;s official social channels.
+              {leadershipConfig?.description || "Key academic leaders of SSGMCE, including the Principal and all Heads of Department, presented with verified details and direct access to the institute's official social channels."}
             </p>
           </div>
 
@@ -686,10 +827,10 @@ const Home = () => {
 
           <div className="mt-8 text-center">
             <Link
-              to="/faculty"
+              to={leadershipConfig?.ctaLink || '/faculty'}
               className="inline-flex items-center gap-2 rounded-full border border-ssgmce-blue px-6 py-3 text-sm font-semibold text-ssgmce-blue transition-colors hover:bg-ssgmce-blue hover:text-white"
             >
-              Explore Faculty Directory <FaArrowRight className="text-[10px]" />
+              {leadershipConfig?.ctaLabel || 'Explore Faculty Directory'} <FaArrowRight className="text-[10px]" />
             </Link>
           </div>
         </div>
@@ -704,13 +845,15 @@ const Home = () => {
             <div>
               <div className="flex justify-between items-end mb-8">
                  <div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Latest <span className="text-ssgmce-blue">News</span></h2>
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-800">{newsEventsConfig?.newsTitle || 'Latest News'}</h2>
                     <div className="w-12 h-0.5 bg-ssgmce-orange mt-3 rounded-full"></div>
                  </div>
-                 <Link to="/news" className="text-sm font-medium text-ssgmce-blue hover:text-ssgmce-orange transition-colors">View All &rarr;</Link>
+                 <Link to={newsEventsConfig?.newsLink || '/news'} className="text-sm font-medium text-ssgmce-blue hover:text-ssgmce-orange transition-colors">
+                   {newsEventsConfig?.newsLinkLabel || 'View All'} &rarr;
+                 </Link>
               </div>
               <div className="space-y-3">
-                {newsItems.slice(0, 4).map((item) => (
+                {newsItems.slice(0, newsItemsToShow).map((item) => (
                     <NewsCard
                       key={item._id}
                       title={item.title}
@@ -731,13 +874,15 @@ const Home = () => {
             <div>
               <div className="flex justify-between items-end mb-8">
                  <div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Upcoming <span className="text-ssgmce-orange">Events</span></h2>
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-800">{newsEventsConfig?.eventsTitle || 'Upcoming Events'}</h2>
                     <div className="w-12 h-0.5 bg-ssgmce-blue mt-3 rounded-full"></div>
                  </div>
-                 <Link to="/events" className="text-sm font-medium text-ssgmce-blue hover:text-ssgmce-orange transition-colors">Calendar &rarr;</Link>
+                 <Link to={newsEventsConfig?.eventsLink || '/events'} className="text-sm font-medium text-ssgmce-blue hover:text-ssgmce-orange transition-colors">
+                   {newsEventsConfig?.eventsLinkLabel || 'Calendar'} &rarr;
+                 </Link>
               </div>
               <div className="bg-ssgmce-surface rounded-xl p-6 border border-gray-100">
-                {upcomingEvents.slice(0, 3).map((event) => {
+                {upcomingEvents.slice(0, eventsToShow).map((event) => {
                   const eventDate = event.eventDate ? new Date(event.eventDate) : null;
                   const hasValidDate = eventDate && !Number.isNaN(eventDate.getTime());
                   const day = hasValidDate
@@ -836,10 +981,10 @@ const Home = () => {
             <div className="flex h-full flex-col">
               <div className="mb-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-slate-400">
-                  Campus Life
+                  {studentCornerConfig?.eyebrow || 'Campus Life'}
                 </p>
                 <h3 className="text-[1.55rem] font-bold text-slate-900 md:text-[1.75rem]">
-                  Student&apos;s <span className="text-rose-400">Corner</span>
+                  {studentCornerConfig?.heading || "Student's Corner"}
                 </h3>
                 <div className="mt-1.5 h-0.5 w-10 rounded-full bg-amber-300" />
               </div>
@@ -865,7 +1010,7 @@ const Home = () => {
                         {isActive && (
                           <div className="grid grid-cols-[76px,1fr] gap-3 bg-[#fcfdff] p-3 md:grid-cols-[92px,1fr]">
                             <img
-                              src={activeStudentCorner.image}
+                              src={resolveHomeAsset(activeStudentCorner.image, coCurricularImg)}
                               alt={activeStudentCorner.title}
                               className="h-[62px] w-full rounded-md object-cover md:h-[68px]"
                             />
@@ -884,10 +1029,10 @@ const Home = () => {
             <div className="flex h-full flex-col">
               <div className="mb-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-slate-400">
-                  Notable Alumni
+                  {alumniConfig?.eyebrow || 'Notable Alumni'}
                 </p>
                 <h3 className="text-[1.55rem] font-bold text-slate-900 md:text-[1.75rem]">
-                  Prestigious <span className="text-rose-400">Alumni</span>
+                  {alumniConfig?.heading || 'Prestigious Alumni'}
                 </h3>
                 <div className="mt-1.5 h-0.5 w-10 rounded-full bg-amber-300" />
               </div>
@@ -977,13 +1122,13 @@ const Home = () => {
         `}</style>
         <div className="container mx-auto max-w-6xl px-4 text-center">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.26em] text-ssgmce-muted">
-            Our Esteemed Recruiters
+            {recruitersConfig?.eyebrow || 'Our Esteemed Recruiters'}
           </p>
           <h2 className="text-2xl font-bold text-slate-900 md:text-3xl">
-            Trusted by leading recruiters across technology, consulting and core sectors
+            {recruitersConfig?.heading || 'Trusted by leading recruiters across technology, consulting and core sectors'}
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-ssgmce-muted">
-            TCS Top Priority College with 35+ companies visiting the campus. Manage the complete logo list directly from the admin recruiter section.
+            {recruitersConfig?.description || 'TCS Top Priority College with 35+ companies visiting the campus. Manage the complete logo list directly from the admin recruiter section.'}
           </p>
 
           <div className="relative mt-10">

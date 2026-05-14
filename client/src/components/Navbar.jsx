@@ -383,11 +383,14 @@ const Navbar = () => {
                     alt='NAAC "A+" logo'
                     className="h-8 w-auto object-contain drop-shadow-[0_10px_24px_rgba(7,29,61,0.22)]"
                   />
-                  <p className="mt-1 text-center text-[0.95rem] font-extrabold leading-none text-white">
+                  <p className="mt-1 text-center text-[10px] font-medium uppercase leading-none tracking-[0.08em] text-white">
                     NAAC
                   </p>
-                  <p className="mt-1 text-center text-[8px] font-semibold uppercase tracking-[0.12em] text-orange-200">
-                    A+ Accredited
+                  <p className="mt-1 text-center text-[14px] font-extrabold leading-none text-orange-200">
+                    "A+"
+                  </p>
+                  <p className="mt-1 text-center text-[10px] font-medium uppercase leading-none tracking-[0.08em] text-orange-200">
+                    Accredited
                   </p>
                 </div>
               </div>
@@ -409,8 +412,8 @@ const Navbar = () => {
                 <p className="mt-2 flex flex-col gap-1 text-[9px] uppercase tracking-[0.14em] text-white/80 sm:block sm:text-xs lg:text-sm">
                   <span className="block sm:inline">Autonomous Institute</span>
                   <span className="mx-2 hidden text-white/45 sm:inline">|</span>
-                  <span className="block font-bold text-white sm:inline">
-                    NAAC <span className="tracking-[0.08em]">"A+"</span> Accredited
+                  <span className="block text-white sm:inline">
+                    NAAC "<span className="font-bold tracking-normal">A+</span>" Accredited
                   </span>
                   <span className="mx-2 hidden text-white/45 sm:inline">|</span>
                   <span className="block sm:inline">Estd. 1983</span>
@@ -423,11 +426,14 @@ const Navbar = () => {
                     alt='NAAC "A+" logo'
                     className="h-11 w-auto object-contain drop-shadow-[0_10px_24px_rgba(7,29,61,0.22)]"
                   />
-                  <p className="mt-2 text-center text-base font-extrabold leading-none text-white">
+                  <p className="mt-2 text-center text-[10px] font-medium uppercase leading-none tracking-[0.08em] text-white">
                     NAAC
                   </p>
-                  <p className="mt-1 text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-orange-200">
-                    A+ Accredited
+                  <p className="mt-1 text-center text-[14px] font-extrabold leading-none text-orange-200">
+                    "A+"
+                  </p>
+                  <p className="mt-1 text-center text-[10px] font-medium uppercase leading-none tracking-[0.08em] text-orange-200">
+                    Accredited
                   </p>
                 </div>
               </div>

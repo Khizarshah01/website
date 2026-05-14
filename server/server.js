@@ -9,74 +9,106 @@ const rateLimit = require("express-rate-limit");
 const { noSqlInjectionGuard } = require("./middleware/nosqlGuard");
 const { streamUploadedFile } = require("./controllers/uploadController");
 const { resolveExistingDocumentPath } = require("./utils/documentPathAliases");
-const {
-  getAuthCookieOptions,
-  getJwtSecret,
-} = require("./utils/authSecurity");
+const { getAuthCookieOptions, getJwtSecret } = require("./utils/authSecurity");
 
-// Load environment variables. When started from server/, use server/.env if it
-// exists, then fall back to the project root .env without overriding values.
+// ─── ENV ──────────────────────────────────────────────────────────────────────
+// Load server/.env first, then fall back to the project-root .env without
+// overriding already-set values.
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 getJwtSecret();
 
+// ─── APP SETUP ────────────────────────────────────────────────────────────────
 const app = express();
-const clientDistPath = path.resolve(__dirname, "..", "client", "dist");
-const clientIndexPath = path.join(clientDistPath, "index.html");
-const hasClientBuild = () => {
-  try {
-    return fs.existsSync(clientIndexPath);
-  } catch {
-    return false;
-  }
-};
-const { protect, adminOnly } = require("./middleware/authMiddleware");
+const PORT = process.env.PORT || 5000;
+
 app.set("trust proxy", 1);
 app.set("query parser", "simple");
 
-// Force HTTPS in production when behind reverse proxies/load balancers.
-if (process.env.NODE_ENV === "production") {
-  app.use((req, res, next) => {
-    if (req.headers["x-forwarded-proto"] !== "https") {
-      return res.redirect(301, `https://${req.headers.host}${req.url}`);
-    }
-    return next();
-  });
+if (!process.env.NODE_ENV) {
+  console.warn(
+    "[WARN] NODE_ENV is not set. Treating server as development; " +
+      "production limits are relaxed but still enabled.",
+  );
 }
+const isProductionEnv = process.env.NODE_ENV === "production";
 
-// Explicit HSTS header for production HTTPS responses.
-app.use((req, res, next) => {
-  if (process.env.NODE_ENV === "production") {
-    res.setHeader(
-      "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains",
+// ─── CLIENT BUILD HELPERS ────────────────────────────────────────────────────
+const clientBuildCandidates = [
+  path.resolve(__dirname, "..", "client", "dist"),
+  path.resolve(__dirname, "..", "client", "build"),
+];
+
+const getClientBuildPaths = () => {
+  try {
+    const clientBuildPath = clientBuildCandidates.find((p) =>
+      fs.existsSync(path.join(p, "index.html")),
     );
+    if (!clientBuildPath) return null;
+    return {
+      clientBuildPath,
+      clientIndexPath: path.join(clientBuildPath, "index.html"),
+    };
+  } catch {
+    return null;
   }
-  return next();
-});
+};
 
+const { protect, adminOnly } = require("./middleware/authMiddleware");
+
+// ─── CORS / ORIGIN HELPERS ───────────────────────────────────────────────────
+// Build the explicit allow-list from env vars + well-known dev origins.
+// SERVER_IP and SERVER_URL let you add the machine's LAN/public IP at deploy
+// time, e.g.  SERVER_IP=10.0.3.10  or  SERVER_URL=http://10.0.3.10
 const allowedOrigins = Array.from(
   new Set(
     [
       process.env.CORS_ORIGIN,
       process.env.CLIENT_URL,
+      process.env.SERVER_URL,
+      // Build http/https variants from a bare SERVER_IP env var.
+      process.env.SERVER_IP
+        ? `http://${process.env.SERVER_IP}`
+        : null,
+      process.env.SERVER_IP
+        ? `http://${process.env.SERVER_IP}:${PORT}`
+        : null,
+      process.env.SERVER_IP
+        ? `https://${process.env.SERVER_IP}`
+        : null,
       "http://localhost:3000",
       "http://127.0.0.1:3000",
     ]
-      .flatMap((value) => String(value || "").split(","))
-      .map((value) => value.trim())
+      .flatMap((v) => String(v || "").split(","))
+      .map((v) => v.trim())
       .filter(Boolean),
   ),
 );
 
-const isLocalDevOrigin = (origin = "") =>
-  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(String(origin || ""));
-
-const isAllowedBrowserOrigin = (origin = "") => {
-  if (!origin) return true;
-  return allowedOrigins.includes(origin) || isLocalDevOrigin(origin);
+// Matches localhost, 127.0.0.1, and any private-network IP address so that
+// LAN deployments (e.g. http://10.0.3.10:5000) are allowed without having to
+// enumerate every possible port in the allow-list.
+const isPrivateNetworkOrigin = (origin = "") => {
+  const o = String(origin || "");
+  // localhost / loopback
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(o)) return true;
+  // RFC-1918 private ranges: 10.x.x.x / 172.16-31.x.x / 192.168.x.x
+  if (
+    /^https?:\/\/(10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+)(:\d+)?$/i.test(
+      o,
+    )
+  )
+    return true;
+  return false;
 };
 
+const isAllowedBrowserOrigin = (origin = "") => {
+  if (!origin) return true; // same-origin / non-browser requests have no Origin header
+  return allowedOrigins.includes(origin) || isPrivateNetworkOrigin(origin);
+};
+
+// ─── CSRF ORIGIN GUARD ───────────────────────────────────────────────────────
+// Reject state-mutating API calls whose Origin/Referer is not in the allow-list.
 const csrfOriginGuard = (req, res, next) => {
   if (!req.path.startsWith("/api/")) return next();
   if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return next();
@@ -85,54 +117,41 @@ const csrfOriginGuard = (req, res, next) => {
   const referer = String(req.headers.referer || "").trim();
 
   if (origin && !isAllowedBrowserOrigin(origin)) {
-    return res.status(403).json({
-      success: false,
-      message: "Request origin is not allowed.",
-    });
+    return res
+      .status(403)
+      .json({ success: false, message: "Request origin is not allowed." });
   }
 
   if (!origin && referer) {
     try {
       const refererOrigin = new URL(referer).origin;
       if (!isAllowedBrowserOrigin(refererOrigin)) {
-        return res.status(403).json({
-          success: false,
-          message: "Request origin is not allowed.",
-        });
+        return res
+          .status(403)
+          .json({ success: false, message: "Request origin is not allowed." });
       }
     } catch {
-      return res.status(403).json({
-        success: false,
-        message: "Invalid request origin.",
-      });
+      return res
+        .status(403)
+        .json({ success: false, message: "Invalid request origin." });
     }
   }
 
   return next();
 };
 
-// ===== SECURITY: Rate Limiting =====
-const isProductionEnv = process.env.NODE_ENV === "production";
-
-if (!process.env.NODE_ENV) {
-  console.warn(
-    "[WARN] NODE_ENV is not set. Treating server as development; production limits are relaxed but still enabled.",
-  );
-}
-
-// Authentication rate limiter - prevent brute force attacks
+// ─── RATE LIMITERS ───────────────────────────────────────────────────────────
 const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minute window
+  windowMs: 15 * 60 * 1000,
   max: isProductionEnv ? 20 : 100,
   message: { error: "Too many auth attempts. Please try again later." },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
   skip: (req) => req.method === "GET",
 });
 
-// General API rate limiter - protect against DoS
 const apiRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minute window
+  windowMs: 15 * 60 * 1000,
   max: isProductionEnv ? 500 : 2000,
   message: { error: "Too many requests. Please try again later." },
   standardHeaders: true,
@@ -140,9 +159,8 @@ const apiRateLimiter = rateLimit({
   skip: (req) => req.method === "GET",
 });
 
-// Upload rate limiter - prevent abuse of file upload endpoint
 const uploadRateLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour window
+  windowMs: 60 * 60 * 1000,
   max: isProductionEnv ? 100 : 300,
   message: {
     error: "Upload limit reached. Please wait before uploading more files.",
@@ -151,12 +169,23 @@ const uploadRateLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// ─── SECURITY HEADERS ────────────────────────────────────────────────────────
 const securityHeaders = (req, res, next) => {
   const authCookieOptions = getAuthCookieOptions(req);
   const scriptSrc =
     process.env.NODE_ENV === "production"
       ? "script-src 'self'"
       : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
+
+  // Build connect-src: always include self + every configured origin so the
+  // browser can reach the API even when served from an IP address.
+  const connectSrcExtras = [
+    ...allowedOrigins,
+    authCookieOptions.secure ? "https:" : "http:",
+    "ws:",
+    "wss:",
+  ].join(" ");
+
   const cspDirectives = [
     "default-src 'self'",
     "base-uri 'self'",
@@ -166,9 +195,7 @@ const securityHeaders = (req, res, next) => {
     "font-src 'self' data: https:",
     "style-src 'self' 'unsafe-inline' https:",
     scriptSrc,
-    `connect-src 'self' ${allowedOrigins.join(" ")} ${
-      authCookieOptions.secure ? "https:" : "http:"
-    } ws: wss:`,
+    `connect-src 'self' ${connectSrcExtras}`,
     "form-action 'self'",
   ];
 
@@ -181,31 +208,20 @@ const securityHeaders = (req, res, next) => {
   );
   res.setHeader("X-XSS-Protection", "1; mode=block");
   res.setHeader("Content-Security-Policy", cspDirectives.join("; "));
-  if (authCookieOptions.secure || req.secure) {
-    res.setHeader(
-      "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains",
-    );
-  }
 
-  next();
+  return next();
 };
 
-// Middleware
+
+// ─── MIDDLEWARE STACK ─────────────────────────────────────────────────────────
 app.use(securityHeaders);
-app.use(
-  helmet({
-    contentSecurityPolicy: false,
-  }),
-); // Keep Helmet defaults without emitting a second CSP header.
+app.use(helmet({ contentSecurityPolicy: false })); // Helmet defaults; we emit our own CSP above.
 app.use(csrfOriginGuard);
-app.use("/api/", apiRateLimiter); // Apply general API rate limiting only to API routes
+app.use("/api/", apiRateLimiter);
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (isAllowedBrowserOrigin(origin)) {
-        return callback(null, true);
-      }
+      if (isAllowedBrowserOrigin(origin)) return callback(null, true);
       return callback(new Error("Origin not allowed by CORS"));
     },
     credentials: true,
@@ -218,20 +234,15 @@ app.use(
     ],
   }),
 );
+
+// Parse JSON bodies; skip multipart (multer handles those).
 const jsonBodyParser = express.json({ limit: "10mb", strict: false });
 app.use((req, res, next) => {
-  const contentType = req.headers["content-type"] || "";
-  if (contentType.toLowerCase().includes("multipart/form-data")) {
-    return next();
-  }
-
+  const ct = req.headers["content-type"] || "";
+  if (ct.toLowerCase().includes("multipart/form-data")) return next();
   return jsonBodyParser(req, res, (err) => {
-    if (err) {
-      return next(err);
-    }
-    if (req.body === null) {
-      req.body = {};
-    }
+    if (err) return next(err);
+    if (req.body === null) req.body = {};
     return next();
   });
 });
@@ -239,21 +250,22 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(noSqlInjectionGuard);
 app.use("/upload/", uploadRateLimiter);
 
-// Reserve sensitive prefixes behind admin auth even when no route is mounted.
-app.use("/api/debug", protect, adminOnly, (_req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Endpoint not found.",
-  });
-});
+// ─── STATIC FILES ─────────────────────────────────────────────────────────────
+// Serve the built frontend assets BEFORE any API or dynamic routes so that
+// requests for /assets/index-xxxx.js etc. resolve immediately.
+const clientBuildPaths = getClientBuildPaths();
 
-app.use("/api/admin", protect, adminOnly, (_req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Endpoint not found.",
-  });
-});
+if (clientBuildPaths) {
+  app.use(
+    express.static(clientBuildPaths.clientBuildPath, {
+      index: false, // Don't auto-serve index.html here; the SPA catch-all does it.
+      maxAge: isProductionEnv ? "7d" : 0,
+      etag: true,
+    }),
+  );
+}
 
+// ─── DOCUMENT / UPLOAD STATIC ROUTES ─────────────────────────────────────────
 const documentsRoot = path.join(__dirname, "uploads", "documents");
 
 app.use("/uploads/documents", (req, res, next) => {
@@ -263,12 +275,10 @@ app.use("/uploads/documents", (req, res, next) => {
     requestedPath,
   );
 
-  if (!resolvedDocument?.usedLegacyAlias) {
-    return next();
-  }
+  if (!resolvedDocument?.usedLegacyAlias) return next();
 
-  const extension = path.extname(resolvedDocument.absolutePath).toLowerCase();
-  if (extension === ".pdf") {
+  const ext = path.extname(resolvedDocument.absolutePath).toLowerCase();
+  if (ext === ".pdf") {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "inline");
   }
@@ -283,7 +293,6 @@ app.use(
     etag: true,
     lastModified: true,
     setHeaders: (res, filePath) => {
-      // Cache static uploads aggressively in browser for faster repeat views.
       res.setHeader("Cache-Control", "public, max-age=604800, immutable");
       if (path.extname(filePath).toLowerCase() === ".pdf") {
         res.setHeader("Content-Type", "application/pdf");
@@ -293,11 +302,19 @@ app.use(
   }),
 );
 
-// Serve uploaded GridFS/disk files after document paths get first chance.
-// Supports nested filenames like /uploads/documents/iqac/file.pdf.
+// GridFS / disk streaming (supports nested paths like /uploads/documents/iqac/file.pdf).
 app.get("/uploads/:category/:filename(*)", streamUploadedFile);
 
-// Import Routes
+// ─── GUARD SENSITIVE ADMIN PREFIXES ───────────────────────────────────────────
+app.use("/api/debug", protect, adminOnly, (_req, res) =>
+  res.status(404).json({ success: false, message: "Endpoint not found." }),
+);
+app.use("/api/admin", protect, adminOnly, (_req, res) =>
+  res.status(404).json({ success: false, message: "Endpoint not found." }),
+);
+
+
+// ─── IMPORT ROUTES ────────────────────────────────────────────────────────────
 const newsRoutes = require("./routes/newsRoutes");
 const facultyRoutes = require("./routes/facultyRoutes");
 const departmentRoutes = require("./routes/departmentRoutes");
@@ -316,16 +333,16 @@ const documentDownloadRoutes = require("./routes/documentDownloadRoutes");
 const galleryRoutes = require("./routes/galleryRoutes");
 const { initializeDatabase } = require("./utils/dbInit");
 
-// API Routes
+// ─── API ROUTES ───────────────────────────────────────────────────────────────
 app.use("/api/news", newsRoutes);
 app.use("/api/faculty", facultyRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/notices", noticeRoutes);
 app.use("/api/events", eventRoutes);
-app.use("/api/auth/", authRateLimiter); // Apply stricter rate limiting to auth endpoints
+app.use("/api/auth/", authRateLimiter); // Stricter limiter on auth endpoints
 app.use("/api/auth", authRoutes);
 app.use("/api/pages", pageContentRoutes);
-app.use("/api/upload/", uploadRateLimiter); // Apply stricter rate limiting to upload endpoints
+app.use("/api/upload/", uploadRateLimiter); // Stricter limiter on upload endpoints
 app.use("/api/upload", uploadRoutes);
 app.use("/api/research", researchRoutes);
 app.use("/api/placements", placementRoutes);
@@ -336,41 +353,32 @@ app.use("/api/document-download", documentDownloadRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/nirf", nirfRoutes);
 app.use("/api/convert", convertRoutes);
-app.get("/api/health", (_req, res) => {
+
+app.get("/api/health", (_req, res) =>
   res.json({
     success: true,
     status: "ok",
     timestamp: new Date().toISOString(),
-  });
-});
+  }),
+);
 
-app.use("/api", (_req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "API endpoint not found.",
-  });
-});
+// 404 for any unknown /api/* route
+app.use("/api", (_req, res) =>
+  res.status(404).json({ success: false, message: "API endpoint not found." }),
+);
 
-if (hasClientBuild()) {
-  app.use(
-    express.static(clientDistPath, {
-      index: false,
-      maxAge: process.env.NODE_ENV === "production" ? "7d" : 0,
-      etag: true,
-    }),
+// ─── SPA CATCH-ALL ────────────────────────────────────────────────────────────
+// Serve index.html for every non-API, non-upload route so that React Router
+// works on hard refreshes.  Must come AFTER all API routes.
+if (clientBuildPaths) {
+  app.get(/^\/(?!api\/|uploads\/).*/, (_req, res) =>
+    res.sendFile(clientBuildPaths.clientIndexPath),
   );
-
-  app.get(/^\/(?!api\/|uploads\/).*/, (_req, res) => {
-    res.sendFile(clientIndexPath);
-  });
 }
 
-// Health Check
+// Root health-check / fallback
 app.get("/", (req, res) => {
-  if (hasClientBuild()) {
-    return res.sendFile(clientIndexPath);
-  }
-
+  if (clientBuildPaths) return res.sendFile(clientBuildPaths.clientIndexPath);
   res.json({
     message: "SSGMCE API Server Running",
     status: "Active",
@@ -380,39 +388,36 @@ app.get("/", (req, res) => {
   });
 });
 
-// Error Handler
-app.use((err, req, res, next) => {
+// ─── ERROR HANDLER ────────────────────────────────────────────────────────────
+app.use((err, req, res, _next) => {
   if (err.type === "entity.parse.failed") {
-    return res.status(400).json({
-      success: false,
-      error: "Invalid request body. Expected JSON.",
-    });
+    return res
+      .status(400)
+      .json({ success: false, error: "Invalid request body. Expected JSON." });
   }
 
-  if (process.env.NODE_ENV === "production") {
+  if (isProductionEnv) {
     console.error(err.message);
   } else {
     console.error(err.stack || err);
   }
 
-  // Handle multer errors
   if (err.code === "LIMIT_FILE_SIZE") {
-    const isDocumentRoute =
+    const isDocRoute =
       req.path.includes("/upload/file") ||
       req.path.includes("/upload/nirf-pdf");
     return res.status(400).json({
       success: false,
-      error: isDocumentRoute
+      error: isDocRoute
         ? "File too large. Maximum size is 50MB for documents."
         : "File too large. Maximum size is 20MB for images.",
     });
   }
 
   if (err.name === "MulterError") {
-    return res.status(400).json({
-      success: false,
-      error: err.message || "File upload error",
-    });
+    return res
+      .status(400)
+      .json({ success: false, error: err.message || "File upload error" });
   }
 
   if (
@@ -420,10 +425,7 @@ app.use((err, req, res, next) => {
     (err.message.toLowerCase().includes("invalid file type") ||
       err.message.toLowerCase().includes("only "))
   ) {
-    return res.status(400).json({
-      success: false,
-      error: err.message,
-    });
+    return res.status(400).json({ success: false, error: err.message });
   }
 
   if (err.name === "ValidationError") {
@@ -434,24 +436,20 @@ app.use((err, req, res, next) => {
   }
 
   if (err.name === "CastError") {
-    return res.status(400).json({
-      success: false,
-      error: "Invalid request parameter.",
-    });
+    return res
+      .status(400)
+      .json({ success: false, error: "Invalid request parameter." });
   }
 
-  const requestLabel = `${req.method} ${req.originalUrl}`;
-  console.error(`[ERROR] ${requestLabel}`, err);
-
+  console.error(`[ERROR] ${req.method} ${req.originalUrl}`, err);
   res.status(500).json({
     success: false,
     error: "Something went wrong. Please try again later.",
   });
 });
 
-// Start Server - Only after MongoDB connection
-const PORT = process.env.PORT || 5000;
 
+// ─── DATABASE & SERVER START ──────────────────────────────────────────────────
 const mongoConnectOptions = {
   family: 4,
   serverSelectionTimeoutMS: 5000,
@@ -467,7 +465,8 @@ const getMongoConnectionHints = (error) => {
 
   if (error?.syscall === "querySrv" || error?.code === "ECONNREFUSED") {
     hints.push(
-      "Atlas SRV DNS lookup failed. If this machine/network blocks SRV queries, set MONGODB_DIRECT_URI in server/.env using the standard mongodb://host1,host2,host3/... format from Atlas.",
+      "Atlas SRV DNS lookup failed. Set MONGODB_DIRECT_URI in server/.env using the " +
+        "standard mongodb://host1,host2,host3/... format from Atlas.",
     );
   }
 
@@ -476,7 +475,8 @@ const getMongoConnectionHints = (error) => {
     message.includes("not allowed to access this MongoDB Atlas cluster")
   ) {
     hints.push(
-      "MongoDB Atlas network access is blocking this machine. Add your current IP in Atlas Network Access, or temporarily allow 0.0.0.0/0 for development.",
+      "MongoDB Atlas network access is blocking this machine. Add your IP in Atlas " +
+        "Network Access, or allow 0.0.0.0/0 for development.",
     );
   }
 
@@ -495,7 +495,7 @@ const connectToMongo = async () => {
     process.env.MONGODB_URI ||
     "mongodb://localhost:27017/ssgmce";
   const directUri = process.env.MONGODB_DIRECT_URI;
-  const mongoConnectStartedAt = Date.now();
+  const startedAt = Date.now();
 
   try {
     await mongoose.connect(primaryUri, mongoConnectOptions);
@@ -504,56 +504,52 @@ const connectToMongo = async () => {
         primaryUri === directUri && directUri
           ? "MONGODB_DIRECT_URI"
           : "MONGODB_URI",
-      connectMs: Date.now() - mongoConnectStartedAt,
+      connectMs: Date.now() - startedAt,
     };
   } catch (error) {
-    const shouldTryDirectFallback =
+    // If the primary URI (Atlas SRV) fails with a DNS/connection error and we
+    // have a direct URI to try, fall back automatically.
+    const shouldFallback =
       directUri &&
       primaryUri !== directUri &&
       (error?.syscall === "querySrv" || error?.code === "ECONNREFUSED");
 
-    if (!shouldTryDirectFallback) {
-      throw error;
-    }
+    if (!shouldFallback) throw error;
 
     console.warn(
       "[WARN] MongoDB SRV lookup failed for MONGODB_URI. Retrying with MONGODB_DIRECT_URI...",
     );
-
     await mongoose.connect(directUri, mongoConnectOptions);
     return {
       uriLabel: "MONGODB_DIRECT_URI",
-      connectMs: Date.now() - mongoConnectStartedAt,
+      connectMs: Date.now() - startedAt,
     };
   }
 };
 
 connectToMongo()
   .then(({ uriLabel, connectMs }) => {
-    console.log(
-      `[OK] MongoDB Connected Successfully in ${connectMs}ms using ${uriLabel}`,
-    );
+    console.log(`[OK] MongoDB connected in ${connectMs}ms using ${uriLabel}`);
 
-    // Start server as soon as DB socket is ready.
     app.listen(PORT, () => {
+      const ip = process.env.SERVER_IP || "localhost";
       console.log(`\n[SERVER] Running on port ${PORT}`);
-      console.log(`[UPLOADS] http://localhost:${PORT}/uploads`);
-      console.log(`[AUTH] http://localhost:${PORT}/api/auth`);
-      console.log(`[PAGES] http://localhost:${PORT}/api/pages`);
+      console.log(`[ACCESS] http://${ip}:${PORT}`);
+      console.log(`[UPLOADS] http://${ip}:${PORT}/uploads`);
+      console.log(`[AUTH]    http://${ip}:${PORT}/api/auth`);
+      console.log(`[HEALTH]  http://${ip}:${PORT}/api/health`);
       console.log(`\n[READY] Server is ready to accept requests!\n`);
     });
 
-    // Run seeding in background so startup is not blocked.
+    // Run DB seeding in the background so startup is not blocked.
     initializeDatabase()
       .then((initialized) => {
-        if (initialized) {
-          console.log("[OK] Database initialized");
-        }
+        if (initialized) console.log("[OK] Database initialized");
       })
-      .catch((error) => console.error("[ERROR] DB init error:", error));
+      .catch((err) => console.error("[ERROR] DB init error:", err));
   })
   .catch((err) => {
-    console.error("[ERROR] MongoDB Connection Error:", err);
+    console.error("[ERROR] MongoDB connection failed:", err);
     for (const hint of getMongoConnectionHints(err)) {
       console.error(`[HINT] ${hint}`);
     }
