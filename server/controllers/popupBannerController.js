@@ -1,5 +1,37 @@
 const PopupBanner = require("../models/PopupBanner");
 
+const isStorageQuotaError = (error) =>
+  error?.code === 8000 ||
+  error?.codeName === "AtlasError" ||
+  String(error?.message || "").toLowerCase().includes("space quota");
+
+const sendPopupBannerError = (res, error, fallbackMessage) => {
+  if (error?.name === "ValidationError") {
+    const firstIssue = Object.values(error.errors || {})[0];
+    return res.status(400).json({
+      success: false,
+      message: firstIssue?.message || "Invalid popup banner data.",
+    });
+  }
+
+  if (error?.name === "CastError") {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid value for ${error.path || "field"}.`,
+    });
+  }
+
+  if (isStorageQuotaError(error)) {
+    return res.status(507).json({
+      success: false,
+      message:
+        "Database storage quota has been reached. Free space in the database and try again.",
+    });
+  }
+
+  return res.status(500).json({ success: false, message: fallbackMessage });
+};
+
 const normalizeBannerPayload = (payload = {}) => {
   const normalized = {
     ...payload,
@@ -88,7 +120,7 @@ const createPopupBanner = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating popup banner:", error);
-    res.status(500).json({ success: false, message: "Failed to create popup banner" });
+    sendPopupBannerError(res, error, "Failed to create popup banner");
   }
 };
 
@@ -123,7 +155,7 @@ const updatePopupBanner = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating popup banner:", error);
-    res.status(500).json({ success: false, message: "Failed to update popup banner" });
+    sendPopupBannerError(res, error, "Failed to update popup banner");
   }
 };
 
@@ -169,7 +201,7 @@ const togglePopupBannerStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("Error toggling popup banner status:", error);
-    res.status(500).json({ success: false, message: "Failed to toggle popup banner status" });
+    sendPopupBannerError(res, error, "Failed to toggle popup banner status");
   }
 };
 

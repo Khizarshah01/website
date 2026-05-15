@@ -331,6 +331,7 @@ const nirfRoutes = require("./routes/nirfRoutes");
 const convertRoutes = require("./routes/convertRoutes");
 const documentDownloadRoutes = require("./routes/documentDownloadRoutes");
 const galleryRoutes = require("./routes/galleryRoutes");
+const popupBannerRoutes = require("./routes/popupBannerRoutes");
 const { initializeDatabase } = require("./utils/dbInit");
 
 // ─── API ROUTES ───────────────────────────────────────────────────────────────
@@ -353,6 +354,7 @@ app.use("/api/document-download", documentDownloadRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/nirf", nirfRoutes);
 app.use("/api/convert", convertRoutes);
+app.use("/api/popup-banners", popupBannerRoutes);
 
 app.get("/api/health", (_req, res) =>
   res.json({

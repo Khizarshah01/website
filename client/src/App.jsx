@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import Layout from "./components/Layout";
+import PopupBannerModal from "./components/PopupBannerModal";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import { AuthProvider } from "./hooks/useAuth";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -490,6 +491,7 @@ function App() {
         future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
       >
           <ScrollToTop />
+          <PopupBannerModal />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Admin Login - Public Route */}

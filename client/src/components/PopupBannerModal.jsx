@@ -13,7 +13,6 @@ const PopupBannerModal = () => {
   const location = useLocation();
   const [banner, setBanner] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [imageLayout, setImageLayout] = useState("landscape");
 
   const isAdminRoute = location.pathname.startsWith("/admin");
 
@@ -48,7 +47,6 @@ const PopupBannerModal = () => {
         }
 
         setBanner(activeBanner);
-        setImageLayout("landscape");
         setIsOpen(true);
       })
       .catch(() => {
@@ -65,7 +63,15 @@ const PopupBannerModal = () => {
     () => resolveUploadedAssetUrl(banner?.imageUrl || ""),
     [banner?.imageUrl],
   );
-  const hasTextContent = Boolean(banner?.title || banner?.description || banner?.linkUrl);
+  const normalizedTitle = String(banner?.title || "").trim();
+  const normalizedDescription = String(banner?.description || "").trim();
+  const normalizedLinkUrl = String(banner?.linkUrl || "").trim();
+  const hasTextContent = Boolean(
+    normalizedTitle || normalizedDescription || normalizedLinkUrl,
+  );
+  const imageClassName = hasTextContent
+    ? "block h-[48vh] w-full object-cover sm:h-[52vh] md:h-[56vh]"
+    : "block h-[78vh] w-full object-cover";
 
   const closeBanner = () => {
     if (banner) {
@@ -83,76 +89,69 @@ const PopupBannerModal = () => {
     setIsOpen(false);
   };
 
-  const handleImageLoad = (event) => {
-    const { naturalWidth, naturalHeight } = event.currentTarget;
-    setImageLayout(naturalHeight > naturalWidth ? "portrait" : "landscape");
-  };
-
-  const imageClassName =
-    imageLayout === "portrait"
-      ? "block w-[min(92vw,620px)] max-w-none bg-transparent"
-      : "block max-h-[94vh] max-w-[94vw] bg-transparent object-contain";
-
   if (!banner || !isOpen || isAdminRoute) return null;
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-950/70 px-2 py-2 backdrop-blur-sm">
-      <div className="relative max-h-[96vh] max-w-[96vw] overflow-y-auto rounded bg-transparent shadow-2xl">
+      <div className="relative flex max-h-[94vh] w-[min(92vw,560px)] flex-col overflow-y-auto rounded-2xl bg-white shadow-2xl">
         <button
           type="button"
           onClick={closeBanner}
-          className="absolute right-3 top-3 z-10 flex h-12 w-12 items-center justify-center rounded bg-white/95 text-3xl text-slate-500 shadow-sm transition-colors hover:bg-slate-100 hover:text-slate-900"
+          className="absolute right-3 top-3 z-20 flex h-11 w-11 items-center justify-center rounded-lg bg-white/95 text-3xl text-slate-500 shadow-sm transition-colors hover:bg-slate-100 hover:text-slate-900"
           aria-label="Close popup banner"
         >
           <FaTimes />
         </button>
 
-        {banner.linkUrl ? (
-          <a href={banner.linkUrl} target="_blank" rel="noreferrer" onClick={closeBanner}>
+        <div className="w-full shrink-0">
+          {normalizedLinkUrl ? (
+            <a
+              href={normalizedLinkUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={closeBanner}
+              className="block w-full"
+            >
+              <img
+                src={imageUrl}
+                alt={banner.title || "SSGMCE announcement banner"}
+                className={imageClassName}
+              />
+            </a>
+          ) : (
             <img
               src={imageUrl}
               alt={banner.title || "SSGMCE announcement banner"}
-              onLoad={handleImageLoad}
               className={imageClassName}
             />
-          </a>
-        ) : (
-          <img
-            src={imageUrl}
-            alt={banner.title || "SSGMCE announcement banner"}
-            onLoad={handleImageLoad}
-            className={imageClassName}
-          />
-        )}
+          )}
+        </div>
 
         {hasTextContent ? (
-          <div className="bg-white p-5 md:p-6">
-            {banner.title ? (
-              <h2 className="text-2xl font-bold text-slate-900">{banner.title}</h2>
+          <div className="max-h-[34vh] overflow-y-auto bg-white p-5 md:p-6">
+            {normalizedTitle ? (
+              <h2 className="text-xl font-bold text-slate-900 md:text-2xl">
+                {normalizedTitle}
+              </h2>
             ) : null}
-            {banner.description ? (
-              <p className="mt-2 text-sm leading-6 text-slate-600">{banner.description}</p>
+            {normalizedDescription ? (
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                {normalizedDescription}
+              </p>
             ) : null}
 
-            <div className="mt-5 flex flex-wrap gap-3">
-              {banner.linkUrl ? (
+            {normalizedLinkUrl ? (
+              <div className="mt-5 flex flex-wrap gap-3">
                 <a
-                  href={banner.linkUrl}
+                  href={normalizedLinkUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 rounded-lg bg-ssgmce-blue px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-ssgmce-dark-blue"
                 >
                   View Details <FaExternalLinkAlt className="text-xs" />
                 </a>
-              ) : null}
-              <button
-                type="button"
-                onClick={closeBanner}
-                className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-              >
-                Close
-              </button>
-            </div>
+              </div>
+            ) : null}
           </div>
         ) : null}
       </div>

@@ -15,6 +15,22 @@ import {
   FaTimes,
 } from "react-icons/fa";
 
+const getApiErrorMessage = (error, fallbackMessage) =>
+  error?.response?.data?.message ||
+  error?.response?.data?.error ||
+  error?.message ||
+  fallbackMessage;
+
+const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
+const SUPPORTED_IMAGE_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/pjpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+]);
+
 const AdminPopupBanner = () => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +49,7 @@ const AdminPopupBanner = () => {
   });
   const [imagePreview, setImagePreview] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     fetchBanners();
@@ -46,6 +63,7 @@ const AdminPopupBanner = () => {
       }
     } catch (error) {
       console.error("Error fetching banners:", error);
+      setFormError(getApiErrorMessage(error, "Failed to load popup banners."));
     } finally {
       setLoading(false);
     }
@@ -55,10 +73,26 @@ const AdminPopupBanner = () => {
     const file = e.target.files[0];
     if (!file) return;
 
+    if (!SUPPORTED_IMAGE_MIME_TYPES.has(file.type)) {
+      const message =
+        "Unsupported image type. Please upload JPG/JPEG/JFIF, PNG, WEBP, or GIF.";
+      setFormError(message);
+      alert(message);
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      const message = "File too large. Maximum size is 20MB.";
+      setFormError(message);
+      alert(message);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("image", file);
 
     setUploading(true);
+    setFormError("");
     try {
       const response = await apiClient.post("/upload/image", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -73,7 +107,9 @@ const AdminPopupBanner = () => {
       setImagePreview(imageUrl);
     } catch (error) {
       console.error("Error uploading image:", error);
-      alert("Failed to upload image");
+      const message = getApiErrorMessage(error, "Failed to upload image");
+      setFormError(message);
+      alert(message);
     } finally {
       setUploading(false);
     }
@@ -81,6 +117,7 @@ const AdminPopupBanner = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError("");
 
     try {
       const payload = {
@@ -90,6 +127,13 @@ const AdminPopupBanner = () => {
         imageUrl: formData.imageUrl.trim(),
         linkUrl: formData.linkUrl.trim(),
       };
+
+      if (!payload.title || !payload.description) {
+        const message = "Please add both popup title and description to show details on the banner.";
+        setFormError(message);
+        alert(message);
+        return;
+      }
 
       if (editingId) {
         // Update existing banner
@@ -109,7 +153,9 @@ const AdminPopupBanner = () => {
       fetchBanners();
     } catch (error) {
       console.error("Error saving banner:", error);
-      alert("Failed to save banner");
+      const message = getApiErrorMessage(error, "Failed to save banner");
+      setFormError(message);
+      alert(message);
     }
   };
 
@@ -172,6 +218,7 @@ const AdminPopupBanner = () => {
     setImagePreview("");
     setEditingId(null);
     setShowForm(false);
+    setFormError("");
   };
 
   if (loading) {
@@ -218,34 +265,44 @@ const AdminPopupBanner = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                {formError && (
+                  <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {formError}
+                  </div>
+                )}
                 {/* Title */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Display Name (optional)
+                    Popup Title *
                   </label>
                   <input
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="Internal name, e.g. NAAC congratulations"
+                    placeholder="e.g. NAAC Congratulations"
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#003366] focus:border-[#003366]"
+                    required
                   />
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Leave this blank if the uploaded banner already contains all text.
+                    This title is shown below the image in the popup.
                   </p>
                 </div>
 
                 {/* Description */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Description
+                    Description *
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows="3"
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#003366] focus:border-[#003366]"
+                    required
                   />
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    This description is shown below the image for context.
+                  </p>
                 </div>
 
                 {/* Image Upload */}

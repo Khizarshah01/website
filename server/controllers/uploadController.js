@@ -15,11 +15,20 @@ const IMAGE_MAX_SIZE_BYTES = 20 * 1024 * 1024;
 const DOCUMENT_MAX_SIZE_BYTES = 50 * 1024 * 1024;
 const ALLOWED_IMAGE_MIME_TYPES = new Set([
   "image/jpeg",
+  "image/jpg",
+  "image/pjpeg",
   "image/png",
   "image/webp",
   "image/gif",
 ]);
-const ALLOWED_IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
+const ALLOWED_IMAGE_EXTENSIONS = new Set([
+  ".jpg",
+  ".jpeg",
+  ".jfif",
+  ".png",
+  ".webp",
+  ".gif",
+]);
 const DOCUMENT_MIME_TO_EXTENSIONS = {
   "application/pdf": [".pdf"],
   "application/msword": [".doc"],
@@ -289,7 +298,7 @@ const validateUploadedFile = (file, mode) => {
       !ALLOWED_IMAGE_MIME_TYPES.has(file.mimetype) ||
       !ALLOWED_IMAGE_EXTENSIONS.has(extension)
     ) {
-      throw new Error("Only JPG, PNG, WEBP, and GIF image files are allowed.");
+      throw new Error("Only JPG/JPEG/JFIF, PNG, WEBP, and GIF image files are allowed.");
     }
 
     if (!imageLooksValid(file.buffer, file.mimetype)) {
@@ -330,7 +339,10 @@ const fileFilter = (req, file, cb) => {
   ) {
     cb(null, true);
   } else {
-    cb(new Error("Only JPG, PNG, WEBP, and GIF image files are allowed."), false);
+    cb(
+      new Error("Only JPG/JPEG/JFIF, PNG, WEBP, and GIF image files are allowed."),
+      false,
+    );
   }
 };
 
