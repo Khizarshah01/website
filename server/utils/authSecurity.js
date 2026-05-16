@@ -126,12 +126,7 @@ const shouldUseSecureCookie = (req) => {
     return true;
   }
 
-  // 2. Force secure in production
-  if (isProduction()) {
-    return true;
-  }
-
-  // 3. Check development exceptions
+  // 2. Check exceptions (LAN/loopback), including production when explicitly allowed.
   const allowInsecureLoopback = parseBoolean(
     process.env.AUTH_COOKIE_ALLOW_INSECURE_LOOPBACK,
     true,
@@ -144,8 +139,16 @@ const shouldUseSecureCookie = (req) => {
   const isAllowedInsecureLoopback = allowInsecureLoopback && isLoopbackRequest(req);
   const isAllowedInsecureLAN = allowInsecureLAN && isPrivateNetworkRequest(req);
 
-  // If either exception matches, do NOT use a secure cookie
-  return !(isAllowedInsecureLoopback || isAllowedInsecureLAN);
+  if (isAllowedInsecureLoopback || isAllowedInsecureLAN) {
+    return false;
+  }
+
+  // 3. Default secure behavior: force secure in production.
+  if (isProduction()) {
+    return true;
+  }
+
+  return false;
 };
 
 const getAuthCookieOptions = (req) => {
