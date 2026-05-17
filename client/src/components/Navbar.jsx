@@ -410,7 +410,7 @@ const Navbar = () => {
                   Shri Sant Gajanan Maharaj College of Engineering, Shegaon
                 </p>
                 <p className="mt-2 flex flex-col gap-1 text-[9px] uppercase tracking-[0.14em] text-white/80 sm:block sm:text-xs lg:text-sm">
-                  <span className="block sm:inline">Autonomous Institute</span>
+                  <span className="block sm:inline">An Autonomous Institution</span>
                   <span className="mx-2 hidden text-white/45 sm:inline">|</span>
                   <span className="block text-white sm:inline">
                     NAAC "<span className="font-bold tracking-normal">A+</span>" Accredited
@@ -491,24 +491,22 @@ const Navbar = () => {
                           onClick={() => {
                             handleTopLevelMenuClick(item);
                           }}
-                          className={`px-2.5 lg:px-3 py-2.5 text-gray-700 font-medium hover:text-ssgmce-blue transition-colors duration-300 flex items-center whitespace-nowrap text-[13px] xl:text-sm ${
-                            activeDropdown === item.name
+                          className={`px-2.5 lg:px-3 py-2.5 text-gray-700 font-medium hover:text-ssgmce-blue transition-colors duration-300 flex items-center whitespace-nowrap text-[13px] xl:text-sm ${activeDropdown === item.name
                               ? "text-ssgmce-blue border-b-2 border-ssgmce-orange"
                               : isActive(item.path)
                                 ? "text-ssgmce-blue border-b-2 border-ssgmce-blue"
                                 : ""
-                          }`}
+                            }`}
                         >
                           {item.name}
                         </button>
                       ) : (
                         <Link
                           to={item.path}
-                          className={`block px-2.5 lg:px-3 py-2.5 text-gray-700 font-medium hover:text-ssgmce-blue transition-colors duration-300 whitespace-nowrap text-[13px] xl:text-sm ${
-                            isActive(item.path)
+                          className={`block px-2.5 lg:px-3 py-2.5 text-gray-700 font-medium hover:text-ssgmce-blue transition-colors duration-300 whitespace-nowrap text-[13px] xl:text-sm ${isActive(item.path)
                               ? "text-ssgmce-blue border-b-2 border-ssgmce-blue"
                               : ""
-                          }`}
+                            }`}
                           onMouseEnter={() => setActiveDropdown(null)}
                         >
                           {item.name}
@@ -611,17 +609,15 @@ const Navbar = () => {
 
                     return (
                       <div
-                        className={`absolute top-full z-50 w-[min(calc(100vw-9rem),1120px)] pt-2 ${
-                          activeItem.name === "Activities"
+                        className={`absolute top-full z-50 w-[min(calc(100vw-9rem),1120px)] pt-2 ${activeItem.name === "Activities"
                             ? "right-0 left-auto"
                             : "left-0"
-                        }`}
+                          }`}
                       >
                         <div className="relative overflow-hidden rounded-lg bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)]">
                           <div
-                            className={`px-5 py-4 lg:px-7 lg:py-5 ${
-                              activeItem.name === "Academics" ? "" : ""
-                            }`}
+                            className={`px-5 py-4 lg:px-7 lg:py-5 ${activeItem.name === "Academics" ? "" : ""
+                              }`}
                           >
                             <div className="flex min-w-0 items-stretch gap-5">
                               {/* Left Side - Menu Items */}
@@ -707,13 +703,12 @@ const Navbar = () => {
                                 </div>
                               ) : (
                                 <div
-                                  className={`grid min-w-0 flex-1 gap-x-7 gap-y-2 ${
-                                    colCount === 4
+                                  className={`grid min-w-0 flex-1 gap-x-7 gap-y-2 ${colCount === 4
                                       ? "lg:grid-cols-4"
                                       : colCount === 3
                                         ? "lg:grid-cols-3"
                                         : "lg:grid-cols-2"
-                                  }`}
+                                    }`}
                                 >
                                   {columns.map((col, colIdx) => (
                                     <div
@@ -759,12 +754,11 @@ const Navbar = () => {
                                     <img
                                       src={activeItem.megaMenuImage}
                                       alt={activeItem.megaMenuTitle}
-                                      className={`h-full w-full object-center ${
-                                        activeItem.megaMenuImageFit ===
-                                        "contain"
+                                      className={`h-full w-full object-center ${activeItem.megaMenuImageFit ===
+                                          "contain"
                                           ? "object-contain p-4"
                                           : "object-cover"
-                                      }`}
+                                        }`}
                                     />
                                   </div>
                                   <div className="border-t border-gray-100 p-3">
@@ -803,11 +797,10 @@ const Navbar = () => {
           {/* Mobile Menu */}
           <div
             aria-hidden={!isOpen}
-            className={`md:hidden overflow-hidden transition-all duration-300 ease-out ${
-              isOpen
+            className={`md:hidden overflow-hidden transition-all duration-300 ease-out ${isOpen
                 ? "max-h-[70vh] opacity-100 translate-y-0"
                 : "max-h-0 opacity-0 -translate-y-1 pointer-events-none"
-            }`}
+              }`}
           >
             <div className="border-t border-gray-200 bg-white px-1 py-3 overflow-y-auto shadow-lg">
               <ul className="space-y-1">
@@ -821,9 +814,8 @@ const Navbar = () => {
                         >
                           {item.name}{" "}
                           <FaChevronDown
-                            className={`text-[10px] transition-transform ${
-                              activeDropdown === item.name ? "rotate-180" : ""
-                            }`}
+                            className={`text-[10px] transition-transform ${activeDropdown === item.name ? "rotate-180" : ""
+                              }`}
                           />
                         </button>
                         {activeDropdown === item.name && (
@@ -848,11 +840,10 @@ const Navbar = () => {
                                     >
                                       {subItem.name}{" "}
                                       <FaChevronRight
-                                        className={`text-[9px] transition-transform ${
-                                          activeSubDropdown === subItem.name
+                                        className={`text-[9px] transition-transform ${activeSubDropdown === subItem.name
                                             ? "rotate-90"
                                             : ""
-                                        }`}
+                                          }`}
                                       />
                                     </button>
                                     {activeSubDropdown === subItem.name && (
@@ -899,11 +890,10 @@ const Navbar = () => {
                       <Link
                         to={item.path}
                         onClick={() => setIsOpen(false)}
-                        className={`block px-3 py-2 rounded font-semibold text-sm ${
-                          isActive(item.path)
+                        className={`block px-3 py-2 rounded font-semibold text-sm ${isActive(item.path)
                             ? "bg-ssgmce-blue text-white"
                             : "text-gray-700 hover:bg-gray-50"
-                        }`}
+                          }`}
                       >
                         {item.name}
                       </Link>

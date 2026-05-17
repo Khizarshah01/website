@@ -3564,7 +3564,7 @@ const IT = () => {
                   (item, i) => (
                     <div key={i} className="flex items-start gap-4">
                       <div className="mt-1 text-ssgmce-orange text-2xl flex-shrink-0">
-                        ?
+                        ➤
                       </div>
                       <div className="text-lg text-gray-700 leading-relaxed font-medium flex-1">
                         <MarkdownEditor
@@ -3593,7 +3593,7 @@ const IT = () => {
                           className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                           title="Remove item"
                         >
-                          ?
+                          ✕
                         </button>
                       )}
                     </div>
@@ -3625,7 +3625,7 @@ const IT = () => {
               >
                 {t("mission", defaultMission).map((item, i) => (
                   <div key={i} className="flex items-start gap-4">
-                    <div className="mt-1 text-ssgmce-orange text-xl">?</div>
+                    <div className="mt-1 text-ssgmce-orange text-xl">➤</div>
                     <div className="text-gray-700 w-full">
                       <MarkdownEditor
                         value={item}
@@ -3649,7 +3649,7 @@ const IT = () => {
                         className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                         title="Remove item"
                       >
-                        ?
+                        ✕
                       </button>
                     )}
                   </div>
@@ -3709,7 +3709,7 @@ const IT = () => {
                 </p>
                 {t("peo", defaultPeo).map((item, i) => (
                   <div key={i} className="flex items-start gap-4">
-                    <div className="mt-1 text-ssgmce-orange text-xl">?</div>
+                    <div className="mt-1 text-ssgmce-orange text-xl">➤</div>
                     <div className="text-gray-700 leading-relaxed font-medium w-full">
                       <MarkdownEditor
                         value={item}
@@ -3733,7 +3733,7 @@ const IT = () => {
                         className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                         title="Remove item"
                       >
-                        ?
+                        ✕
                       </button>
                     )}
                   </div>
@@ -3762,7 +3762,7 @@ const IT = () => {
               >
                 {t("pso", defaultPso).map((item, i) => (
                   <div key={i} className="flex items-start gap-4">
-                    <div className="mt-1 text-ssgmce-orange text-xl">?</div>
+                    <div className="mt-1 text-ssgmce-orange text-xl">➤</div>
                     <div className="text-gray-700 leading-relaxed font-medium w-full">
                       <MarkdownEditor
                         value={item}
@@ -3786,7 +3786,7 @@ const IT = () => {
                         className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                         title="Remove item"
                       >
-                        ?
+                        ✕
                       </button>
                     )}
                   </div>
@@ -3860,7 +3860,7 @@ const IT = () => {
                               className="flex-shrink-0 mt-1 text-red-400 hover:text-red-600 text-sm font-bold px-2"
                               title="Remove item"
                             >
-                              ?
+                              ✕
                             </button>
                           )}
                         </div>
@@ -3869,11 +3869,9 @@ const IT = () => {
                 </div>
                 <button
                   onClick={() => setShowAllPos(!showAllPos)}
-                  className="text-ssgmce-blue hover:text-ssgmce-orange font-medium text-sm transition-colors"
+                  className="inline-flex items-center text-orange-500 font-bold hover:text-orange-600 transition-colors mt-2"
                 >
-                  {showAllPos
-                    ? "Read Less ?"
-                    : `Read More ? (${t("po", defaultPo).length - 4} more)`}
+                  {showAllPos ? "Read Less" : "Read More..."}
                 </button>
                 {isEditing && (
                   <button
