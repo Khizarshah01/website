@@ -328,8 +328,8 @@ const Navbar = () => {
       <header className="ssgmce-header-shell text-white">
         <div className="ssgmce-header-pattern" />
         <div className="container relative mx-auto px-3 py-3 md:px-4 md:py-4">
-          <div className="mb-4 hidden flex-wrap items-center justify-center gap-2 md:flex md:justify-between md:gap-3">
-            <div className="flex flex-wrap items-center justify-center gap-2 md:justify-start">
+          <div className="mb-4 flex overflow-x-auto pb-2 -mx-3 px-3 md:mx-0 md:px-0 md:pb-0 md:flex-wrap md:items-center md:justify-between gap-2 md:gap-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex shrink-0 items-center gap-2 md:flex-wrap md:justify-start">
               {quickLinksLeft.map((link) => (
                 <Link
                   key={link.name}
@@ -341,7 +341,7 @@ const Navbar = () => {
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-2 md:justify-end">
+            <div className="flex shrink-0 items-center gap-2 md:flex-wrap md:justify-end">
               {quickLinksRight.map((link) =>
                 link.href ? (
                   <a
