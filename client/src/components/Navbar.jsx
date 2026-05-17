@@ -802,14 +802,14 @@ const Navbar = () => {
                 : "max-h-0 opacity-0 -translate-y-1 pointer-events-none"
               }`}
           >
-            <div className="border-t border-gray-200 bg-white px-1 py-3 overflow-y-auto shadow-lg">
+            <div className="border-t border-gray-200 bg-white px-1 py-3 overflow-y-auto shadow-lg max-h-[70vh]">
               <ul className="space-y-1">
                 {menuItems.map((item, index) => (
                   <li key={index}>
                     {item.dropdown ? (
                       <>
                         <button
-                          onClick={() => handleTopLevelMenuClick(item)}
+                          onClick={() => setActiveDropdown(activeDropdown === item.name ? null : item.name)}
                           className="w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-50 rounded flex justify-between items-center font-semibold text-sm"
                         >
                           {item.name}{" "}
