@@ -404,7 +404,7 @@ const Navbar = () => {
               />
               <div className="min-w-0 flex-1 text-left lg:text-center">
                 <p className="text-[10px] font-semibold tracking-[0.12em] text-orange-200/95 md:text-xs">
-                  Shri Gajanan Shikshan Sansthan's
+                  Shri Gajanan Shikshan Sanstha's
                 </p>
                 <p className="mt-1 text-[1.05rem] font-semibold leading-tight tracking-[0.01em] text-white/95 md:text-[1.9rem]">
                   Shri Sant Gajanan Maharaj College of Engineering, Shegaon
