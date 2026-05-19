@@ -50,7 +50,7 @@ const Facilities = () => {
                 </h2>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   <div className="rounded-lg border border-blue-200 bg-blue-50 p-6">
-                    <div className="mb-3 text-2xl">📚</div>
+                    <div className="mb-3 text-2xl"></div>
                     <h3 className="mb-2 text-lg font-semibold text-blue-900">Central Library</h3>
                     <p className="text-sm text-blue-800">
                       Modern library with vast collection of books, digital resources, and e-learning platforms
@@ -58,7 +58,7 @@ const Facilities = () => {
                   </div>
 
                   <div className="rounded-lg border border-green-200 bg-green-50 p-6">
-                    <div className="mb-3 text-2xl">🏨</div>
+                    <div className="mb-3 text-2xl"></div>
                     <h3 className="mb-2 text-lg font-semibold text-green-900">Hostels</h3>
                     <p className="text-sm text-green-800">
                       Comfortable accommodation facilities with modern amenities for outstation students
@@ -66,7 +66,7 @@ const Facilities = () => {
                   </div>
 
                   <div className="rounded-lg border border-orange-200 bg-orange-50 p-6">
-                    <div className="mb-3 text-2xl">🏃‍♂️</div>
+                    <div className="mb-3 text-2xl"></div>
                     <h3 className="mb-2 text-lg font-semibold text-orange-900">Sports Complex</h3>
                     <p className="text-sm text-orange-800">
                       Comprehensive sports facilities including indoor and outdoor games for physical fitness
@@ -74,7 +74,7 @@ const Facilities = () => {
                   </div>
 
                   <div className="rounded-lg border border-purple-200 bg-purple-50 p-6">
-                    <div className="mb-3 text-2xl">💻</div>
+                    <div className="mb-3 text-2xl"></div>
                     <h3 className="mb-2 text-lg font-semibold text-purple-900">Computing Facility</h3>
                     <p className="text-sm text-purple-800">
                       State-of-the-art computer labs with latest software and high-speed internet connectivity
@@ -82,7 +82,7 @@ const Facilities = () => {
                   </div>
 
                   <div className="rounded-lg border border-red-200 bg-red-50 p-6">
-                    <div className="mb-3 text-2xl">🏢</div>
+                    <div className="mb-3 text-2xl"></div>
                     <h3 className="mb-2 text-lg font-semibold text-red-900">Administrative Office</h3>
                     <p className="text-sm text-red-800">
                       Efficient administrative services for student support and institutional operations
@@ -90,7 +90,7 @@ const Facilities = () => {
                   </div>
 
                   <div className="rounded-lg border border-gray-300 bg-gray-50 p-6">
-                    <div className="mb-3 text-2xl">🌟</div>
+                    <div className="mb-3 text-2xl"></div>
                     <h3 className="mb-2 text-lg font-semibold text-gray-900">Other Facilities</h3>
                     <p className="text-sm text-gray-800">
                       Medical center, cafeteria, transportation, banking, and various support services

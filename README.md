@@ -1,4 +1,4 @@
-﻿# SSGMCE College Website
+﻿# SSGMCE College Website..
 
 Full-stack college website for Shri Sant Gajanan Maharaj College of Engineering (SSGMCE), Shegaon.
 It includes a public-facing site and an admin CMS with markdown-based content editing.

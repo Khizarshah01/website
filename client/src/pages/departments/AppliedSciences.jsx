@@ -730,6 +730,54 @@ const normalizeAshActivity = (activity = {}) => ({
 const defaultAshActivityCards =
   APPLIED_DEFAULT_ACTIVITIES.map(normalizeAshActivity);
 
+const defaultAshOrientationPrograms = [
+  {
+    name: "Student Orientation and Induction program 2025-26",
+    year: "2025-26",
+    link: "",
+    isNew: true,
+  },
+];
+
+const defaultAshOrientationHighlights = [
+  {
+    title: "Inauguration Ceremony",
+    desc: "Traditional lamp lighting ceremony",
+  },
+  {
+    title: "Welcome Address",
+    desc: "Faculty and administration welcoming students",
+  },
+  {
+    title: "Student Assembly",
+    desc: "First-year students attending orientation",
+  },
+  {
+    title: "Interactive Session",
+    desc: "Students engaging in group activities",
+  },
+];
+
+const defaultOrientationIntroMarkdown = `The Student Orientation and Induction Program helps first-year students transition smoothly into their engineering education journey. It familiarizes students with the academic environment, facilities, and resources available at SSGMCE.`;
+
+const defaultOrientationAboutMarkdown = `- Introduction to college infrastructure and facilities
+- Academic curriculum and examination pattern
+- Student support services and mentorship
+- Extra-curricular activities and student chapters
+- Career guidance and placement opportunities`;
+
+const normalizeOrientationProgram = (program = {}) => ({
+  name: String(program.name || program.label || "").trim(),
+  year: String(program.year || "").trim(),
+  link: String(program.link || "").trim(),
+  isNew: Boolean(program.isNew),
+});
+
+const normalizeOrientationHighlight = (highlight = {}) => ({
+  title: String(highlight.title || "").trim(),
+  desc: String(highlight.desc || "").trim(),
+});
+
 const getRenderedAshActivityImage = (activity = {}) =>
   resolveUploadedAssetUrl(String(activity?.image || "").trim());
 
@@ -880,6 +928,92 @@ const AppliedSciences = () => {
     const arr = [...t(key, defaultArr)];
     arr[index] = value;
     updateData(key, arr);
+  };
+
+  const orientationPrograms = (t(
+    "templateData.orientation.programs",
+    defaultAshOrientationPrograms,
+  ) || defaultAshOrientationPrograms).map(normalizeOrientationProgram);
+
+  const orientationHighlights = (t(
+    "templateData.orientation.highlights",
+    defaultAshOrientationHighlights,
+  ) || defaultAshOrientationHighlights).map(normalizeOrientationHighlight);
+
+  const orientationIntroMarkdown = t(
+    "templateData.orientation.introMarkdown",
+    defaultOrientationIntroMarkdown,
+  );
+
+  const orientationAboutMarkdown = t(
+    "templateData.orientation.aboutMarkdown",
+    defaultOrientationAboutMarkdown,
+  );
+
+  const updateOrientationPrograms = (updater) => {
+    const nextPrograms = updater(
+      orientationPrograms.map(normalizeOrientationProgram),
+    );
+    updateField("templateData.orientation.programs", nextPrograms);
+  };
+
+  const updateOrientationHighlights = (updater) => {
+    const nextHighlights = updater(
+      orientationHighlights.map(normalizeOrientationHighlight),
+    );
+    updateField("templateData.orientation.highlights", nextHighlights);
+  };
+
+  const updateOrientationProgram = (index, field, value) => {
+    if (!orientationPrograms[index]) return;
+    updateOrientationPrograms((items) =>
+      items.map((program, programIndex) =>
+        programIndex === index ? { ...program, [field]: value } : program,
+      ),
+    );
+  };
+
+  const addOrientationProgram = () => {
+    updateOrientationPrograms((items) => [
+      {
+        name: "New Orientation Program",
+        year: "2025-26",
+        link: "",
+        isNew: false,
+      },
+      ...items,
+    ]);
+  };
+
+  const deleteOrientationProgram = (index) => {
+    updateOrientationPrograms((items) =>
+      items.filter((_, itemIndex) => itemIndex !== index),
+    );
+  };
+
+  const updateOrientationHighlight = (index, field, value) => {
+    if (!orientationHighlights[index]) return;
+    updateOrientationHighlights((items) =>
+      items.map((highlight, highlightIndex) =>
+        highlightIndex === index ? { ...highlight, [field]: value } : highlight,
+      ),
+    );
+  };
+
+  const addOrientationHighlight = () => {
+    updateOrientationHighlights((items) => [
+      {
+        title: "New Highlight",
+        desc: "Add a short description for this orientation highlight.",
+      },
+      ...items,
+    ]);
+  };
+
+  const deleteOrientationHighlight = (index) => {
+    updateOrientationHighlights((items) =>
+      items.filter((_, itemIndex) => itemIndex !== index),
+    );
   };
 
   const legacyActivities = (
@@ -1305,7 +1439,8 @@ const AppliedSciences = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       const uploadedUrl = response.data.fileUrl || response.data.url;
@@ -2720,85 +2855,222 @@ The department has three well equipped laboratories namely **Physics, Chemistry 
         {/* Header */}
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-gray-900">
-            Student Orientation and Induction Program
+            <EditableText
+              value={t(
+                "templateData.orientation.title",
+                "Student Orientation and Induction Program",
+              )}
+              onSave={(val) => updateField("templateData.orientation.title", val)}
+            />
           </h2>
           <div className="w-24 h-1 bg-orange-500 mx-auto mt-2"></div>
         </div>
 
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <h3 className="text-xl font-bold text-gray-800">Program Introduction</h3>
+          </div>
+          {isEditing ? (
+            <MarkdownEditor
+              value={orientationIntroMarkdown}
+              onSave={(value) => updateField("templateData.orientation.introMarkdown", value)}
+            />
+          ) : (
+            <div className="prose max-w-none text-gray-700">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {orientationIntroMarkdown}
+              </ReactMarkdown>
+            </div>
+          )}
+        </div>
+
         {/* Program Years List */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+          {isEditing && (
+            <div className="p-5 border-b border-gray-200 bg-gray-50 flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Edit Orientation Programs
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Add or update the name, academic year, and detail link for
+                  each program.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={addOrientationProgram}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-ssgmce-blue text-white font-medium hover:bg-ssgmce-dark-blue transition-colors"
+              >
+                <FaPlus />
+                Add Program
+              </button>
+            </div>
+          )}
+
           <div className="divide-y divide-gray-200">
-            {[
-              {
-                year: "2025-26",
-                label: "Student Orientation and Induction program 2025-26",
-                isNew: true,
-              },
-              {
-                year: "2024-25",
-                label: "Student Orientation and Induction program 2024-25",
-                isNew: false,
-              },
-              {
-                year: "2023-24",
-                label: "Student Orientation and Induction program 2023-24",
-                isNew: false,
-              },
-              {
-                year: "2022-23",
-                label: "Student Orientation and Induction program 2022-23",
-                isNew: false,
-              },
-            ].map((program, index) => (
+            {orientationPrograms.map((program, index) => (
               <div
-                key={index}
+                key={`${program.year || "program"}-${index}`}
                 className="p-5 hover:bg-blue-50 transition-colors group"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    {program.isNew && (
-                      <span className="bg-ssgmce-blue text-white text-xs font-bold px-3 py-1 rounded-full uppercase">
-                        New
+                {isEditing ? (
+                  <div className="space-y-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 grid gap-4 md:grid-cols-3">
+                        <label className="block">
+                          <span className="block text-sm font-medium text-gray-700 mb-2">
+                            Program name
+                          </span>
+                          <input
+                            type="text"
+                            value={program.name}
+                            onChange={(event) =>
+                              updateOrientationProgram(
+                                index,
+                                "name",
+                                event.target.value,
+                              )
+                            }
+                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ssgmce-blue focus:outline-none focus:ring-2 focus:ring-blue-100"
+                            placeholder="Student Orientation and Induction program 2025-26"
+                          />
+                        </label>
+
+                        <label className="block">
+                          <span className="block text-sm font-medium text-gray-700 mb-2">
+                            Academic year
+                          </span>
+                          <input
+                            type="text"
+                            value={program.year}
+                            onChange={(event) =>
+                              updateOrientationProgram(
+                                index,
+                                "year",
+                                event.target.value,
+                              )
+                            }
+                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ssgmce-blue focus:outline-none focus:ring-2 focus:ring-blue-100"
+                            placeholder="2025-26"
+                          />
+                        </label>
+
+                        <label className="block">
+                          <span className="block text-sm font-medium text-gray-700 mb-2">
+                            Detail link
+                          </span>
+                          <input
+                            type="url"
+                            value={program.link}
+                            onChange={(event) =>
+                              updateOrientationProgram(
+                                index,
+                                "link",
+                                event.target.value,
+                              )
+                            }
+                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ssgmce-blue focus:outline-none focus:ring-2 focus:ring-blue-100"
+                            placeholder="https://..."
+                          />
+                        </label>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => deleteOrientationProgram(index)}
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 text-red-600 border border-red-200 font-medium hover:bg-red-100 transition-colors"
+                        title="Remove program"
+                      >
+                        <FaTrash />
+                        Remove
+                      </button>
+                    </div>
+
+                    <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(program.isNew)}
+                        onChange={(event) =>
+                          updateOrientationProgram(
+                            index,
+                            "isNew",
+                            event.target.checked,
+                          )
+                        }
+                        className="h-4 w-4 rounded border-gray-300 text-ssgmce-blue focus:ring-ssgmce-blue"
+                      />
+                      Mark as new
+                    </label>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      {program.isNew && (
+                        <span className="bg-ssgmce-blue text-white text-xs font-bold px-3 py-1 rounded-full uppercase">
+                          New
+                        </span>
+                      )}
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
+                          {program.year}
+                        </p>
+                        <span className="text-gray-700 font-medium group-hover:text-ssgmce-blue transition-colors">
+                          {program.name}
+                        </span>
+                      </div>
+                    </div>
+
+                    {program.link ? (
+                      <a
+                        href={program.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 text-ssgmce-blue hover:text-ssgmce-orange font-semibold text-sm hover:underline transition-colors"
+                      >
+                        Detail Report
+                        <FaExternalLinkAlt className="text-xs" />
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 text-gray-400 font-semibold text-sm">
+                        Detail Report
                       </span>
                     )}
-                    <span className="text-gray-700 font-medium group-hover:text-ssgmce-blue transition-colors">
-                      {program.label}
-                    </span>
                   </div>
-                  <button className="text-ssgmce-blue hover:text-ssgmce-orange font-semibold text-sm hover:underline transition-colors">
-                    Detail Report
-                  </button>
-                </div>
+                )}
               </div>
             ))}
           </div>
         </div>
 
         {/* Photo Gallery */}
-        <div className="mt-10">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-            Program Highlights
-          </h3>
+        <div className="mt-10 bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <h3 className="text-2xl font-bold text-gray-800 text-center">
+              <EditableText
+                value={t(
+                  "templateData.orientation.highlightsTitle",
+                  "Program Highlights",
+                )}
+                onSave={(val) =>
+                  updateField("templateData.orientation.highlightsTitle", val)
+                }
+              />
+            </h3>
+            {isEditing && (
+              <button
+                type="button"
+                onClick={addOrientationHighlight}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-ssgmce-blue text-white font-medium hover:bg-ssgmce-dark-blue transition-colors"
+              >
+                <FaPlus />
+                Add Highlight
+              </button>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              {
-                title: "Inauguration Ceremony",
-                desc: "Traditional lamp lighting ceremony",
-              },
-              {
-                title: "Welcome Address",
-                desc: "Faculty and administration welcoming students",
-              },
-              {
-                title: "Student Assembly",
-                desc: "First-year students attending orientation",
-              },
-              {
-                title: "Interactive Session",
-                desc: "Students engaging in group activities",
-              },
-            ].map((photo, index) => (
+            {orientationHighlights.map((photo, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -2806,23 +3078,81 @@ The department has three well equipped laboratories namely **Physics, Chemistry 
                 transition={{ delay: index * 0.1 }}
                 className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 group hover:shadow-xl transition-all duration-300"
               >
-                {/* Image Placeholder */}
-                <div className="aspect-video bg-gradient-to-br from-blue-100 via-blue-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-ssgmce-blue opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                  <div className="text-center z-10">
-                    <FaUniversity className="text-6xl text-blue-300 mx-auto mb-3 group-hover:text-blue-400 transition-colors" />
-                    <p className="text-sm text-gray-500 font-semibold px-4">
-                      {photo.title}
-                    </p>
-                  </div>
-                </div>
+                {isEditing ? (
+                  <div className="p-5 space-y-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 grid gap-4 md:grid-cols-2">
+                        <label className="block">
+                          <span className="block text-sm font-medium text-gray-700 mb-2">
+                            Highlight title
+                          </span>
+                          <input
+                            type="text"
+                            value={photo.title}
+                            onChange={(event) =>
+                              updateOrientationHighlight(
+                                index,
+                                "title",
+                                event.target.value,
+                              )
+                            }
+                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ssgmce-blue focus:outline-none focus:ring-2 focus:ring-blue-100"
+                            placeholder="Inauguration Ceremony"
+                          />
+                        </label>
 
-                {/* Description */}
-                <div className="p-4 bg-gray-50">
-                  <p className="text-sm text-gray-600 text-center">
-                    {photo.desc}
-                  </p>
-                </div>
+                        <label className="block">
+                          <span className="block text-sm font-medium text-gray-700 mb-2">
+                            Description
+                          </span>
+                          <textarea
+                            rows={3}
+                            value={photo.desc}
+                            onChange={(event) =>
+                              updateOrientationHighlight(
+                                index,
+                                "desc",
+                                event.target.value,
+                              )
+                            }
+                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-ssgmce-blue focus:outline-none focus:ring-2 focus:ring-blue-100"
+                            placeholder="Traditional lamp lighting ceremony"
+                          />
+                        </label>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => deleteOrientationHighlight(index)}
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 text-red-600 border border-red-200 font-medium hover:bg-red-100 transition-colors"
+                        title="Remove highlight"
+                      >
+                        <FaTrash />
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Image Placeholder */}
+                    <div className="aspect-video bg-gradient-to-br from-blue-100 via-blue-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
+                      <div className="absolute inset-0 bg-ssgmce-blue opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                      <div className="text-center z-10">
+                        <FaUniversity className="text-6xl text-blue-300 mx-auto mb-3 group-hover:text-blue-400 transition-colors" />
+                        <p className="text-sm text-gray-500 font-semibold px-4">
+                          {photo.title}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="p-4 bg-gray-50">
+                      <p className="text-sm text-gray-600 text-center">
+                        {photo.desc}
+                      </p>
+                    </div>
+                  </>
+                )}
               </motion.div>
             ))}
           </div>
@@ -2834,29 +3164,41 @@ The department has three well equipped laboratories namely **Physics, Chemistry 
             <FaLightbulb className="text-4xl text-ssgmce-blue mr-4 mt-1 flex-shrink-0" />
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">
-                About the Program
+                <EditableText
+                  value={t(
+                    "templateData.orientation.aboutTitle",
+                    "About the Program",
+                  )}
+                  onSave={(val) =>
+                    updateField("templateData.orientation.aboutTitle", val)
+                  }
+                />
               </h3>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                The Student Orientation and Induction Program is designed to
-                help first-year students transition smoothly into their
-                engineering education journey. The program familiarizes students
-                with the academic environment, facilities, and resources
-                available at SSGMCE.
-              </p>
-              <ul className="space-y-2">
-                {[
-                  "Introduction to college infrastructure and facilities",
-                  "Academic curriculum and examination pattern",
-                  "Student support services and mentorship",
-                  "Extra-curricular activities and student chapters",
-                  "Career guidance and placement opportunities",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start">
-                    <FaAngleRight className="text-ssgmce-blue mr-2 mt-1 flex-shrink-0" />
-                    <span className="text-gray-700">{item}</span>
-                  </li>
-                ))}
-              </ul>
+              {isEditing ? (
+                <MarkdownEditor
+                  value={orientationAboutMarkdown}
+                  onSave={(value) =>
+                    updateField("templateData.orientation.aboutMarkdown", value)
+                  }
+                />
+              ) : (
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    p: ({ node, ...props }) => (
+                      <p className="text-gray-700 leading-relaxed mb-4" {...props} />
+                    ),
+                    ul: ({ node, ...props }) => (
+                      <ul className="space-y-2" {...props} />
+                    ),
+                    li: ({ node, ...props }) => (
+                      <li className="flex items-start" {...props} />
+                    ),
+                  }}
+                >
+                  {orientationAboutMarkdown}
+                </ReactMarkdown>
+              )}
             </div>
           </div>
         </div>
@@ -3704,5 +4046,3 @@ The department has three well equipped laboratories namely **Physics, Chemistry 
 
 export { APPLIED_DEFAULT_FACULTY };
 export default AppliedSciences;
-
-

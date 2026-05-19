@@ -12,16 +12,10 @@ const ComputingSidebar = () => {
   const location = useLocation();
   const { isEditing } = useEdit();
   const facilitiesRootPath = "/facilities";
-  const facilitiesRootPageId = pathToPageId(facilitiesRootPath);
-  const backToFacilities = isEditing
-    ? `/admin/visual/${facilitiesRootPageId}`
-    : facilitiesRootPath;
+  const backToFacilities = facilitiesRootPath;
 
   const menuItems = [
-    { title: "Computer Labs", path: "/facilities/computing/labs" },
-    { title: "Software & Tools", path: "/facilities/computing/software" },
-    { title: "Network Infrastructure", path: "/facilities/computing/network" },
-    { title: "Support & Policies", path: "/facilities/computing/support" },
+    { title: "About Central Computing Facility", path: "/facilities/computing" },
   ];
 
   const navContent = (
@@ -65,7 +59,6 @@ const ComputingSidebar = () => {
       <div className="bg-gradient-to-r from-ssgmce-blue to-ssgmce-dark-blue p-4">
         <Link
           to={backToFacilities}
-          state={isEditing ? buildReturnState(location) : undefined}
           className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-white/20 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-white/30"
         >
           <FaArrowLeft className="text-[10px]" />
