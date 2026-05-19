@@ -18,10 +18,7 @@ const ComputingSidebar = () => {
     : facilitiesRootPath;
 
   const menuItems = [
-    { title: "Computer Labs", path: "/facilities/computing/labs" },
-    { title: "Software & Tools", path: "/facilities/computing/software" },
-    { title: "Network Infrastructure", path: "/facilities/computing/network" },
-    { title: "Support & Policies", path: "/facilities/computing/support" },
+    { title: "About Central Computing Facility", path: "/facilities/computing" },
   ];
 
   const navContent = (

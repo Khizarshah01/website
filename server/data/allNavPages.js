@@ -1271,7 +1271,191 @@ const facilitiesPages = [
     category: "facilities",
     template: "generic",
     isPublished: true,
-    sections: [],
+    sections: [
+      {
+        sectionId: "intro",
+        title: "About Central Computing Facility",
+        type: "richtext",
+        order: 1,
+        isVisible: true,
+        content: {
+          text: "<p><strong>Data Center (Internet/Intranet Facility)</strong></p><p>Tier 3 DATA CENTER is designed to host mission-critical servers and computer systems, with fully redundant subsystems (cooling, power, and network links) and compartmentalized security zones controlled by access control methods.</p><p><strong>Data Center Floor Size:</strong> 165 sq. ft.</p>",
+        },
+      },
+      {
+        sectionId: "services",
+        title: "Services Offered",
+        type: "richtext",
+        order: 2,
+        isVisible: true,
+        content: {
+          text: "<ul><li>Server Hosting for SAP ERP of Shri Gajanan Maharaj Sansthan, Shegaon</li><li>Server Hosting for SAP ERP of Shri Sant Gajanan Maharaj College of Engineering, Shegaon</li><li>24x7x365 Internet &amp; Intranet Facility</li><li>Website Hosting:<ul><li>www.ssgmce.ac.in</li><li>www.ssgmce.org</li><li>www.ssgmcealumni.com</li><li>www.sgst.solar</li></ul></li><li>Mail Service: mail.ssgmce.ac.in</li><li>Wi-Fi and Fibre Ring Network Connectivity to College Campus</li><li>VPN Connectivity to Sansthan’s branches: Pandharpur, Alandi, Tryambakeshwar, Omkareshwar</li></ul>",
+        },
+      },
+      {
+        sectionId: "security",
+        title: "Security Systems",
+        type: "richtext",
+        order: 3,
+        isVisible: true,
+        content: {
+          text: "<ul><li>Automated FM 200 Fire Alarm and Fire Suppression System - Eco-friendly and highly effective FM200 gas</li><li>CCTV Camera Monitoring - Minimum 10 days archival record system</li><li>24x7 Three-Layer Secure Entry - RFID Access Control Card System</li></ul>",
+        },
+      },
+      {
+        sectionId: "power",
+        title: "Power Availability",
+        type: "richtext",
+        order: 4,
+        isVisible: true,
+        content: {
+          text: "<ul><li>24x7x365 Power Supply</li><li>340 KVA Diesel Generator Set</li><li>2 × 10 KVA Numeric DHPE 1000 Online UPS - Backup time: 4 hours each</li></ul>",
+        },
+      },
+      {
+        sectionId: "ac",
+        title: "Precision Air Conditioning System",
+        type: "richtext",
+        order: 5,
+        isVisible: true,
+        content: {
+          text: "<p>Emerson AC fully redundant individual close-control air conditioning units based on chiller and dry cooler system. Precise environmental control for high-performance electronic equipment.</p>",
+        },
+      },
+      {
+        sectionId: "environment",
+        title: "Environmental Specifications",
+        type: "table",
+        order: 6,
+        isVisible: true,
+        content: {
+          headers: ["Parameter", "Specification"],
+          rows: [
+            ["Floor Temperature", "20°C ± 2°C"],
+            ["Relative Humidity", "50% ± 10%"],
+          ],
+        },
+      },
+      {
+        sectionId: "internet",
+        title: "Internet Dedicated Leased Line Connectivity",
+        type: "richtext",
+        order: 7,
+        isVisible: true,
+        content: {
+          text: "<p><strong>Total Bandwidth:</strong> 1000 Mbps</p><p>Multiple internet connections from different ISPs to provide 100% uptime.</p>",
+        },
+      },
+      {
+        sectionId: "isp",
+        title: "ISP Connections",
+        type: "table",
+        order: 8,
+        isVisible: true,
+        content: {
+          headers: ["ISP", "Connection Type", "Bandwidth"],
+          rows: [
+            ["VODAFONE", "OFC (1:1)", "500 Mbps"],
+            ["RAILTEL", "OFC (1:1)", "500 Mbps"],
+          ],
+        },
+      },
+      {
+        sectionId: "firewall",
+        title: "Firewall",
+        type: "richtext",
+        order: 9,
+        isVisible: true,
+        content: {
+          text: "<p>Palo Alto PA820 Firewalls with:</p><ul><li>Gateway-level Antivirus</li><li>Anti-Spam Protection</li><li>Web Content Filtering</li><li>Application Filtering</li><li>Bandwidth Management</li><li>VPN Support</li><li>Intrusion Detection &amp; Prevention Module</li></ul>",
+        },
+      },
+      {
+        sectionId: "vpn",
+        title: "VPN Connectivity",
+        type: "richtext",
+        order: 10,
+        isVisible: true,
+        content: {
+          text: "<p>Supported VPN protocols:</p><ul><li>IPsec</li><li>SSL</li><li>L2TP</li><li>PPTP</li></ul><p>Remote user connectivity through Palo Alto PA820 Firewall.</p>",
+        },
+      },
+      {
+        sectionId: "network",
+        title: "Network Infrastructure",
+        type: "richtext",
+        order: 11,
+        isVisible: true,
+        content: {
+          text: "<ul><li>Ethernet - Gigabit backbone, more than 50 manageable switches (Cisco, D-Link, HP), Layer II &amp; Layer III switches</li><li>Optical Fiber Network - Around 2200 meters Optical Fiber Cable</li><li>Structured Cabling - Implemented using AMP standards, AMP Site Certification received, 25-year quality warranty</li></ul>",
+        },
+      },
+      {
+        sectionId: "servers",
+        title: "SAP Servers & Other Infrastructure",
+        type: "table",
+        order: 12,
+        isVisible: true,
+        content: {
+          headers: ["Server Model", "Purpose"],
+          rows: [
+            ["HP RX2660", "SAP DEV Server"],
+            ["HP RX2660", "SAP QAS Server"],
+            ["HP RX2660", "SAP PRD Server"],
+            ["HP RX2660", "SAP PRD Cluster Server"],
+            ["HP ProLiant DL360G5", "SAP Infrastructure"],
+            ["IBM x226 Server", "IDES Server"],
+            ["IBM eServer x225 Series", "Oracle Server"],
+            ["IBM x346 Rack Mountable 2U", "Web Server"],
+          ],
+        },
+      },
+      {
+        sectionId: "backup",
+        title: "SAP SAN & Data Backup Devices",
+        type: "table",
+        order: 13,
+        isVisible: true,
+        content: {
+          headers: ["Device", "Description"],
+          rows: [
+            ["HP Fiber Channel Storage HSV200-A", "Storage System"],
+            ["HP StorageWorks ULTRIUM 960", "External Tape Drive"],
+            ["HP DAT 72 SCSI", "External Tape Drive"],
+          ],
+        },
+      },
+      {
+        sectionId: "about-facility",
+        title: "About the Facility",
+        type: "richtext",
+        order: 14,
+        isVisible: true,
+        content: {
+          text: "<p>Owning and operating the facility enables us to offer industry-leading availability while shielding users from future uncertainties. The Data Center facility is designed to provide high-quality services, affordable pricing, highly secure physical infrastructure, best-in-class connectivity, a reliable technology backbone, and a comprehensive online experience.</p>",
+        },
+      },
+      {
+        sectionId: "strengths",
+        title: "Key Strengths",
+        type: "richtext",
+        order: 15,
+        isVisible: true,
+        content: {
+          text: "<ul><li>High Security</li><li>Safety</li><li>Redundancy</li><li>Reliability</li><li>Scalability</li><li>Advanced Technology</li></ul><p>Our state-of-the-art Data Center facilities are capable of handling mission-critical data and applications.</p>",
+        },
+      },
+      {
+        sectionId: "facilities-list",
+        title: "Facilities @ SSGMCE",
+        type: "richtext",
+        order: 16,
+        isVisible: true,
+        content: {
+          text: "<ul><li>Central Library</li><li>Hostel</li><li>Sports</li><li>Other Facilities</li><li>Central Computing Facility</li></ul>",
+        },
+      },
+    ],
   },
   {
     pageId: "facilities-hostels",
