@@ -923,7 +923,7 @@ const GenericContentPage = ({ pageId }) => {
 
     return {
       name: parts[0] || "Training & Placement Officer",
-      role: parts[1] || "Principal",
+      role: parts[1] || "",
       org:
         parts.slice(2).join(", ") ||
         "Shri Sant Gajanan Maharaj College of Engineering, Shegaon",
