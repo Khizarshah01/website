@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaBars, FaTimes, FaChevronDown, FaChevronRight } from "react-icons/fa";
 import logo from "../assets/images/common/logo.png";
@@ -18,6 +18,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [activeSubDropdown, setActiveSubDropdown] = useState(null);
+  const navRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -62,6 +63,20 @@ const Navbar = () => {
     setActiveDropdown(null);
     setActiveSubDropdown(null);
   };
+
+  useEffect(() => {
+    const openAcademicsMenu = () => {
+      setIsOpen(true);
+      setActiveDropdown("Academics");
+      setActiveSubDropdown(null);
+      navRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    window.addEventListener("open-academics-menu", openAcademicsMenu);
+    return () => {
+      window.removeEventListener("open-academics-menu", openAcademicsMenu);
+    };
+  }, []);
 
   const menuItems = [
     {
@@ -297,6 +312,7 @@ const Navbar = () => {
       megaMenuImageFit: "contain",
       megaMenuTitle: "Student Activities",
       dropdown: [
+        { name: "CSESA", path: "/activities/csesa" },
         { name: "INNOVO 2025", path: "/activities/innovo" },
         { name: "Drone Club", path: "/activities/drone" },
         { name: "GDG-SSGMCE", path: "/activities/gdg" },
@@ -314,7 +330,6 @@ const Navbar = () => {
         { name: "ACM", path: "/activities/acm" },
         { name: "MESA", path: "/activities/mesa" },
         { name: "ESSA", path: "/activities/essa" },
-        { name: "CSESA", path: "/activities/csesa" },
         { name: "Mozilla", path: "/activities/mozilla" },
         { name: "ITSA", path: "/activities/itsa" },
         { name: "NSS", path: "/activities/nss" },
@@ -443,7 +458,7 @@ const Navbar = () => {
       </header>
 
       {/* Main Navigation Menu - White Background */}
-      <nav className="bg-white sticky top-0 z-50 shadow-md border-b border-gray-200">
+      <nav ref={navRef} className="bg-white sticky top-0 z-50 shadow-md border-b border-gray-200">
         <div className="w-full px-4 md:px-6 lg:px-8">
           <div className="flex justify-between items-center min-h-[60px] md:min-h-[70px]">
             {/* Logo on Left */}

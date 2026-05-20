@@ -317,7 +317,7 @@ const Home = () => {
           kicker: "Academics",
           title: "Academic Excellence",
           text: "B.E., M.E., MBA and Ph.D. programs across 7 departments affiliated to SGBAU, Amravati with NAAC and NBA accreditation.",
-          link: "/departments/applied-sciences",
+          link: "/academics",
           linkLabel: "Explore Programs",
         },
         {
@@ -356,7 +356,7 @@ const Home = () => {
           title: "Best Library",
           text: "The fully automated and digitalised library functions as an excellent information center for students, faculty and researchers.",
           imageUrl: extraCurricularImg,
-          link: "/facilities/library",
+          link: "h",
         },
       ];
   const statsConfig = homeConfig?.stats || {};
@@ -397,6 +397,9 @@ const Home = () => {
       left: direction * 280,
       behavior: 'smooth',
     });
+  };
+  const openAcademicsMenu = () => {
+    window.dispatchEvent(new CustomEvent('open-academics-menu'));
   };
 
   useEffect(() => {
@@ -531,7 +534,7 @@ const Home = () => {
                   strip: "bg-ssgmce-blue/70",
                   chip: "bg-ssgmce-blue/8",
                   chipHover: "group-hover:bg-ssgmce-blue/12",
-                  icon: FaMicroscope,
+                  icon: FaGraduationCap,
                   iconClass: "text-ssgmce-blue",
                   borderHover: "hover:border-ssgmce-blue/25",
                 },
@@ -539,7 +542,7 @@ const Home = () => {
                   strip: "bg-ssgmce-orange/75",
                   chip: "bg-orange-50",
                   chipHover: "group-hover:bg-ssgmce-orange/12",
-                  icon: FaUsers,
+                  icon: FaBuilding,
                   iconClass: "text-ssgmce-orange",
                   borderHover: "hover:border-ssgmce-orange/30",
                 },
@@ -547,7 +550,7 @@ const Home = () => {
                   strip: "bg-ssgmce-accent/70",
                   chip: "bg-teal-50",
                   chipHover: "group-hover:bg-ssgmce-accent/12",
-                  icon: FaHandshake,
+                  icon: FaTrophy,
                   iconClass: "text-ssgmce-accent",
                   borderHover: "hover:border-ssgmce-accent/30",
                 },
@@ -574,9 +577,19 @@ const Home = () => {
                   <p className="mb-5 text-sm leading-6 text-slate-600">
                     {item?.text || ''}
                   </p>
-                  <Link to={item?.link || '#'} className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-ssgmce-blue transition-colors hover:text-ssgmce-orange">
-                    {item?.linkLabel || 'Explore'} <FaArrowRight className="text-xs transition-transform duration-300 group-hover:translate-x-1" />
-                  </Link>
+                  {(item?.linkLabel || '').toLowerCase() === 'explore programs' ? (
+                    <button
+                      type="button"
+                      onClick={openAcademicsMenu}
+                      className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-ssgmce-blue transition-colors hover:text-ssgmce-orange"
+                    >
+                      {item?.linkLabel || 'Explore'} <FaArrowRight className="text-xs transition-transform duration-300 group-hover:translate-x-1" />
+                    </button>
+                  ) : (
+                    <Link to={item?.link || '#'} className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-ssgmce-blue transition-colors hover:text-ssgmce-orange">
+                      {item?.linkLabel || 'Explore'} <FaArrowRight className="text-xs transition-transform duration-300 group-hover:translate-x-1" />
+                    </Link>
+                  )}
                 </div>
               );
             })}

@@ -386,6 +386,11 @@ const getFacultyReturnPath = (facultyMember) =>
   DEPARTMENT_ROUTE_MAP[facultyMember?.department] ||
   "/faculty?section=faculty-directory";
 
+const getDepartmentFromPath = (path = "") =>
+  Object.entries(DEPARTMENT_ROUTE_MAP).find(([, route]) =>
+    String(path || "").startsWith(route.split("?")[0]),
+  )?.[0] || "";
+
 const buildFacultyDirectory = (liveFacultyByDept = {}) => [
   ...(liveFacultyByDept.applied?.length
     ? liveFacultyByDept.applied
@@ -503,13 +508,17 @@ const FacultyDetail = () => {
   const { facultyDirectory, loading } = useFacultyDirectoryData();
 
   useEffect(() => {
-    const foundFaculty = facultyDirectory.find((f) => f.id === facultyId);
+    const candidates = facultyDirectory.filter((f) => f.id === facultyId);
+    const fromDepartment = getDepartmentFromPath(location.state?.from);
+    const foundFaculty =
+      candidates.find((f) => f.department === fromDepartment) ||
+      candidates[0];
     if (foundFaculty) {
       setFaculty(foundFaculty);
     } else {
       setFaculty(null);
     }
-  }, [facultyId, facultyDirectory]);
+  }, [facultyId, facultyDirectory, location.state?.from]);
 
   if (loading && !faculty) {
     return (
