@@ -1,6 +1,93 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
+const StarburstBadge = ({ size = 64, className = '' }) => (
+  <svg
+    className={className}
+    width={size}
+    height={size}
+    viewBox="0 0 120 120"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    role="img"
+  >
+    <defs>
+      <linearGradient id="sb-grad" x1="0" x2="1">
+        <stop offset="0%" stopColor="#ffb3b3" />
+        <stop offset="40%" stopColor="#ff6b6b" />
+        <stop offset="70%" stopColor="#ff2b2b" />
+        <stop offset="100%" stopColor="#e60000" />
+      </linearGradient>
+
+      <radialGradient id="sb-shine" cx="30%" cy="30%">
+        <stop offset="0%" stopColor="rgba(255,255,255,0.95)" />
+        <stop offset="35%" stopColor="rgba(255,255,255,0.28)" />
+        <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+      </radialGradient>
+
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+        <feMerge>
+          <feMergeNode in="coloredBlur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+
+        <filter id="outerGlow">
+          <feGaussianBlur stdDeviation="14" result="outerBlur" />
+          <feMerge>
+            <feMergeNode in="outerBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <radialGradient id="halo-grad" cx="50%" cy="50%">
+          <stop offset="0%" stopColor="#ff4b4b" stopOpacity="0.55" />
+          <stop offset="60%" stopColor="#ff1a1a" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="#ff1a1a" stopOpacity="0" />
+        </radialGradient>
+
+      <mask id="shine-mask">
+        <rect x="0" y="0" width="120" height="120" fill="white" />
+        <rect x="-60" y="0" width="40" height="120" fill="black">
+          <animate attributeName="x" from="-60" to="140" dur="2.6s" repeatCount="indefinite" />
+        </rect>
+      </mask>
+    </defs>
+
+    <g transform="translate(60,60)" style={{ transformOrigin: '60px 60px' }}>
+      {/* outer blurred glow */}
+      <path
+        d="M0 -48 L10 -18 L40 -12 L16 6 L26 36 L0 18 L-26 36 L-16 6 L-40 -12 L-10 -18 Z"
+        fill="#ff2b2b"
+        opacity="0.6"
+        filter="url(#outerGlow)"
+        style={{ transformOrigin: '60px 60px', animation: 'glowPulse 1.8s ease-in-out infinite' }}
+      />
+
+      {/* halo behind */}
+      <circle cx="0" cy="0" r="40" fill="url(#halo-grad)" opacity="0.22" style={{ animation: 'haloPulse 1.9s ease-in-out infinite' }} />
+
+      <path
+        d="M0 -48 L10 -18 L40 -12 L16 6 L26 36 L0 18 L-26 36 L-16 6 L-40 -12 L-10 -18 Z"
+        fill="url(#sb-grad)"
+        stroke="#b21a1a"
+        strokeWidth="2"
+        filter="url(#glow)"
+        style={{ animation: 'blinkRed 1.2s ease-in-out infinite' }}
+      />
+
+      <circle cx="0" cy="0" r="16" fill="url(#sb-shine)" style={{ animation: 'starPulse 1.7s ease-in-out infinite' }} />
+    </g>
+
+    <g mask="url(#shine-mask)">
+      <rect x="0" y="0" width="120" height="120" fill="url(#sb-grad)" opacity="0.06" />
+    </g>
+
+    <text x="60" y="74" textAnchor="middle" fontFamily="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial" fontWeight="900" fontSize="20" fill="#fff" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.45)' }}>New</text>
+  </svg>
+);
+
 const NewsTicker = ({ items }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -25,11 +112,11 @@ const NewsTicker = ({ items }) => {
     @keyframes latestGlowPulse {
       0%, 100% {
         transform: scale(1);
-        box-shadow: 0 0 0 rgba(255, 64, 64, 0), 0 0 0 rgba(255, 153, 51, 0);
+        box-shadow: 0 0 0 rgba(230, 0, 0, 0), 0 0 0 rgba(255, 80, 80, 0);
       }
       50% {
-        transform: scale(1.04);
-        box-shadow: 0 0 24px rgba(255, 64, 64, 0.45), 0 0 18px rgba(255, 255, 255, 0.16);
+        transform: scale(1.06);
+        box-shadow: 0 0 34px rgba(230, 0, 0, 0.75), 0 0 22px rgba(255, 120, 120, 0.22);
       }
     }
 
@@ -71,11 +158,41 @@ const NewsTicker = ({ items }) => {
         background-position: 100% 50%;
       }
     }
+
+    /* starburst animations */
+    @keyframes starRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes starPulse {
+      0% { transform: scale(0.92); opacity: 0.92; }
+      50% { transform: scale(1.06); opacity: 1; }
+      100% { transform: scale(0.92); opacity: 0.92; }
+    }
+
+    @keyframes glowPulse {
+      0% { transform: scale(1.04); opacity: 0.5; }
+      50% { transform: scale(1.12); opacity: 0.9; }
+      100% { transform: scale(1.04); opacity: 0.5; }
+    }
+
+    @keyframes haloPulse {
+      0% { transform: scale(0.96); opacity: 0.12; }
+      50% { transform: scale(1.06); opacity: 0.28; }
+      100% { transform: scale(0.96); opacity: 0.12; }
+    }
+
+    @keyframes blinkRed {
+      0% { filter: drop-shadow(0 0 4px rgba(230,20,20,0.5)); opacity: 0.88; }
+      50% { filter: drop-shadow(0 0 18px rgba(230,0,0,0.95)); opacity: 1; }
+      100% { filter: drop-shadow(0 0 4px rgba(230,20,20,0.5)); opacity: 0.88; }
+    }
   `}</style>
 
   {/* background */}
   <div
-    className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_34%),radial-gradient(circle_at_right,rgba(255,60,60,0.16),transparent_28%),linear-gradient(90deg,rgba(255,255,255,0.03),rgba(255,255,255,0.00),rgba(255,255,255,0.03))] bg-[length:200%_200%] opacity-95"
+    className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,80,80,0.24),transparent_34%),radial-gradient(circle_at_right,rgba(255,40,40,0.26),transparent_28%),linear-gradient(90deg,rgba(255,255,255,0.03),rgba(255,255,255,0.00),rgba(255,255,255,0.03))] bg-[length:200%_200%] opacity-98"
     style={{ animation: "bgDrift 7s ease-in-out infinite" }}
   />
   <div
@@ -84,16 +201,20 @@ const NewsTicker = ({ items }) => {
   />
 
   {/* left accent */}
-  <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-[#ff3b3b] via-[#ff8a8a] to-[#ff3b3b]" />
+  <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-[#ff1a1a] via-[#ff3b3b] to-[#ff1a1a]" />
 
   <div className="relative z-10 container mx-auto flex items-center gap-4 px-4">
-    {/* Latest badge */}
-    <div
-      className="relative flex-shrink-0 overflow-hidden rounded-full border border-white/15 bg-gradient-to-r from-[#ff3b3b] via-[#ff5c5c] to-[#ff2f2f] px-4 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.24em] text-white shadow-[0_0_26px_rgba(255,59,59,0.42)]"
-      style={{ animation: "latestGlowPulse 1.8s ease-in-out infinite" }}
-    >
-      <span className="absolute inset-0 bg-white/18 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      <span className="relative">Latest</span>
+    {/* Latest badge + starburst */}
+    <div className="relative flex-shrink-0 flex items-center gap-3">
+      <StarburstBadge size={64} className="flex-shrink-0 -ml-1" />
+
+      <div
+        className="relative overflow-hidden rounded-full border border-white/15 bg-gradient-to-r from-[#ff3b3b] via-[#ff5c5c] to-[#ff2f2f] px-4 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.24em] text-white shadow-[0_0_26px_rgba(255,59,59,0.42)]"
+        style={{ animation: "latestGlowPulse 1.8s ease-in-out infinite", boxShadow: '0 0 34px rgba(255,45,45,0.7)' }}
+      >
+        <span className="absolute inset-0 bg-white/18 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <span className="relative">Latest</span>
+      </div>
     </div>
 
     {/* title */}
@@ -112,9 +233,7 @@ const NewsTicker = ({ items }) => {
           {items[currentIndex]?.title || "Welcome to SSGMCE"}
         </span>
 
-        <span className="hidden rounded-full border border-red-300/30 bg-red-500/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-red-100 md:inline-flex">
-          Hot
-        </span>
+      
       </div>
     </div>
 

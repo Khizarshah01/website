@@ -12,6 +12,7 @@ import {
   DEPARTMENT_MAP,
   FACULTY_DIRECTORY_DEPARTMENTS,
   getVidwanUrl,
+  isCseOnlyFaculty,
   useFacultyDirectoryData,
 } from "./FacultyDetail";
 import { getCurrentPath } from "../utils/navigation";
@@ -31,7 +32,11 @@ const Faculty = () => {
   const filteredFaculty =
     selectedDept === "all"
       ? facultyDirectory
-      : facultyDirectory.filter((faculty) => faculty.department === selectedDept);
+      : facultyDirectory.filter(
+          (faculty) =>
+            faculty.department === selectedDept &&
+            (selectedDept === "cse" || !isCseOnlyFaculty(faculty)),
+        );
 
   return (
     <div className="animation-fade-in">

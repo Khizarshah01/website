@@ -1286,7 +1286,7 @@ export const defaultFaculty = [
     department: "electrical",
   },
   {
-    id: "vsk",
+    id: "electrical-vsk",
     name: "Prof. V. S. Karale",
     role: "Assistant Professor",
     area: [
