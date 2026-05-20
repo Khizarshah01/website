@@ -23,7 +23,10 @@ const mongoConnectOptions = {
 const getMongoCandidates = () => {
   const directUri = String(process.env.MONGODB_DIRECT_URI || "").trim();
   const primaryUri = String(process.env.MONGODB_URI || "").trim();
-  return [directUri, primaryUri].filter(Boolean);
+  const legacyUri = String(process.env.MONGO_URI || "").trim();
+  const localUri = "mongodb://localhost:27017/ssgmce";
+
+  return [directUri, primaryUri, legacyUri, localUri].filter(Boolean);
 };
 
 const syncAdminUser = async () => {
@@ -43,7 +46,9 @@ const syncAdminUser = async () => {
     }
 
     if (!mongoUri) {
-      throw new Error("MONGODB_DIRECT_URI or MONGODB_URI is required.");
+      throw new Error(
+        "MONGODB_DIRECT_URI, MONGODB_URI, or a local MongoDB instance is required.",
+      );
     }
 
     let connected = false;
