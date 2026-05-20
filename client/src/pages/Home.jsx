@@ -9,7 +9,7 @@ import apiClient from '../utils/apiClient';
 import { resolveUploadedAssetUrl } from '../utils/uploadUrls';
 import { HOME_LEADERSHIP } from '../data/homeLeadership';
 import droneVideo from '../assets/images/home/drone shot.mp4';
-import mainGateImg from '../assets/images/home/Main-Gate.avif';
+import mainGateImg from '../assets/images/home/Main-Gate.jpeg';
 import campusViewImg from '../assets/images/home/Campus-View.avif';
 import coCurricularImg from '../assets/images/about/vidyavibhag.jpeg';
 import extraCurricularImg from '../assets/images/about/Library.jpeg';
@@ -379,8 +379,10 @@ const Home = () => {
     return resolveUploadedAssetUrl(candidate) || fallback;
   };
   const heroVideoSrc = resolveHomeAsset(heroConfig?.videoUrl, droneVideo);
-  const welcomeMainImageSrc = resolveHomeAsset(welcomeConfig?.mainImageUrl, mainGateImg);
-  const welcomeSideImageSrc = resolveHomeAsset(welcomeConfig?.sideImageUrl, campusViewImg);
+  const welcomeHomeImageSrc = resolveHomeAsset(
+    welcomeConfig?.homePageImageUrl || welcomeConfig?.mainImageUrl,
+    mainGateImg,
+  );
   const newsItemsToShow = Number.isFinite(Number(newsEventsConfig?.newsCount))
     ? Math.max(1, Number(newsEventsConfig.newsCount))
     : 4;
@@ -588,33 +590,12 @@ const Home = () => {
       <section className="py-10 bg-gradient-to-br from-white via-ssgmce-blue/[0.02] to-ssgmce-orange/[0.03] md:py-12">
         <div className="container mx-auto px-4">
           <div className="mx-auto grid max-w-6xl gap-7 lg:grid-cols-[0.8fr,1.2fr] lg:items-center">
-            <div className="relative">
-              <div className="grid grid-cols-[0.82fr,0.58fr] gap-3">
-                <img
-                  src={welcomeMainImageSrc}
-                  alt="SSGMCE Main Gate"
-                  className="h-[210px] w-full rounded-xl object-cover shadow-[0_18px_48px_-34px_rgba(15,23,42,0.35)] sm:h-[250px]"
-                />
-                <div className="flex flex-col gap-3">
-                  <img
-                    src={welcomeSideImageSrc}
-                    alt="SSGMCE campus view"
-                    className="h-[99px] w-full rounded-xl object-cover shadow-sm sm:h-[119px]"
-                  />
-                  <div className="flex min-h-[99px] flex-col justify-center rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm sm:min-h-[119px]">
-                    <p className="text-[1.55rem] font-bold leading-none text-ssgmce-orange">{welcomeConfig?.establishedYear || '1983'}</p>
-                    <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                      {welcomeConfig?.establishedLabel || 'Established in Shegaon'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute -bottom-3 left-4 z-20 hidden max-w-[230px] rounded-xl border border-white/80 bg-white/95 px-4 py-3 shadow-[0_18px_44px_-30px_rgba(15,23,42,0.45)] backdrop-blur-sm sm:block">
-                <p className="text-[13px] font-bold text-slate-900">{welcomeConfig?.floatingTitle || 'Smart & Green Campus'}</p>
-                <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
-                  {welcomeConfig?.floatingText || 'Re-modeled as a clean, technology-enabled academic environment.'}
-                </p>
-              </div>
+            <div>
+              <img
+                src={welcomeHomeImageSrc}
+                alt={welcomeConfig?.homePageImageAlt || "SSGMCE campus"}
+                className="h-[250px] w-full rounded-xl border border-slate-200 object-cover shadow-[0_18px_48px_-34px_rgba(15,23,42,0.35)] sm:h-[300px] md:h-[340px]"
+              />
             </div>
 
             <div className="space-y-4">

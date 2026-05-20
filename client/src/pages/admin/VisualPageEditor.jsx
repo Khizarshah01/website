@@ -4,6 +4,7 @@ import apiClient from "../../utils/apiClient";
 import { EditProvider } from "../../contexts/EditContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import GenericContentPage from "../../components/GenericContentPage";
+import AboutSidebar from "../../components/AboutSidebar";
 import AdminToolbar from "../../components/admin/AdminToolbar";
 import { FaSpinner, FaPlus } from "react-icons/fa";
 import { useAuth } from "../../hooks/useAuth";
@@ -239,6 +240,15 @@ const VisualPageEditor = () => {
           return <GenericContentPage pageId={canonicalPageId} />;
       }
     }
+    if (canonicalPageId === "contact-us") {
+      return (
+        <GenericContentPage
+          pageId={canonicalPageId}
+          sidebar={<AboutSidebar />}
+        />
+      );
+    }
+
     return <GenericContentPage pageId={canonicalPageId} />;
   };
 

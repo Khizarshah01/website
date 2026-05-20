@@ -272,6 +272,22 @@ const Navbar = () => {
       ],
     },
     {
+      name: "UGC Disclosure",
+      topLevelPath: "/about",
+      megaMenuImage: documentsNavbarImage,
+      megaMenuTitle: "UGC Disclosure",
+      dropdown: [
+        { name: "About SSGMCE", path: "/about" },
+        { name: "Administation", path: "/documents/policies" },
+        { name: "Academics", path: "/academics/planner" },
+        { name: "Admission & Fees", path: "/admissions/fees" },
+        { name: "Research", path: "/research/rdc" },
+        { name: "Student Life", path: "/activities/innovo" },
+        { name: "Information Corner", path: "/documents" },
+        { name: "Contact us", path: "/contact" },
+      ],
+    },
+    {
       name: "Documents",
       path: "/documents",
       megaMenuImage: documentsNavbarImage,
