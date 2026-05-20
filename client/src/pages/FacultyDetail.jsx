@@ -254,29 +254,51 @@ const normalizeArea = (value) => {
     .filter(Boolean);
 };
 
+const normalizeFacultyIdentity = (value = "") =>
+  String(value || "").trim().toLowerCase();
+
+const CSE_ONLY_FACULTY_EMAILS = new Set([
+  "sbpagrut@ssgmce.ac.in",
+  "vskanherkar@ssgmce.ac.in",
+]);
+
+const CSE_ONLY_FACULTY_NAMES = new Set([
+  "mr. s. b. pagrut",
+  "ms. v. s. kanherkar",
+]);
+
+export const isCseOnlyFaculty = (facultyMember = {}) =>
+  CSE_ONLY_FACULTY_EMAILS.has(normalizeFacultyIdentity(facultyMember.email)) ||
+  CSE_ONLY_FACULTY_NAMES.has(normalizeFacultyIdentity(facultyMember.name));
+
 const normalizeFacultyCollection = (items = [], department, photoMap = {}) =>
-  (Array.isArray(items) ? items : []).map((facultyMember) => {
-    const normalized = {
-      ...facultyMember,
-      department: facultyMember.department || department,
-      id:
-        facultyMember.id ||
-        createFacultySlug(facultyMember.name || facultyMember.email || ""),
-      photo: photoMap[facultyMember.photo] || facultyMember.photo,
-    };
+  (Array.isArray(items) ? items : [])
+    .filter(
+      (facultyMember) =>
+        department === "cse" || !isCseOnlyFaculty(facultyMember),
+    )
+    .map((facultyMember) => {
+      const normalized = {
+        ...facultyMember,
+        department: facultyMember.department || department,
+        id:
+          facultyMember.id ||
+          createFacultySlug(facultyMember.name || facultyMember.email || ""),
+        photo: photoMap[facultyMember.photo] || facultyMember.photo,
+      };
 
-    normalized.role =
-      facultyMember.role || facultyMember.designation || normalized.role || "";
-    normalized.designation =
-      facultyMember.designation || facultyMember.role || normalized.role || "";
-    normalized.area = normalizeArea(
-      facultyMember.area || facultyMember.specialization || "",
-    );
-    normalized.specialization =
-      facultyMember.specialization || normalized.area.join(", ");
+      normalized.role =
+        facultyMember.role || facultyMember.designation || normalized.role || "";
+      normalized.designation =
+        facultyMember.designation || facultyMember.role || normalized.role || "";
+      normalized.area = normalizeArea(
+        facultyMember.area || facultyMember.specialization || "",
+      );
+      normalized.specialization =
+        facultyMember.specialization || normalized.area.join(", ");
 
-    return normalized;
-  });
+      return normalized;
+    });
 
 // Resolve CSE faculty photos from string references to actual imports
 const resolvedCseFaculty = normalizeFacultyCollection(
