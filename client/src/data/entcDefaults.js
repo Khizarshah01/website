@@ -4533,19 +4533,23 @@ export const defaultFaculty = [
 ];
 
 export const defaultStaff = [
+  // Office Assistant
   { name: "Mrs. V. G. Payghan", role: "Office Assistant", photo: "VGP" },
+  // Lab Assistant
   { name: "Mr. M. Y. Kashikar", role: "Lab Assistant", photo: "MYK" },
   { name: "Mr. Saleem Ahmad", role: "Lab Assistant", photo: "SAA" },
   { name: "Mr. A. S. Akotkar", role: "Lab Assistant", photo: "ASA" },
   { name: "Mr. S. B. Sonawane", role: "Lab Assistant", photo: "SBS" },
   { name: "Mr. J. S. Kolhe", role: "Lab Assistant", photo: "JSK" },
+  // Lab Attendant
   { name: "Mr. K. K. Thakur", role: "Lab Attendant", photo: "KKT" },
   { name: "Mr. G. O. Tayde", role: "Lab Attendant", photo: "GOT" },
   { name: "Mr. A. L. Nemade", role: "Lab Attendant", photo: "ALN" },
   { name: "Mr. S. A. Raut", role: "Lab Attendant", photo: "SAR" },
-  { name: "Mr. P. B. Bule", role: "Peon", photo: "PBB" },
   { name: "Mr. K. R. Khatri", role: "Lab Attendant", photo: "KRK" },
   { name: "Mr. D. B. Barabde", role: "Lab Attendant", photo: "DBB" },
+  // Peon
+  { name: "Mr. P. B. Bule", role: "Peon", photo: "PBB" },
   { name: "Mr. M. U. Sable", role: "Peon", photo: "MUS" },
 ];
 

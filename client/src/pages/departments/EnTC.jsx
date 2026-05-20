@@ -1137,7 +1137,8 @@ const EnTC = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -1244,7 +1245,8 @@ const EnTC = () => {
     setMouReportErrors((prev) => ({ ...prev, [uploadKey]: "" }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const mous = getEntcMous();
@@ -1471,7 +1473,8 @@ const EnTC = () => {
     setResearchReportErrors((prev) => ({ ...prev, [uploadKey]: "" }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
       if (!response.data.fileUrl)
         throw new Error("Upload did not return a file URL.");
@@ -2127,7 +2130,8 @@ const EnTC = () => {
     setUploadingFiles((prev) => ({ ...prev, [uploadKey]: true }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const key = `templateData.curriculum.${section}`;
@@ -2342,7 +2346,8 @@ const EnTC = () => {
 
   const deleteNewsletterFileIfNeeded = async (link) => {
     const deletablePath = getDeletableUploadPath(link);
-    if (!deletablePath) return;
+    if (!deletablePath) return;
+
 
     try {
       await apiClient.delete("/upload/file", { params: {
@@ -2414,7 +2419,8 @@ const EnTC = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -2583,7 +2589,8 @@ const EnTC = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -2706,7 +2713,8 @@ const EnTC = () => {
 
   const deleteAchievementFileIfNeeded = async (link) => {
     const deletablePath = getAchievementDeletableUploadPath(link);
-    if (!deletablePath) return;
+    if (!deletablePath) return;
+
 
     try {
       await apiClient.delete("/upload/file", { params: {
@@ -2748,7 +2756,8 @@ const EnTC = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("image", file);
+
       const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
@@ -3679,7 +3688,6 @@ const EnTC = () => {
                                   updateData("po", updated);
                                 }}
                               />
-                              :
                             </strong>
                             <MarkdownEditor
                               value={po.d}

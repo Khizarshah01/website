@@ -657,7 +657,7 @@ const ImageWithFallback = ({ src, fallbackSrc, alt, className }) => {
   );
 };
 
-const GenericContentPage = ({ pageId }) => {
+const GenericContentPage = ({ pageId, sidebar: forcedSidebar = null }) => {
   const [page, setPage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -877,7 +877,7 @@ const GenericContentPage = ({ pageId }) => {
   }, [displayPage, error, isFacilitiesChildPage, loading, pageId]);
 
   // Auto-select sidebar based on pageId prefix (longer prefixes checked first)
-  const sidebar = useMemo(() => {
+  const autoSidebar = useMemo(() => {
     if (!pageId) return null;
     const sortedPrefixes = Object.keys(SIDEBAR_MAP).sort(
       (a, b) => b.length - a.length,
@@ -891,6 +891,9 @@ const GenericContentPage = ({ pageId }) => {
     }
     return null;
   }, [pageId, displayPage]);
+
+  // Allow caller to override selected sidebar (useful for pages like `contact-us`)
+  const sidebar = forcedSidebar || autoSidebar;
 
   const sortedSectionsWithIndex = useMemo(
     () =>
