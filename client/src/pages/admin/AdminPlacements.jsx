@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import apiClient from "../../utils/apiClient";
 import AdminLayout from "../../components/admin/AdminLayout";
 import PlacementMarkdownEditor from "../../components/admin/PlacementMarkdownEditor";
+import { clearCachedPageEntry, setCachedPageEntry } from "../../utils/pageCache";
 import {
   FaBriefcase,
   FaPlus,
@@ -176,7 +177,7 @@ const AdminPlacements = () => {
         if (s.type === "markdown" || s.type === "richtext" || s.type === "text") {
           return typeof s.content === "string"
             ? s.content
-            : s.content?.markdown || s.content?.text || s.content?.html || "";
+            : s.content?.text || s.content?.markdown || s.content?.html || "";
         }
         return "";
       })
@@ -216,19 +217,31 @@ const AdminPlacements = () => {
       const updatedSections = [
         {
           sectionId: "main-content",
-          title: "",
+          title:
+            pageData.sections?.find((section) => section?.sectionId === "main-content")
+              ?.title || pageData.pageTitle || "",
           type: "markdown",
-          order: 0,
+          order: 1,
           isVisible: true,
-          content: { markdown: pageMarkdown },
+          content: { text: pageMarkdown },
         },
       ];
 
-      await apiClient.put(
+      const res = await apiClient.put(
         `/pages/${editingPage}`,
-        { sections: updatedSections },
+        { ...pageData, sections: updatedSections },
         authHeader()
       );
+      const savedPage = res.data?.data || {
+        ...pageData,
+        sections: updatedSections,
+      };
+      setPageData(savedPage);
+      clearCachedPageEntry(editingPage);
+      setCachedPageEntry(editingPage, {
+        data: savedPage,
+        timestamp: Date.now(),
+      });
       setPageSuccess("Content saved successfully!");
       setTimeout(() => setPageSuccess(""), 3000);
     } catch (err) {

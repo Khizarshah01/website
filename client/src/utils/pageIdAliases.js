@@ -6,6 +6,7 @@ export const PAGE_ID_ALIASES = Object.freeze({
   "about-organization": "about-structure",
   "about-principal-message": "about-principal",
   "about-vision-mission": "about-vision",
+  contact: "contact-us",
 });
 
 export const resolveCanonicalPageId = (pageId = "") => {
