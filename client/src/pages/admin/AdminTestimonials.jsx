@@ -2,6 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import apiClient from "../../utils/apiClient";
 import AdminLayout from "../../components/admin/AdminLayout";
 import {
+  getUploadErrorMessage,
+  uploadAsset,
+} from "../../utils/uploadClient";
+import {
   FaQuoteLeft,
   FaPlus,
   FaEdit,
@@ -56,15 +60,17 @@ const AdminTestimonials = () => {
 
   const handlePhotoUpload = async (file) => {
     if (!file) return;
-    const fd = new FormData();
-    fd.append("image", file);
     try {
       setUploading(true);
       setError("");
-      const res = await apiClient.post("/upload/image", fd);
+      const res = await uploadAsset({
+        endpoint: "/upload/image",
+        fieldName: "image",
+        file,
+      });
       setFormData((f) => ({ ...f, photoUrl: res.data.fileUrl }));
-    } catch {
-      setError("Photo upload failed. Ensure the file is an image under 5MB.");
+    } catch (error) {
+      setError(getUploadErrorMessage(error, "Photo upload failed."));
     } finally {
       setUploading(false);
     }

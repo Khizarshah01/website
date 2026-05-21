@@ -12,6 +12,10 @@ import {
   FaUpload,
 } from "react-icons/fa";
 import { getErrorMessage, logUnexpectedError } from "../../utils/apiErrors";
+import {
+  getUploadErrorMessage,
+  uploadAsset,
+} from "../../utils/uploadClient";
 
 const IQAC_CATEGORIES = [
   "AQAR",
@@ -100,9 +104,11 @@ const AdminIQAC = () => {
     setError("");
 
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await apiClient.post("/upload/file", fd);
+      const res = await uploadAsset({
+        endpoint: "/upload/file",
+        fieldName: "file",
+        file,
+      });
       const fileUrl = res.data?.fileUrl || res.data?.url;
       if (!fileUrl) throw new Error("Upload URL missing");
 
@@ -115,7 +121,7 @@ const AdminIQAC = () => {
       }));
       setUploadedFileName(file.name);
     } catch (err) {
-      setError(getErrorMessage(err, "Failed to upload file"));
+      setError(getUploadErrorMessage(err, "Failed to upload file"));
     } finally {
       setUploading(false);
     }

@@ -12,6 +12,10 @@ import {
 import AdminLayout from "../../components/admin/AdminLayout";
 import apiClient from "../../utils/apiClient";
 import { resolveUploadedAssetUrl } from "../../utils/uploadUrls";
+import {
+  getUploadErrorMessage,
+  uploadAsset,
+} from "../../utils/uploadClient";
 
 const FALLBACK_CATEGORIES = [
   "Campus",
@@ -208,12 +212,16 @@ const AdminGallery = () => {
     try {
       setUploading(true);
       setError("");
-      const res = await apiClient.post("/upload/image", fd);
+      const res = await uploadAsset({
+        endpoint: "/upload/image",
+        fieldName: "image",
+        file,
+      });
       const uploadedUrl = res.data?.fileUrl || res.data?.url || "";
       if (!uploadedUrl) throw new Error("Upload URL missing.");
       setImageForm((currentForm) => ({ ...currentForm, imageUrl: uploadedUrl }));
-    } catch {
-      setError("Image upload failed. Please upload an image under 20MB.");
+    } catch (err) {
+      setError(getUploadErrorMessage(err, "Image upload failed."));
     } finally {
       setUploading(false);
     }

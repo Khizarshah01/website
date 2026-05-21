@@ -13,6 +13,10 @@ import {
 } from "../../constants/researchDepartmentLinks";
 import { resolveUploadedAssetUrl } from "../../utils/uploadUrls";
 import { sanitizeMarkdownHtml } from "../../utils/sanitizeMarkdown";
+import {
+  getUploadErrorMessage,
+  uploadAsset,
+} from "../../utils/uploadClient";
 import DepartmentRedirectGrid from "../research/DepartmentRedirectGrid";
 import {
   FaCheck,
@@ -1508,9 +1512,11 @@ const MarkdownEditor = ({
     if (!file || !file.type.startsWith("image/")) return;
     setUploadingImage(true);
     try {
-      const formData = new FormData();
-      formData.append("image", file);
-      const res = await apiClient.post("/upload/image", formData);
+      const res = await uploadAsset({
+        endpoint: "/upload/image",
+        fieldName: "image",
+        file,
+      });
       const url = res.data.fileUrl || res.data.url;
       if (url) {
         setPendingImageUrl(url);
@@ -1519,9 +1525,7 @@ const MarkdownEditor = ({
       }
     } catch (err) {
       console.error("Image upload failed:", err);
-      alert(
-        "Image upload failed: " + (err.response?.data?.message || err.message),
-      );
+      alert("Image upload failed: " + getUploadErrorMessage(err));
     } finally {
       setUploadingImage(false);
     }
@@ -1531,17 +1535,17 @@ const MarkdownEditor = ({
     if (!file) return;
     setUploadingFile(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await apiClient.post("/upload/file", formData);
+      const res = await uploadAsset({
+        endpoint: "/upload/file",
+        fieldName: "file",
+        file,
+      });
       const url = res.data.fileUrl || res.data.url;
       const name = res.data.originalName || file.name;
       if (url) insertAtCursor(`\n[📄 ${name}](${url})\n`);
     } catch (err) {
       console.error("File upload failed:", err);
-      alert(
-        "File upload failed: " + (err.response?.data?.message || err.message),
-      );
+      alert("File upload failed: " + getUploadErrorMessage(err));
     } finally {
       setUploadingFile(false);
     }

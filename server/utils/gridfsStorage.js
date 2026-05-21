@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const fs = require("fs");
 
 const BUCKET_NAME = "uploads";
 const VALID_CATEGORIES = new Set(["images", "documents", "nirf"]);
@@ -54,6 +55,38 @@ const uploadBufferToGridFS = async ({
   });
 };
 
+const uploadFileToGridFS = async ({
+  filePath,
+  filename,
+  contentType,
+  category,
+  originalName = "",
+  scope = "",
+}) => {
+  const normalizedCategory = normalizeCategory(category);
+  if (!normalizedCategory) {
+    throw new Error("Invalid upload category.");
+  }
+
+  return new Promise((resolve, reject) => {
+    const bucket = getBucket();
+    const uploadStream = bucket.openUploadStream(filename, {
+      contentType,
+      metadata: {
+        category: normalizedCategory,
+        originalName,
+        scope: String(scope || "").trim().toLowerCase(),
+      },
+    });
+    const sourceStream = fs.createReadStream(filePath);
+
+    sourceStream.on("error", reject);
+    uploadStream.on("error", reject);
+    uploadStream.on("finish", resolve);
+    sourceStream.pipe(uploadStream);
+  });
+};
+
 const findLatestFileByName = async (filename, category) => {
   const normalizedCategory = normalizeCategory(category);
   if (!normalizedCategory || !filename) return null;
@@ -101,6 +134,7 @@ const deleteFilesByName = async (filename, category) => {
 module.exports = {
   normalizeCategory,
   uploadBufferToGridFS,
+  uploadFileToGridFS,
   findLatestFileByName,
   listFilesByCategory,
   deleteFilesByName,

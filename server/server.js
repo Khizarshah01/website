@@ -21,6 +21,9 @@ getJwtSecret();
 // ─── APP SETUP ────────────────────────────────────────────────────────────────
 const app = express();
 const PORT = process.env.PORT || 5000;
+const SERVER_REQUEST_TIMEOUT_MS = Number(
+  process.env.SERVER_REQUEST_TIMEOUT_MS || 15 * 60 * 1000,
+);
 
 app.set("trust proxy", 1);
 app.set("query parser", "simple");
@@ -405,14 +408,15 @@ app.use((err, req, res, _next) => {
   }
 
   if (err.code === "LIMIT_FILE_SIZE") {
-    const isDocRoute =
-      req.path.includes("/upload/file") ||
-      req.path.includes("/upload/nirf-pdf");
-    return res.status(400).json({
+    const isDocumentRoute =
+      req.path.includes("/upload/file") || req.path.includes("/upload/nirf-pdf");
+    const errorMessage = isDocumentRoute
+      ? "Uploaded document is too large for this endpoint."
+      : "Uploaded image is too large for this endpoint.";
+    return res.status(413).json({
       success: false,
-      error: isDocRoute
-        ? "File too large. Maximum size is 300MB for documents."
-        : "File too large. Maximum size is 300MB for images.",
+      error: errorMessage,
+      message: errorMessage,
     });
   }
 
@@ -533,7 +537,7 @@ connectToMongo()
   .then(({ uriLabel, connectMs }) => {
     console.log(`[OK] MongoDB connected in ${connectMs}ms using ${uriLabel}`);
 
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       const ip = process.env.SERVER_IP || "localhost";
       console.log(`\n[SERVER] Running on port ${PORT}`);
       console.log(`[ACCESS] http://${ip}:${PORT}`);
@@ -542,6 +546,9 @@ connectToMongo()
       console.log(`[HEALTH]  http://${ip}:${PORT}/api/health`);
       console.log(`\n[READY] Server is ready to accept requests!\n`);
     });
+    server.requestTimeout = SERVER_REQUEST_TIMEOUT_MS;
+    server.headersTimeout = SERVER_REQUEST_TIMEOUT_MS + 5000;
+    server.keepAliveTimeout = 65000;
 
     // Run DB seeding in the background so startup is not blocked.
     initializeDatabase()

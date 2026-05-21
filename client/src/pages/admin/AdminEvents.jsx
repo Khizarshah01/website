@@ -14,6 +14,10 @@ import AdminLayout from "../../components/admin/AdminLayout";
 import apiClient from "../../utils/apiClient";
 import { getErrorMessage, logUnexpectedError } from "../../utils/apiErrors";
 import { resolveUploadedAssetUrl } from "../../utils/uploadUrls";
+import {
+  getUploadErrorMessage,
+  uploadAsset,
+} from "../../utils/uploadClient";
 
 const FALLBACK_CATEGORIES = [
   "Technical",
@@ -240,12 +244,16 @@ const AdminEvents = () => {
     try {
       setUploading(true);
       setError("");
-      const res = await apiClient.post("/upload/image", fd);
+      const res = await uploadAsset({
+        endpoint: "/upload/image",
+        fieldName: "image",
+        file,
+      });
       const uploadedUrl = res.data?.fileUrl || res.data?.url || "";
       if (!uploadedUrl) throw new Error("Upload URL missing.");
       setEventForm((currentForm) => ({ ...currentForm, image: uploadedUrl }));
     } catch (err) {
-      setError(getErrorMessage(err, "Image upload failed. Please upload an image under 20MB."));
+      setError(getUploadErrorMessage(err, "Image upload failed."));
     } finally {
       setUploading(false);
     }
