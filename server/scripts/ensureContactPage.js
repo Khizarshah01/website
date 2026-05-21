@@ -10,7 +10,9 @@ dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 dotenv.config({ path: path.resolve(__dirname, "..", "..", ".env") });
 
 const uri =
-  process.env.MONGODB_DIRECT_URI || process.env.MONGODB_URI || "mongodb://localhost:27017/ssgmce";
+  process.env.MONGODB_DIRECT_URI ||
+  process.env.MONGODB_URI ||
+  "mongodb://localhost:27017/ssgmce";
 
 async function run() {
   await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
@@ -40,7 +42,14 @@ async function run() {
         order: 1,
         isVisible: true,
         content: {
-          text: `**Shri Sant Gajanan Maharaj College of Engineering (SSGMCE)**\n\nKhamgaon Road, SHEGAON – 444203, Dist. Buldhana (M.S.) INDIA\n\n**Official Phone:** 8669638081 / 8669638082\n**Email:** principal@ssgmce.ac.in, registrar@ssgmce.ac.in\n\nYou can edit this content from the Admin → Pages → Contact Us.`,
+          text: `**Shri Sant Gajanan Maharaj College of Engineering (SSGMCE)**
+
+Khamgaon Road, SHEGAON - 444203, Dist. Buldhana (M.S.) INDIA
+
+**Official Phone:** 8669638081 / 8669638082
+**Email:** principal@ssgmce.ac.in, registrar@ssgmce.ac.in
+
+You can edit this content from the Admin -> Pages -> Contact Us.`,
         },
       },
     ],

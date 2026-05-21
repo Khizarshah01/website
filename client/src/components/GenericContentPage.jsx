@@ -302,20 +302,20 @@ const buildAqarMarkdownFromItems = (items = [], sectionTitle = "") => {
 };
 
 const normalizeLegacyPageData = (pageId, pageData) => {
-  if (!pageData || String(pageId || "").toLowerCase() !== "research-phd") {
-    if (
-      String(pageId || "").toLowerCase() !== "research-ug-projects" &&
-      String(pageId || "").toLowerCase() !== "research-nisp"
-    ) {
-      return pageData;
-    }
-  }
+  if (!pageData) return pageData;
 
   const clonedSections = Array.isArray(pageData.sections)
     ? pageData.sections.map((section) => {
-        const text = section?.content?.text;
+        const content =
+          section?.type === "markdown" &&
+          typeof section?.content?.text !== "string" &&
+          typeof section?.content?.markdown === "string"
+            ? { ...section.content, text: section.content.markdown }
+            : section?.content;
+
+        const text = content?.text;
         if (typeof text !== "string") {
-          return section;
+          return content === section?.content ? section : { ...section, content };
         }
 
         let nextText = text;
@@ -353,7 +353,7 @@ const normalizeLegacyPageData = (pageId, pageData) => {
         return {
           ...section,
           content: {
-            ...section.content,
+            ...content,
             text: nextText,
           },
         };

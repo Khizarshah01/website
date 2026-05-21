@@ -537,6 +537,34 @@ const aboutPages = [
     isPublished: true,
     sections: [],
   },
+  {
+    pageId: "contact-us",
+    pageTitle: "Contact Us",
+    pageDescription: "Contact information and location",
+    route: "/contact",
+    category: "about",
+    template: "generic",
+    isPublished: true,
+    sections: [
+      {
+        sectionId: "contact-info",
+        title: "Contact Information",
+        type: "markdown",
+        order: 1,
+        isVisible: true,
+        content: {
+          text: `**Shri Sant Gajanan Maharaj College of Engineering (SSGMCE)**
+
+Khamgaon Road, SHEGAON - 444203, Dist. Buldhana (M.S.) INDIA
+
+**Official Phone:** 8669638081 / 8669638082
+**Email:** principal@ssgmce.ac.in, registrar@ssgmce.ac.in
+
+You can edit this content from the Admin -> Pages -> Contact Us.`,
+        },
+      },
+    ],
+  },
 ];
 
 // ──────────────────────────────────────────────────────────────
