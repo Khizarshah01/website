@@ -13,6 +13,10 @@ import {
 import AdminLayout from "../../components/admin/AdminLayout";
 import apiClient from "../../utils/apiClient";
 import { resolveUploadedAssetUrl } from "../../utils/uploadUrls";
+import {
+  getUploadErrorMessage,
+  uploadAsset,
+} from "../../utils/uploadClient";
 import alumniWaghImg from "../../assets/images/home/Alumni/Abhay_Wagh.jpg";
 import alumniKaulImg from "../../assets/images/home/Alumni/Umesh_Kaul.jpg";
 import alumniWankhedeImg from "../../assets/images/home/Alumni/Nitin-Wankhede.png";
@@ -103,20 +107,21 @@ const AdminAlumni = () => {
   const handleImageUpload = async (file) => {
     if (!file) return;
 
-    const fd = new FormData();
-    fd.append("image", file);
-
     try {
       setUploading(true);
       setError("");
-      const res = await apiClient.post("/upload/image", fd);
+      const res = await uploadAsset({
+        endpoint: "/upload/image",
+        fieldName: "image",
+        file,
+      });
       const uploadedUrl = res.data?.fileUrl || res.data?.url || "";
       if (!uploadedUrl) {
         throw new Error("Upload response did not include a file URL.");
       }
       setFormData((current) => ({ ...current, imageUrl: uploadedUrl }));
-    } catch {
-      setError("Photo upload failed. Please use an image under 20MB.");
+    } catch (error) {
+      setError(getUploadErrorMessage(error, "Photo upload failed."));
     } finally {
       setUploading(false);
     }

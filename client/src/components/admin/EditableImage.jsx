@@ -1,13 +1,15 @@
 import React, { useState, useRef } from "react";
 import { useEdit } from "../../contexts/EditContext";
 import { FaUpload, FaTrash, FaTimes } from "react-icons/fa";
-import apiClient from "../../utils/apiClient";
 import {
   isGeneratedUploadImagePath,
   resolveUploadedAssetUrl,
 } from "../../utils/uploadUrls";
-
-const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024* 1024;
+import {
+  getUploadErrorMessage,
+  UPLOAD_LIMIT_TEXT,
+  uploadAsset,
+} from "../../utils/uploadClient";
 
 /**
  * EditableImage Component
@@ -36,6 +38,7 @@ const EditableImage = ({
   const [error, setError] = useState(null);
   const [showUploadUI, setShowUploadUI] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef(null);
 
   // Helper to safely get value from path
@@ -78,23 +81,16 @@ const EditableImage = ({
       return;
     }
 
-    // Validate file size (20MB limit)
-    if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      setError("File size must be less than 20MB");
-      return;
-    }
-
     setUploading(true);
     setError(null);
+    setUploadProgress(0);
 
     try {
-      const formData = new FormData();
-      formData.append("image", file);
-
-      const response = await apiClient.post("/upload/image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      const response = await uploadAsset({
+        endpoint: "/upload/image",
+        fieldName: "image",
+        file,
+        onProgress: setUploadProgress,
       });
 
       const newUrl =
@@ -119,9 +115,10 @@ const EditableImage = ({
       }
     } catch (err) {
       console.error("Upload error:", err);
-      setError(err.response?.data?.message || "Failed to upload image");
+      setError(getUploadErrorMessage(err, "Failed to upload image"));
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -209,7 +206,7 @@ const EditableImage = ({
             <div className="space-y-2">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Uploading...
+                Uploading... {uploadProgress > 0 ? `${uploadProgress}%` : ""}
               </p>
             </div>
           ) : (
@@ -228,7 +225,7 @@ const EditableImage = ({
                 </p>
               </div>
               <p className="text-xs text-gray-400 dark:text-gray-500">
-                Maximum file size: 20MB
+                {UPLOAD_LIMIT_TEXT.image}
               </p>
             </div>
           )}

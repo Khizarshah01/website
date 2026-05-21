@@ -3,6 +3,11 @@ import apiClient from "../../utils/apiClient";
 import AdminLayout from "../../components/admin/AdminLayout";
 import { resolveUploadedAssetUrl } from "../../utils/uploadUrls";
 import {
+  getUploadErrorMessage,
+  UPLOAD_LIMIT_TEXT,
+  uploadAsset,
+} from "../../utils/uploadClient";
+import {
   FaUsers,
   FaPlus,
   FaEdit,
@@ -68,20 +73,21 @@ const AdminRecruiters = () => {
   const handleLogoUpload = async (file) => {
     if (!file) return;
 
-    const fd = new FormData();
-    fd.append("image", file);
-
     try {
       setUploading(true);
       setError("");
-      const res = await apiClient.post("/upload/image", fd);
+      const res = await uploadAsset({
+        endpoint: "/upload/image",
+        fieldName: "image",
+        file,
+      });
       const uploadedUrl = res.data?.fileUrl || res.data?.url || "";
       if (!uploadedUrl) {
         throw new Error("Upload response did not include a file URL.");
       }
       setFormData((f) => ({ ...f, logoUrl: uploadedUrl }));
-    } catch {
-      setError("Logo upload failed. Ensure the file is an image under 20MB.");
+    } catch (error) {
+      setError(getUploadErrorMessage(error, "Logo upload failed."));
     } finally {
       setUploading(false);
     }
@@ -376,7 +382,7 @@ const AdminRecruiters = () => {
                       }}
                     />
                     <p className="text-xs text-gray-400 dark:text-gray-500">
-                      Or paste a URL below (JPG, PNG, SVG - max 20MB)
+                      Or paste a URL below. {UPLOAD_LIMIT_TEXT.image}
                     </p>
                     <input
                       type="text"

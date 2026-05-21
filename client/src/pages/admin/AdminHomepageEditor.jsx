@@ -13,6 +13,10 @@ import AdminLayout from "../../components/admin/AdminLayout";
 import { useAuth } from "../../hooks/useAuth";
 import apiClient from "../../utils/apiClient";
 import { resolveUploadedAssetUrl } from "../../utils/uploadUrls";
+import {
+  getUploadErrorMessage,
+  uploadAsset,
+} from "../../utils/uploadClient";
 
 const DEFAULT_HOME_CONFIG = {
   hero: {
@@ -262,13 +266,14 @@ const AdminHomepageEditor = () => {
   const uploadImage = async (path, file) => {
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("image", file);
-
     try {
       setUploadingPaths((prev) => ({ ...prev, [path]: true }));
       setError("");
-      const response = await apiClient.post("/upload/image", formData);
+      const response = await uploadAsset({
+        endpoint: "/upload/image",
+        fieldName: "image",
+        file,
+      });
       const uploadedUrl =
         response.data?.fileUrl || response.data?.url || response.data?.data?.fileUrl || "";
 
@@ -277,8 +282,8 @@ const AdminHomepageEditor = () => {
       }
 
       setField(path, uploadedUrl);
-    } catch (_error) {
-      setError("Image upload failed. Please use an image under 20MB.");
+    } catch (error) {
+      setError(getUploadErrorMessage(error, "Image upload failed."));
     } finally {
       setUploadingPaths((prev) => {
         const next = { ...prev };

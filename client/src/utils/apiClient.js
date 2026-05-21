@@ -137,6 +137,10 @@ apiClient.interceptors.request.use((config) => {
     } else {
       delete config.headers["Content-Type"];
     }
+
+    if (config.timeout == null || config.timeout <= 0) {
+      config.timeout = 15 * 60 * 1000;
+    }
   }
 
   const normalizedUrl = String(config.url || "").toLowerCase();

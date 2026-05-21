@@ -3,6 +3,10 @@ import apiClient from "../../utils/apiClient";
 import AdminLayout from "../../components/admin/AdminLayout";
 import { resolveUploadedAssetUrl } from "../../utils/uploadUrls";
 import {
+  getUploadErrorMessage,
+  uploadAsset,
+} from "../../utils/uploadClient";
+import {
   FaEye,
   FaEyeSlash,
   FaEdit,
@@ -21,7 +25,6 @@ const getApiErrorMessage = (error, fallbackMessage) =>
   error?.message ||
   fallbackMessage;
 
-const MAX_IMAGE_SIZE_BYTES = 1024 * 1024 * 1024;
 const SUPPORTED_IMAGE_MIME_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
@@ -81,21 +84,13 @@ const AdminPopupBanner = () => {
       return;
     }
 
-    if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      const message = "File too large. Maximum size is 300MB.";
-      setFormError(message);
-      alert(message);
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("image", file);
-
     setUploading(true);
     setFormError("");
     try {
-      const response = await apiClient.post("/upload/image", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const response = await uploadAsset({
+        endpoint: "/upload/image",
+        fieldName: "image",
+        file,
       });
 
       const imageUrl = response.data?.fileUrl || response.data?.url;
@@ -107,7 +102,7 @@ const AdminPopupBanner = () => {
       setImagePreview(imageUrl);
     } catch (error) {
       console.error("Error uploading image:", error);
-      const message = getApiErrorMessage(error, "Failed to upload image");
+      const message = getUploadErrorMessage(error, "Failed to upload image");
       setFormError(message);
       alert(message);
     } finally {

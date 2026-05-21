@@ -11,6 +11,10 @@ import {
   FaUpload,
 } from "react-icons/fa";
 import { getErrorMessage, logUnexpectedError } from "../../utils/apiErrors";
+import {
+  getUploadErrorMessage,
+  uploadAsset,
+} from "../../utils/uploadClient";
 
 const CATEGORIES = ["Announcement", "Admission", "Examination", "Result", "General"];
 const PRIORITIES = ["High", "Medium", "Low"];
@@ -69,14 +73,16 @@ const AdminNotices = () => {
     setUploading(true);
     setError("");
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await apiClient.post("/upload/file", fd);
+      const res = await uploadAsset({
+        endpoint: "/upload/file",
+        fieldName: "file",
+        file,
+      });
       const fileUrl = res.data?.fileUrl || res.data?.url;
       if (!fileUrl) throw new Error("Upload URL missing");
       setFormData((prev) => ({ ...prev, fileUrl }));
     } catch (err) {
-      setError(getErrorMessage(err, "Failed to upload file"));
+      setError(getUploadErrorMessage(err, "Failed to upload file"));
     } finally {
       setUploading(false);
     }

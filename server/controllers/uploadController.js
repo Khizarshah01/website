@@ -4,15 +4,19 @@ const fs = require("fs");
 const crypto = require("crypto");
 const {
   normalizeCategory,
-  uploadBufferToGridFS,
+  uploadFileToGridFS,
   findLatestFileByName,
   listFilesByCategory,
   deleteFilesByName,
   getBucket,
 } = require("../utils/gridfsStorage");
 
-const IMAGE_MAX_SIZE_BYTES = 1024 * 1024 * 1024;
-const DOCUMENT_MAX_SIZE_BYTES = 1024 * 1024 * 1024;
+const UPLOAD_TEMP_DIR = path.resolve(__dirname, "..", "uploads", ".tmp");
+const UPLOAD_MAX_IMAGE_MB = Number(process.env.UPLOAD_MAX_IMAGE_MB || 100);
+const UPLOAD_MAX_DOCUMENT_MB = Number(process.env.UPLOAD_MAX_DOCUMENT_MB || 250);
+const IMAGE_MAX_SIZE_BYTES = Math.max(UPLOAD_MAX_IMAGE_MB, 1) * 1024 * 1024;
+const DOCUMENT_MAX_SIZE_BYTES =
+  Math.max(UPLOAD_MAX_DOCUMENT_MB, 1) * 1024 * 1024;
 const ALLOWED_IMAGE_MIME_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
@@ -82,6 +86,8 @@ const shouldFallbackToLocalStorage = (error) =>
   error?.codeName === "AtlasError" ||
   String(error?.message || "").toLowerCase().includes("space quota");
 
+fs.mkdirSync(UPLOAD_TEMP_DIR, { recursive: true });
+
 const ensureLocalUploadDirectory = (category, filename) => {
   const uploadDir = path.resolve(
     __dirname,
@@ -94,11 +100,7 @@ const ensureLocalUploadDirectory = (category, filename) => {
   return path.join(uploadDir, path.basename(filename));
 };
 
-const writeBufferToLocalUploads = ({
-  buffer,
-  filename,
-  category,
-}) => {
+const moveTempFileToLocalUploads = async ({ sourcePath, filename, category }) => {
   const normalizedCategory = normalizeCategory(category);
   if (!normalizedCategory) {
     throw new Error("Invalid upload category.");
@@ -113,7 +115,16 @@ const writeBufferToLocalUploads = ({
     normalizedCategory,
     sanitizedFilename,
   );
-  fs.writeFileSync(filePath, buffer);
+  try {
+    await fs.promises.rename(sourcePath, filePath);
+  } catch (error) {
+    if (error?.code !== "EXDEV") {
+      throw error;
+    }
+
+    await fs.promises.copyFile(sourcePath, filePath);
+    await fs.promises.unlink(sourcePath);
+  }
 };
 
 const resolveUploadPath = (relativePath = "") => {
@@ -243,8 +254,24 @@ const createStoredFilename = (prefix, originalname) => {
   )}`;
 };
 
+const createTempFilename = (originalname = "") => {
+  const extension = path.extname(sanitizeOriginalName(originalname));
+  return `tmp-${crypto.randomBytes(16).toString("hex")}${extension}`;
+};
+
 const getExtension = (file = {}) =>
   path.extname(sanitizeOriginalName(file.originalname || "")).toLowerCase();
+
+const readFileSignature = async (filePath, length = 16) => {
+  const handle = await fs.promises.open(filePath, "r");
+  try {
+    const buffer = Buffer.alloc(length);
+    const { bytesRead } = await handle.read(buffer, 0, length, 0);
+    return buffer.subarray(0, bytesRead);
+  } finally {
+    await handle.close();
+  }
+};
 
 const imageLooksValid = (buffer = Buffer.alloc(0), mimeType = "") => {
   if (!Buffer.isBuffer(buffer) || buffer.length < 4) {
@@ -290,8 +317,9 @@ const imageLooksValid = (buffer = Buffer.alloc(0), mimeType = "") => {
 const fileLooksLikePdf = (buffer = Buffer.alloc(0)) =>
   Buffer.isBuffer(buffer) && buffer.subarray(0, 5).toString("ascii") === "%PDF-";
 
-const validateUploadedFile = (file, mode) => {
+const validateUploadedFile = async (file, mode) => {
   const extension = getExtension(file);
+  const signature = await readFileSignature(file.path);
 
   if (mode === "image") {
     if (
@@ -301,7 +329,7 @@ const validateUploadedFile = (file, mode) => {
       throw new Error("Only JPG/JPEG/JFIF, PNG, WEBP, and GIF image files are allowed.");
     }
 
-    if (!imageLooksValid(file.buffer, file.mimetype)) {
+    if (!imageLooksValid(signature, file.mimetype)) {
       throw new Error("Uploaded image content does not match the file type.");
     }
     return;
@@ -312,7 +340,7 @@ const validateUploadedFile = (file, mode) => {
     throw new Error("Invalid file type. The file extension does not match the uploaded document type.");
   }
 
-  if (file.mimetype === "application/pdf" && !fileLooksLikePdf(file.buffer)) {
+  if (file.mimetype === "application/pdf" && !fileLooksLikePdf(signature)) {
     throw new Error("Uploaded PDF content does not match the file type.");
   }
 };
@@ -346,13 +374,25 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+const tempStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, UPLOAD_TEMP_DIR),
+  filename: (_req, file, cb) => cb(null, createTempFilename(file.originalname)),
+});
+
+const createUploadHandler = ({ fileFilter, maxBytes }) =>
+  multer({
+    storage: tempStorage,
+    fileFilter,
+    limits: {
+      fileSize: maxBytes,
+      files: 1,
+    },
+  });
+
 // Multer upload instance (images + PDFs)
-const upload = multer({
-  storage: multer.memoryStorage(),
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: IMAGE_MAX_SIZE_BYTES,
-  },
+const upload = createUploadHandler({
+  fileFilter,
+  maxBytes: IMAGE_MAX_SIZE_BYTES,
 });
 
 // --- Document / file upload ---
@@ -371,13 +411,21 @@ const documentFilter = (req, file, cb) => {
   }
 };
 
-const documentUpload = multer({
-  storage: multer.memoryStorage(),
+const documentUpload = createUploadHandler({
   fileFilter: documentFilter,
-  limits: {
-    fileSize: DOCUMENT_MAX_SIZE_BYTES,
-  },
+  maxBytes: DOCUMENT_MAX_SIZE_BYTES,
 });
+
+const cleanupTempUpload = async (filePath) => {
+  if (!filePath) return;
+  try {
+    await fs.promises.unlink(filePath);
+  } catch (error) {
+    if (error?.code !== "ENOENT") {
+      console.warn("[UPLOAD] Failed to remove temporary upload:", error);
+    }
+  }
+};
 
 // Upload single image handler
 const uploadSingleImage = async (req, res) => {
@@ -388,13 +436,13 @@ const uploadSingleImage = async (req, res) => {
         .json({ success: false, message: "No file uploaded" });
     }
 
-    validateUploadedFile(req.file, "image");
+    await validateUploadedFile(req.file, "image");
     const originalName = sanitizeOriginalName(req.file.originalname);
     const scope = resolveUploadScope(req);
     const filename = buildScopedFilename(scope, "upload", originalName);
     try {
-      await uploadBufferToGridFS({
-        buffer: req.file.buffer,
+      await uploadFileToGridFS({
+        filePath: req.file.path,
         filename,
         contentType: req.file.mimetype,
         category: "images",
@@ -409,8 +457,8 @@ const uploadSingleImage = async (req, res) => {
       console.warn(
         "[UPLOAD] GridFS unavailable or over quota. Falling back to local disk storage for image upload.",
       );
-      writeBufferToLocalUploads({
-        buffer: req.file.buffer,
+      await moveTempFileToLocalUploads({
+        sourcePath: req.file.path,
         filename,
         category: "images",
       });
@@ -427,6 +475,8 @@ const uploadSingleImage = async (req, res) => {
   } catch (error) {
     console.error("Upload error:", error);
     return sendUploadError(res, error, "File upload failed");
+  } finally {
+    await cleanupTempUpload(req.file?.path);
   }
 };
 
@@ -469,13 +519,13 @@ const uploadSingleDocument = async (req, res) => {
         .json({ success: false, message: "No file uploaded" });
     }
 
-    validateUploadedFile(req.file, "document");
+    await validateUploadedFile(req.file, "document");
     const originalName = sanitizeOriginalName(req.file.originalname);
     const scope = resolveUploadScope(req);
     const filename = buildScopedFilename(scope, "document", originalName);
     try {
-      await uploadBufferToGridFS({
-        buffer: req.file.buffer,
+      await uploadFileToGridFS({
+        filePath: req.file.path,
         filename,
         contentType: req.file.mimetype,
         category: "documents",
@@ -490,8 +540,8 @@ const uploadSingleDocument = async (req, res) => {
       console.warn(
         "[UPLOAD] GridFS unavailable or over quota. Falling back to local disk storage for document upload.",
       );
-      writeBufferToLocalUploads({
-        buffer: req.file.buffer,
+      await moveTempFileToLocalUploads({
+        sourcePath: req.file.path,
         filename,
         category: "documents",
       });
@@ -509,6 +559,8 @@ const uploadSingleDocument = async (req, res) => {
   } catch (error) {
     console.error("Document upload error:", error);
     return sendUploadError(res, error, "File upload failed");
+  } finally {
+    await cleanupTempUpload(req.file?.path);
   }
 };
 
@@ -548,7 +600,7 @@ const deleteFile = async (req, res) => {
 };
 
 const nirfUpload = multer({
-  storage: multer.memoryStorage(),
+  storage: tempStorage,
   fileFilter: (req, file, cb) => {
     if (file.mimetype === "application/pdf") {
       cb(null, true);
@@ -566,12 +618,12 @@ const uploadNirfPdf = async (req, res) => {
         .status(400)
         .json({ success: false, message: "No file uploaded" });
     }
-    validateUploadedFile(req.file, "document");
+    await validateUploadedFile(req.file, "document");
     const originalName = sanitizeOriginalName(req.file.originalname);
     const filename = createStoredFilename("nirf", originalName);
     try {
-      await uploadBufferToGridFS({
-        buffer: req.file.buffer,
+      await uploadFileToGridFS({
+        filePath: req.file.path,
         filename,
         contentType: req.file.mimetype,
         category: "nirf",
@@ -585,8 +637,8 @@ const uploadNirfPdf = async (req, res) => {
       console.warn(
         "[UPLOAD] GridFS unavailable or over quota. Falling back to local disk storage for NIRF upload.",
       );
-      writeBufferToLocalUploads({
-        buffer: req.file.buffer,
+      await moveTempFileToLocalUploads({
+        sourcePath: req.file.path,
         filename,
         category: "nirf",
       });
@@ -602,6 +654,8 @@ const uploadNirfPdf = async (req, res) => {
   } catch (error) {
     console.error("NIRF PDF upload error:", error);
     return sendUploadError(res, error, "File upload failed");
+  } finally {
+    await cleanupTempUpload(req.file?.path);
   }
 };
 

@@ -17,6 +17,10 @@ import {
 } from "react-icons/fa";
 import { getErrorMessage, logUnexpectedError } from "../../utils/apiErrors";
 import { resolveDocumentUrl } from "../../utils/contentUrls";
+import {
+  getUploadErrorMessage,
+  uploadAsset,
+} from "../../utils/uploadClient";
 
 const DOCUMENT_CATEGORIES = [
   "aicte",
@@ -239,9 +243,11 @@ const AdminDocuments = () => {
     setUploading(true);
     setError("");
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await apiClient.post("/upload/file", fd);
+      const res = await uploadAsset({
+        endpoint: "/upload/file",
+        fieldName: "file",
+        file,
+      });
       const fileUrl = res.data?.fileUrl || res.data?.url;
       if (!fileUrl) {
         throw new Error("Upload succeeded but file URL is missing.");
@@ -255,7 +261,7 @@ const AdminDocuments = () => {
       }));
       setUploadedFileName(file.name);
     } catch (err) {
-      setError(getErrorMessage(err, "File upload failed"));
+      setError(getUploadErrorMessage(err, "File upload failed"));
     } finally {
       setUploading(false);
     }

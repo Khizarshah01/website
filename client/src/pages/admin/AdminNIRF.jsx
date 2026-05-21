@@ -2,6 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import apiClient from "../../utils/apiClient";
 import AdminLayout from "../../components/admin/AdminLayout";
 import {
+  getUploadErrorMessage,
+  UPLOAD_LIMIT_TEXT,
+  uploadAsset,
+} from "../../utils/uploadClient";
+import {
   FaGraduationCap,
   FaPlus,
   FaEdit,
@@ -83,13 +88,15 @@ const AdminNIRF = () => {
     setUploading(true);
     setError("");
     try {
-      const fd = new FormData();
-      fd.append("pdf", file);
-      const res = await apiClient.post("/upload/nirf-pdf", fd);
+      const res = await uploadAsset({
+        endpoint: "/upload/nirf-pdf",
+        fieldName: "pdf",
+        file,
+      });
       setFormData((f) => ({ ...f, reportUrl: res.data.fileUrl }));
       setUploadedFileName(file.name);
     } catch (err) {
-      setError(err.response?.data?.message || "PDF upload failed.");
+      setError(getUploadErrorMessage(err, "PDF upload failed."));
     } finally {
       setUploading(false);
     }
@@ -489,7 +496,7 @@ const AdminNIRF = () => {
                     <div className="text-gray-400">
                       <FaUpload className="text-2xl mx-auto mb-1" />
                       <p className="text-sm">Click to upload PDF</p>
-                      <p className="text-xs mt-0.5">Max 20MB</p>
+                      <p className="text-xs mt-0.5">{UPLOAD_LIMIT_TEXT.nirf}</p>
                     </div>
                   )}
                 </div>
