@@ -21,7 +21,7 @@ const getApiErrorMessage = (error, fallbackMessage) =>
   error?.message ||
   fallbackMessage;
 
-const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 1024 * 1024 * 1024;
 const SUPPORTED_IMAGE_MIME_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
@@ -82,7 +82,7 @@ const AdminPopupBanner = () => {
     }
 
     if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      const message = "File too large. Maximum size is 20MB.";
+      const message = "File too large. Maximum size is 300MB.";
       setFormError(message);
       alert(message);
       return;

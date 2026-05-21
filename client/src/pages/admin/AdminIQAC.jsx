@@ -110,7 +110,7 @@ const AdminIQAC = () => {
       setFormData((prev) => ({
         ...prev,
         fileUrl,
-        fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+        fileSize: `${(file.size / (1024 * 1024* 1024)).toFixed(2)} GB`,
         fileType: FILE_TYPES.includes(ext) ? ext : "other",
       }));
       setUploadedFileName(file.name);
