@@ -12,7 +12,7 @@ const {
 } = require("../utils/gridfsStorage");
 
 const IMAGE_MAX_SIZE_BYTES = 1024 * 1024 * 1024;
-const DOCUMENT_MAX_SIZE_BYTES = 1024 * 1024 * 1024*;
+const DOCUMENT_MAX_SIZE_BYTES = 1024 * 1024 * 1024;
 const ALLOWED_IMAGE_MIME_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
