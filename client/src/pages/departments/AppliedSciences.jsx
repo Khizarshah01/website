@@ -743,18 +743,22 @@ const defaultAshOrientationHighlights = [
   {
     title: "Inauguration Ceremony",
     desc: "Traditional lamp lighting ceremony",
+    image: "",
   },
   {
     title: "Welcome Address",
     desc: "Faculty and administration welcoming students",
+    image: "",
   },
   {
     title: "Student Assembly",
     desc: "First-year students attending orientation",
+    image: "",
   },
   {
     title: "Interactive Session",
     desc: "Students engaging in group activities",
+    image: "",
   },
 ];
 
@@ -776,10 +780,14 @@ const normalizeOrientationProgram = (program = {}) => ({
 const normalizeOrientationHighlight = (highlight = {}) => ({
   title: String(highlight.title || "").trim(),
   desc: String(highlight.desc || "").trim(),
+  image: String(highlight.image || highlight.photo || "").trim(),
 });
 
 const getRenderedAshActivityImage = (activity = {}) =>
   resolveUploadedAssetUrl(String(activity?.image || "").trim());
+
+const getRenderedOrientationHighlightImage = (highlight = {}) =>
+  resolveUploadedAssetUrl(String(highlight?.image || "").trim());
 
 const formatAshActivityMarkdownField = (
   label,
@@ -1005,6 +1013,7 @@ const AppliedSciences = () => {
       {
         title: "New Highlight",
         desc: "Add a short description for this orientation highlight.",
+        image: "",
       },
       ...items,
     ]);
@@ -3080,6 +3089,16 @@ The department has three well equipped laboratories namely **Physics, Chemistry 
               >
                 {isEditing ? (
                   <div className="p-5 space-y-4">
+                    <EditableImage
+                      src={photo.image}
+                      onSave={(url) =>
+                        updateOrientationHighlight(index, "image", url)
+                      }
+                      alt={photo.title}
+                      className="w-full aspect-video object-cover rounded-lg border border-gray-200 bg-gray-50"
+                      placeholder="Click to upload orientation photo"
+                    />
+
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 grid gap-4 md:grid-cols-2">
                         <label className="block">
@@ -3134,16 +3153,26 @@ The department has three well equipped laboratories namely **Physics, Chemistry 
                   </div>
                 ) : (
                   <>
-                    {/* Image Placeholder */}
-                    <div className="aspect-video bg-gradient-to-br from-blue-100 via-blue-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
-                      <div className="absolute inset-0 bg-ssgmce-blue opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                      <div className="text-center z-10">
-                        <FaUniversity className="text-6xl text-blue-300 mx-auto mb-3 group-hover:text-blue-400 transition-colors" />
-                        <p className="text-sm text-gray-500 font-semibold px-4">
-                          {photo.title}
-                        </p>
+                    {photo.image ? (
+                      <div className="aspect-video bg-gray-100 overflow-hidden">
+                        <img
+                          src={getRenderedOrientationHighlightImage(photo)}
+                          alt={photo.title}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
                       </div>
-                    </div>
+                    ) : (
+                      <div className="aspect-video bg-gradient-to-br from-blue-100 via-blue-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
+                        <div className="absolute inset-0 bg-ssgmce-blue opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                        <div className="text-center z-10">
+                          <FaUniversity className="text-6xl text-blue-300 mx-auto mb-3 group-hover:text-blue-400 transition-colors" />
+                          <p className="text-sm text-gray-500 font-semibold px-4">
+                            {photo.title}
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Description */}
                     <div className="p-4 bg-gray-50">
