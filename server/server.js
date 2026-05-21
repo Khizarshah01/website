@@ -411,8 +411,8 @@ app.use((err, req, res, _next) => {
     return res.status(400).json({
       success: false,
       error: isDocRoute
-        ? "File too large. Maximum size is 50MB for documents."
-        : "File too large. Maximum size is 20MB for images.",
+        ? "File too large. Maximum size is 300MB for documents."
+        : "File too large. Maximum size is 300MB for images.",
     });
   }
 

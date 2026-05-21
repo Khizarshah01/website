@@ -33,7 +33,7 @@ const fileFilter = (_req, file, cb) => {
 const docUpload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  limits: { fileSize: 1024 * 1024 * 1024 }, // 10 GB
 });
 
 // --- PDF text → Markdown heuristics ---

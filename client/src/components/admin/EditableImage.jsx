@@ -7,7 +7,7 @@ import {
   resolveUploadedAssetUrl,
 } from "../../utils/uploadUrls";
 
-const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024* 1024;
 
 /**
  * EditableImage Component
