@@ -58,6 +58,11 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
     ]},
     { title: "Content", superAdminOnly: true, items: [
       { name: "Pages", path: "/admin/pages", icon: FaFileAlt },
+      {
+        name: "Fee Refund Policy",
+        path: "/admin/visual/admissions-fee-refund-policy",
+        icon: FaFileAlt,
+      },
       { name: "Homepage", path: "/admin/homepage", icon: FaHome },
       { name: "News & Updates", path: "/admin/news", icon: FaNewspaper },
       { name: "Notices", path: "/admin/notices", icon: FaBullhorn },
