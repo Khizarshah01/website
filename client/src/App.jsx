@@ -2114,6 +2114,7 @@ function App() {
                   </Layout>
                 }
               />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
         </Router>
