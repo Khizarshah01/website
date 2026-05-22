@@ -229,122 +229,128 @@ const AdminPopupBanner = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">Popup Banner Manager</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage home page popup announcements</p>
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">Popup Banner Manager</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">Manage home page popup announcements</p>
+            </div>
+            <button
+              onClick={() => setShowForm(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-[#003366] text-white rounded-lg hover:bg-[#004080] transition-colors"
+            >
+              <FaPlus /> Add New Banner
+            </button>
           </div>
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#003366] text-white rounded-lg hover:bg-[#004080] transition-colors"
-          >
-            <FaPlus /> Add New Banner
-          </button>
-        </div>
 
-        {/* Form Modal */}
-        {showForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-[#1a1a2e] rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-white dark:bg-[#1a1a2e] border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                  {editingId ? "Edit Banner" : "Create New Banner"}
-                </h2>
-                <button
-                  onClick={resetForm}
-                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600 transition-colors"
-                >
-                  <FaTimes size={20} />
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                {formError && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                    {formError}
-                  </div>
-                )}
-                {/* Title */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Popup Title *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="e.g. NAAC Congratulations"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#003366] focus:border-[#003366]"
-                    required
-                  />
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    This title is shown below the image in the popup.
-                  </p>
+          {/* Form Modal */}
+          {showForm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white dark:bg-[#1a1a2e] rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="sticky top-0 bg-white dark:bg-[#1a1a2e] border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                    {editingId ? "Edit Banner" : "Create New Banner"}
+                  </h2>
+                  <button
+                    onClick={resetForm}
+                    className="text-gray-400 dark:text-gray-500 hover:text-gray-600 transition-colors"
+                  >
+                    <FaTimes size={20} />
+                  </button>
                 </div>
 
-                {/* Description */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Description *
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#003366] focus:border-[#003366]"
-                    required
-                  />
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    This description is shown below the image for context.
-                  </p>
-                </div>
-
-                {/* Image Upload */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Banner Image *
-                  </label>
-                  <div className="space-y-3">
-                    <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-[#003366] transition-colors">
-                      <FaImage className="text-gray-400 dark:text-gray-500" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {uploading ? "Uploading..." : "Choose Image"}
-                      </span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                        disabled={uploading}
-                      />
+                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                  {formError && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                      {formError}
+                    </div>
+                  )}
+                  {/* Title */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Popup Title *
                     </label>
-                    {imagePreview && (
-                      <div className="relative">
-                        <img
-                          src={resolveUploadedAssetUrl(imagePreview)}
-                          alt="Preview"
-                          className="w-full max-h-80 object-contain rounded-lg bg-gray-50 dark:bg-gray-900"
-                        />
-                      </div>
-                    )}
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="e.g. NAAC Congratulations"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#003366] focus:border-[#003366]"
+                      required
+                    />
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      This title is shown below the image in the popup.
+                    </p>
                   </div>
-                </div>
 
-                {/* Link URL */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    <FaLink className="inline mr-2" />
-                    Link URL (optional)
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.linkUrl}
-                    onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
-                    placeholder="https://example.com"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#003366] focus:border-[#003366]"
-                  />
-                </div>
+                  {/* Description */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Description *
+                    </label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      rows="3"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#003366] focus:border-[#003366]"
+                      required
+                    />
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      This description is shown below the image for context.
+                    </p>
+                  </div>
+
+                  {/* Image Upload */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Banner Image *
+                    </label>
+                    <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
+                      Recommended: landscape image around 16:10. The popup will keep
+                      a fixed frame so unusual sizes do not break the UI.
+                    </p>
+                    <div className="space-y-3">
+                      <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-[#003366] transition-colors">
+                        <FaImage className="text-gray-400 dark:text-gray-500" />
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {uploading ? "Uploading..." : "Choose Image"}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          disabled={uploading}
+                        />
+                      </label>
+                      {imagePreview && (
+                        <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900">
+                          <div className="aspect-[16/10] w-full">
+                            <img
+                              src={resolveUploadedAssetUrl(imagePreview)}
+                              alt="Preview"
+                              className="h-full w-full object-cover sm:object-contain p-2"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Link URL */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      <FaLink className="inline mr-2" />
+                      Link URL (optional)
+                    </label>
+                    <input
+                      type="url"
+                      value={formData.linkUrl}
+                      onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
+                      placeholder="https://example.com"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#003366] focus:border-[#003366]"
+                    />
+                  </div>
 
                 {/* Date Range */}
                 <div className="grid grid-cols-2 gap-4">
