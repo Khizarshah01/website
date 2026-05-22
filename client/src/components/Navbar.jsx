@@ -25,7 +25,7 @@ const Navbar = () => {
   const quickLinksLeft = [
     { name: "FRA Fee Structure", to: "/admissions/fees" },
     { name: "Best Practices", to: "/iqac/practices" },
-    { name: "SSGMCE Blog", to: "/news" },
+    { name: "SSGMCE Blog", href: "https://blogssgmce.in/" },
     { name: "Grievance Form", to: "/contact" },
   ];
 
@@ -361,15 +361,27 @@ const Navbar = () => {
         <div className="container relative mx-auto px-3 py-3 md:px-4 md:py-4">
           <div className="mb-4 flex overflow-x-auto pb-2 -mx-3 px-3 md:mx-0 md:px-0 md:pb-0 md:flex-wrap md:items-center md:justify-between gap-2 md:gap-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex shrink-0 items-center gap-2 md:flex-wrap md:justify-start">
-              {quickLinksLeft.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.to}
-                  className="ssgmce-quick-pill"
-                >
-                  {link.name}
-                </Link>
-              ))}
+              {quickLinksLeft.map((link) =>
+                link.href ? (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="ssgmce-quick-pill"
+                  >
+                    {link.name}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.name}
+                    to={link.to}
+                    className="ssgmce-quick-pill"
+                  >
+                    {link.name}
+                  </Link>
+                ),
+              )}
             </div>
 
             <div className="flex shrink-0 items-center gap-2 md:flex-wrap md:justify-end">
