@@ -69,9 +69,8 @@ const PopupBannerModal = () => {
   const hasTextContent = Boolean(
     normalizedTitle || normalizedDescription || normalizedLinkUrl,
   );
-  const imageClassName = hasTextContent
-    ? "block h-[48vh] w-full object-cover sm:h-[52vh] md:h-[56vh]"
-    : "block h-[78vh] w-full object-cover";
+  const imageFrameClassName = "aspect-[16/10] w-full bg-slate-100 dark:bg-slate-900";
+  const imageClassName = "block h-full w-full object-cover sm:object-contain";
 
   const closeBanner = () => {
     if (banner) {
@@ -93,7 +92,7 @@ const PopupBannerModal = () => {
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-950/70 px-2 py-2 backdrop-blur-sm">
-      <div className="relative flex max-h-[94vh] w-[min(92vw,560px)] flex-col overflow-y-auto rounded-2xl bg-white shadow-2xl">
+      <div className="relative flex max-h-[94vh] w-[min(92vw,560px)] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
         <button
           type="button"
           onClick={closeBanner}
@@ -103,14 +102,14 @@ const PopupBannerModal = () => {
           <FaTimes />
         </button>
 
-        <div className="w-full shrink-0">
+        <div className={imageFrameClassName}>
           {normalizedLinkUrl ? (
             <a
               href={normalizedLinkUrl}
               target="_blank"
               rel="noreferrer"
               onClick={closeBanner}
-              className="block w-full"
+              className="block h-full w-full"
             >
               <img
                 src={imageUrl}
@@ -128,7 +127,7 @@ const PopupBannerModal = () => {
         </div>
 
         {hasTextContent ? (
-          <div className="max-h-[34vh] overflow-y-auto bg-white p-5 md:p-6">
+          <div className="max-h-[34vh] overflow-y-auto border-t border-slate-100 bg-white p-5 md:p-6">
             {normalizedTitle ? (
               <h2 className="text-xl font-bold text-slate-900 md:text-2xl">
                 {normalizedTitle}
