@@ -974,6 +974,48 @@ const admissionsPages = [
     sections: [],
   },
   {
+    pageId: "admissions-fee-refund-policy",
+    pageTitle: "Fee Refund Policy",
+    pageDescription: "College fee refund rules and process",
+    route: "/admissions/fee-refund-policy",
+    category: "admissions",
+    template: "generic",
+    isPublished: true,
+    sections: [
+      {
+        sectionId: "refund-policy-intro",
+        title: "Fee Refund Policy",
+        type: "markdown",
+        order: 1,
+        isVisible: true,
+        content: {
+          text: `## Fee Refund Policy
+
+This page describes the fee refund policy of Shri Sant Gajanan Maharaj College of Engineering (SSGMCE). The college follows the refund rules prescribed by the appropriate Government / Regulatory authorities (DTE / Shikshan Shulka Samiti / AICTE) and the terms listed below.
+
+### General Principles
+- Fees once paid are subject to refund only under the conditions outlined below.
+- Refunds are processed after verification of documents and relevant approvals.
+
+### Common Cases
+- Admission cancelled before the institute reporting date: Full tuition and development fees will be refunded after deduction of nominal administrative charges.
+- Admission cancelled after reporting but before the DTE/CAP cut-off date: Refunds will be as per the rules issued by DTE / Shikshan Shulka Samiti — prorated and subject to deductions.
+- Seat surrendered after the final cutoff / after classes start: Fees are generally non-refundable except where statutory rules mandate partial refund.
+
+### Procedure
+1. Submit a written application to the Admissions / Accounts Office with reason and supporting documents.
+2. College will verify the application and forward it to the Accounts Office for processing.
+3. Refunds will be processed to the original payer's bank account only (wherever applicable).
+
+### Contact
+For refund queries and application status, contact the Accounts Office: +91-7265-252274 (Ext. 206) or admissions@ssgmce.ac.in.
+
+*This is a standard template. Please update details as per statutory notifications and institute policy.*`,
+        },
+      },
+    ],
+  },
+  {
     pageId: "admissions-process",
     pageTitle: "Admission Process",
     pageDescription: "Step-by-step Admission Process",

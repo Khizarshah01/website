@@ -175,6 +175,7 @@ const Navbar = () => {
         { name: "MBA Program", path: "/admissions/mba" },
         { name: "Ph. D. Program", path: "/admissions/phd" },
         { name: "Fee Structure", path: "/admissions/fees" },
+        { name: "Fee Refund Policy", path: "/admissions/fee-refund-policy" },
       ],
     },
     {

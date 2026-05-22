@@ -85,6 +85,9 @@ const DocumentsRequired = lazy(
 );
 const DSEAdmissions = lazy(() => import("./pages/admissions/DSEAdmissions"));
 const FeeStructure = lazy(() => import("./pages/admissions/FeeStructure"));
+const FeeRefundPolicy = lazy(
+  () => import("./pages/admissions/FeeRefundPolicy"),
+);
 const InstituteBrochure = lazy(
   () => import("./pages/admissions/InstituteBrochure"),
 );
@@ -1187,6 +1190,14 @@ function App() {
                 element={
                   <Layout>
                     <FeeStructure />
+                  </Layout>
+                }
+              />
+              <Route
+                path="/admissions/fee-refund-policy"
+                element={
+                  <Layout>
+                    <FeeRefundPolicy />
                   </Layout>
                 }
               />

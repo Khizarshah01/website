@@ -82,6 +82,7 @@ const NAVBAR_ROUTE_ORDER = {
     "/admissions/mba",
     "/admissions/phd",
     "/admissions/fees",
+    "/admissions/fee-refund-policy",
   ],
   research: [
     "/research/rdc",
@@ -216,6 +217,7 @@ const VALID_ADMISSIONS_PAGEIDS = new Set([
   "admissions-mba",
   "admissions-phd",
   "admissions-fees",
+  "admissions-fee-refund-policy",
   "admissions-process",
   "admissions-seat-matrix",
   "admissions-documents",
