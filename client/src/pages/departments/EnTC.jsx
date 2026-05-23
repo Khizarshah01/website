@@ -1949,24 +1949,47 @@ const EnTC = () => {
     return getPlacementMarkdown(placementYear);
   };
 
+  const getPlacementCountFromMarkdown = (markdown = "") => {
+    const lines = String(markdown || "")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    const tableLines = lines.filter((line) => line.startsWith("|"));
+    if (tableLines.length < 3) return 0;
+
+    let lastSrNo = 0;
+
+    tableLines.slice(2).forEach((line) => {
+      const cells = entcParseMarkdownTableRow(line);
+      const firstCell = String(cells[0] || "").trim();
+      const match = firstCell.match(/^(\d+)/);
+
+      if (!match) return;
+
+      const parsed = Number(match[1]);
+      if (Number.isFinite(parsed)) {
+        lastSrNo = parsed;
+      }
+    });
+
+    return lastSrNo;
+  };
+
   const getPlacementCount = (year) => {
     const stored = getStoredPlacementValue(year);
 
-    if (Array.isArray(stored)) return stored.length;
-
-    if (typeof stored === "string" && stored.trim()) {
-      const lines = stored.split("\n").map((line) => line.trim());
-      const tableStart = lines.findIndex((line) =>
-        line.startsWith("| Sr. No."),
+    if (Array.isArray(stored)) {
+      return getPlacementCountFromMarkdown(
+        placementRecordsToMarkdown(year, stored),
       );
-      if (tableStart !== -1) {
-        return lines
-          .slice(tableStart + 2)
-          .filter((line) => line.startsWith("|")).length;
-      }
     }
 
-    return placementRecordsByYear[year]?.length || 0;
+    if (typeof stored === "string" && stored.trim()) {
+      return getPlacementCountFromMarkdown(stored);
+    }
+
+    return getPlacementCountFromMarkdown(getPlacementMarkdown(year));
   };
 
   const placementSummary = placementYearOrder.map((year) => ({
