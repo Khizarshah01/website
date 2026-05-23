@@ -1202,11 +1202,11 @@ const Electrical = () => {
     JSON.parse(
       JSON.stringify(
         contextData?.templateData?.industrialVisits?.items ||
-          tBase(
-            "templateData.industrialVisits.items",
-            defaultElectricalIndustrialVisits,
-          ) ||
+        tBase(
+          "templateData.industrialVisits.items",
           defaultElectricalIndustrialVisits,
+        ) ||
+        defaultElectricalIndustrialVisits,
       ),
     ).map((visit) => ({
       ...visit,
@@ -1222,8 +1222,8 @@ const Electrical = () => {
         id: String(visit?.id || createElectricalIndustrialVisitId()).trim(),
         industries: Array.isArray(visit?.industries)
           ? visit.industries
-              .map((item) => String(item || "").trim())
-              .filter(Boolean)
+            .map((item) => String(item || "").trim())
+            .filter(Boolean)
           : [],
         class: String(visit?.class || "").trim(),
         date: String(visit?.date || "").trim(),
@@ -1304,7 +1304,8 @@ const Electrical = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -1316,9 +1317,9 @@ const Electrical = () => {
         visits.map((visit) =>
           visit.id === visitId
             ? {
-                ...visit,
-                report: response.data.fileUrl,
-              }
+              ...visit,
+              report: response.data.fileUrl,
+            }
             : visit,
         ),
       );
@@ -1344,11 +1345,11 @@ const Electrical = () => {
     JSON.parse(
       JSON.stringify(
         contextData?.templateData?.industrialVisits?.gallery ||
-          tBase(
-            "templateData.industrialVisits.gallery",
-            defaultElectricalIndustrialVisitGallery,
-          ) ||
+        tBase(
+          "templateData.industrialVisits.gallery",
           defaultElectricalIndustrialVisitGallery,
+        ) ||
+        defaultElectricalIndustrialVisitGallery,
       ),
     );
 
@@ -1404,7 +1405,8 @@ const Electrical = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("image", file);
+
       const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
@@ -1441,8 +1443,8 @@ const Electrical = () => {
     JSON.parse(
       JSON.stringify(
         contextData?.templateData?.mous?.items ||
-          tBase("templateData.mous.items", defaultElectricalMous) ||
-          defaultElectricalMous,
+        tBase("templateData.mous.items", defaultElectricalMous) ||
+        defaultElectricalMous,
       ),
     ).map((mou) => ({
       ...mou,
@@ -1517,7 +1519,8 @@ const Electrical = () => {
     setMouReportErrors((prev) => ({ ...prev, [uploadKey]: "" }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const mous = getElectricalMous();
@@ -1601,12 +1604,12 @@ const Electrical = () => {
     JSON.parse(
       JSON.stringify(
         contextData?.templateData?.research?.[section]?.[year] ||
-          tBase(
-            `templateData.research.${section}.${year}`,
-            ELECTRICAL_RESEARCH_DEFAULTS[section]?.[year] || [],
-          ) ||
-          ELECTRICAL_RESEARCH_DEFAULTS[section]?.[year] ||
-          [],
+        tBase(
+          `templateData.research.${section}.${year}`,
+          ELECTRICAL_RESEARCH_DEFAULTS[section]?.[year] || [],
+        ) ||
+        ELECTRICAL_RESEARCH_DEFAULTS[section]?.[year] ||
+        [],
       ),
     );
 
@@ -1783,7 +1786,7 @@ const Electrical = () => {
           `templateData.researchReports.${year}`,
           `/uploads/documents/departments/electrical/publications/Electrical_${year}_Patent_Publication_Data.pdf`,
         )) ||
-        "",
+      "",
     ).trim();
 
   const uploadElectricalResearchReport = async (year, file) => {
@@ -1793,7 +1796,8 @@ const Electrical = () => {
     setResearchReportErrors((prev) => ({ ...prev, [uploadKey]: "" }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
       if (!response.data.fileUrl)
         throw new Error("Upload did not return a file URL.");
@@ -1870,13 +1874,13 @@ const Electrical = () => {
     const sections =
       headingMatches.length > 0
         ? headingMatches.map((match, index) => {
-            const start = match.index ?? 0;
-            const end =
-              index + 1 < headingMatches.length
-                ? headingMatches[index + 1].index
-                : text.length;
-            return { year: match[1].trim(), body: text.slice(start, end) };
-          })
+          const start = match.index ?? 0;
+          const end =
+            index + 1 < headingMatches.length
+              ? headingMatches[index + 1].index
+              : text.length;
+          return { year: match[1].trim(), body: text.slice(start, end) };
+        })
         : [{ year: fallbackYear, body: text }];
 
     const years = [];
@@ -1953,9 +1957,9 @@ const Electrical = () => {
     const normalizedRecords = orderedYears.reduce((acc, year) => {
       acc[year] = Array.isArray(records?.[year])
         ? records[year].map((project) => ({
-            no: String(project?.no || "").trim(),
-            title: String(project?.title || "").trim(),
-          }))
+          no: String(project?.no || "").trim(),
+          title: String(project?.title || "").trim(),
+        }))
         : [];
       return acc;
     }, {});
@@ -2032,7 +2036,7 @@ const Electrical = () => {
       : [];
     const recordYears = Object.keys(
       t("internships", defaultElectricalInternships) ||
-        defaultElectricalInternships,
+      defaultElectricalInternships,
     ).filter(isAcademicYearKey);
 
     return [...new Set([...storedYears, ...recordYears])]
@@ -2161,10 +2165,10 @@ const Electrical = () => {
     ...Object.keys(
       storedPlacementObject && typeof storedPlacementObject === "object"
         ? Object.fromEntries(
-            Object.entries(storedPlacementObject).filter(
-              ([key]) => !["years", "details", "markdown"].includes(key),
-            ),
-          )
+          Object.entries(storedPlacementObject).filter(
+            ([key]) => !["years", "details", "markdown"].includes(key),
+          ),
+        )
         : {},
     ),
   ]).sort(compareAcademicYearsDesc);
@@ -2438,7 +2442,8 @@ const Electrical = () => {
     setUploadingFiles((prev) => ({ ...prev, [uploadKey]: true }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         // Batch all three fields in a single update to avoid stale state race condition
@@ -2493,9 +2498,9 @@ const Electrical = () => {
     const nextActivities = sourceActivities.map((activity, activityIndex) =>
       activityIndex === idx
         ? normalizeElectricalActivity({
-            ...activity,
-            [field]: value,
-          })
+          ...activity,
+          [field]: value,
+        })
         : activity,
     );
 
@@ -2575,10 +2580,12 @@ const Electrical = () => {
 
   const deleteNewsletterFileIfNeeded = async (link) => {
     const deletablePath = getDeletableUploadPath(link);
-    if (!deletablePath) return;
+    if (!deletablePath) return;
+
 
     try {
-      await apiClient.delete("/upload/file", { params: {
+      await apiClient.delete("/upload/file", {
+        params: {
           path: deletablePath,
         },
       });
@@ -2647,7 +2654,8 @@ const Electrical = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -2767,10 +2775,12 @@ const Electrical = () => {
 
   const deleteAchievementFileIfNeeded = async (link) => {
     const deletablePath = getAchievementDeletableUploadPath(link);
-    if (!deletablePath) return;
+    if (!deletablePath) return;
+
 
     try {
-      await apiClient.delete("/upload/file", { params: {
+      await apiClient.delete("/upload/file", {
+        params: {
           path: deletablePath,
         },
       });
@@ -2804,7 +2814,8 @@ const Electrical = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("image", file);
+
       const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
@@ -4098,11 +4109,10 @@ const Electrical = () => {
               <button
                 key={tab}
                 onClick={() => setVmTab(tab)}
-                className={`px-8 py-4 font-bold text-sm uppercase tracking-wider transition-all relative ${
-                  vmTab === tab
-                    ? "text-ssgmce-blue bg-white"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                }`}
+                className={`px-8 py-4 font-bold text-sm uppercase tracking-wider transition-all relative ${vmTab === tab
+                  ? "text-ssgmce-blue bg-white"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  }`}
               >
                 <span className="inline-flex items-center gap-2">
                   {tab === "vision" ? (
@@ -4290,11 +4300,10 @@ const Electrical = () => {
               <button
                 key={tab.id}
                 onClick={() => setPoTab(tab.id)}
-                className={`px-6 py-4 font-bold text-sm transition-all relative whitespace-nowrap ${
-                  poTab === tab.id
-                    ? "text-white bg-[#003366]"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
+                className={`px-6 py-4 font-bold text-sm transition-all relative whitespace-nowrap ${poTab === tab.id
+                  ? "text-white bg-[#003366]"
+                  : "text-gray-600 hover:bg-gray-100"
+                  }`}
               >
                 {tab.label}
               </button>
@@ -5654,19 +5663,19 @@ Upon successful completion of this course, students will be able to:
                 <div className="flex gap-2 mb-4 justify-end">
                   {selectedCurriculumItems.filter((k) => k.startsWith("be-"))
                     .length > 0 && (
-                    <button
-                      onClick={() => deleteSelectedCurriculumItems("be")}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-xs font-semibold"
-                    >
-                      <FaTrash /> Delete Selected (
-                      {
-                        selectedCurriculumItems.filter((k) =>
-                          k.startsWith("be-"),
-                        ).length
-                      }
-                      )
-                    </button>
-                  )}
+                      <button
+                        onClick={() => deleteSelectedCurriculumItems("be")}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-xs font-semibold"
+                      >
+                        <FaTrash /> Delete Selected (
+                        {
+                          selectedCurriculumItems.filter((k) =>
+                            k.startsWith("be-"),
+                          ).length
+                        }
+                        )
+                      </button>
+                    )}
                   <button
                     onClick={() => addCurriculumItem("be")}
                     className="flex items-center gap-2 px-3 py-1.5 bg-ssgmce-blue text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-semibold"
@@ -5736,11 +5745,10 @@ Upon successful completion of this course, students will be able to:
                                 />
                                 <label
                                   htmlFor={`elec-file-upload-be-${i}`}
-                                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors ${
-                                    uploadingFiles[`be-${i}`]
-                                      ? "bg-gray-300 text-gray-500"
-                                      : "bg-blue-500 text-white hover:bg-blue-600"
-                                  }`}
+                                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors ${uploadingFiles[`be-${i}`]
+                                    ? "bg-gray-300 text-gray-500"
+                                    : "bg-blue-500 text-white hover:bg-blue-600"
+                                    }`}
                                   title="Upload PDF"
                                 >
                                   {uploadingFiles[`be-${i}`] ? (
@@ -5766,11 +5774,10 @@ Upon successful completion of this course, students will be able to:
                               href={item.fileUrl || item.link || "#"}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={`text-xs font-bold uppercase tracking-wide shrink-0 ${
-                                item.fileUrl || item.link
-                                  ? "text-ssgmce-blue hover:text-ssgmce-orange hover:underline cursor-pointer"
-                                  : "text-gray-400 cursor-not-allowed"
-                              }`}
+                              className={`text-xs font-bold uppercase tracking-wide shrink-0 ${item.fileUrl || item.link
+                                ? "text-ssgmce-blue hover:text-ssgmce-orange hover:underline cursor-pointer"
+                                : "text-gray-400 cursor-not-allowed"
+                                }`}
                               onClick={(e) => {
                                 if (
                                   !item.fileUrl &&
@@ -5805,19 +5812,19 @@ Upon successful completion of this course, students will be able to:
                 <div className="flex gap-2 mb-4 justify-end">
                   {selectedCurriculumItems.filter((k) => k.startsWith("me-"))
                     .length > 0 && (
-                    <button
-                      onClick={() => deleteSelectedCurriculumItems("me")}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-xs font-semibold"
-                    >
-                      <FaTrash /> Delete Selected (
-                      {
-                        selectedCurriculumItems.filter((k) =>
-                          k.startsWith("me-"),
-                        ).length
-                      }
-                      )
-                    </button>
-                  )}
+                      <button
+                        onClick={() => deleteSelectedCurriculumItems("me")}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-xs font-semibold"
+                      >
+                        <FaTrash /> Delete Selected (
+                        {
+                          selectedCurriculumItems.filter((k) =>
+                            k.startsWith("me-"),
+                          ).length
+                        }
+                        )
+                      </button>
+                    )}
                   <button
                     onClick={() => addCurriculumItem("me")}
                     className="flex items-center gap-2 px-3 py-1.5 bg-ssgmce-blue text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-semibold"
@@ -5864,11 +5871,10 @@ Upon successful completion of this course, students will be able to:
                                     )
                                   }
                                   placeholder="Link URL or use upload"
-                                  className={`text-xs px-2 py-1 border rounded w-40 ${
-                                    item.fileUrl
-                                      ? "border-green-400 bg-green-50"
-                                      : "border-gray-300"
-                                  }`}
+                                  className={`text-xs px-2 py-1 border rounded w-40 ${item.fileUrl
+                                    ? "border-green-400 bg-green-50"
+                                    : "border-gray-300"
+                                    }`}
                                 />
                                 {item.fileName && (
                                   <span
@@ -5891,13 +5897,12 @@ Upon successful completion of this course, students will be able to:
                                 />
                                 <label
                                   htmlFor={`elec-file-upload-me-${i}`}
-                                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors ${
-                                    uploadingFiles[`me-${i}`]
-                                      ? "bg-gray-300 text-gray-500"
-                                      : item.fileUrl
-                                        ? "bg-green-500 text-white hover:bg-green-600"
-                                        : "bg-blue-500 text-white hover:bg-blue-600"
-                                  }`}
+                                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors ${uploadingFiles[`me-${i}`]
+                                    ? "bg-gray-300 text-gray-500"
+                                    : item.fileUrl
+                                      ? "bg-green-500 text-white hover:bg-green-600"
+                                      : "bg-blue-500 text-white hover:bg-blue-600"
+                                    }`}
                                   title={
                                     item.fileUrl
                                       ? "Re-upload PDF"
@@ -5928,11 +5933,10 @@ Upon successful completion of this course, students will be able to:
                               href={item.fileUrl || item.link || "#"}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={`text-xs font-bold uppercase tracking-wide shrink-0 ${
-                                item.fileUrl || item.link
-                                  ? "text-ssgmce-blue hover:text-ssgmce-orange hover:underline cursor-pointer"
-                                  : "text-gray-400 cursor-not-allowed"
-                              }`}
+                              className={`text-xs font-bold uppercase tracking-wide shrink-0 ${item.fileUrl || item.link
+                                ? "text-ssgmce-blue hover:text-ssgmce-orange hover:underline cursor-pointer"
+                                : "text-gray-400 cursor-not-allowed"
+                                }`}
                               onClick={(e) => {
                                 if (
                                   !item.fileUrl &&
@@ -6127,11 +6131,10 @@ Upon successful completion of this course, students will be able to:
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className={`group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300  flex relative ${
-                isEditing && expandedFacultyEditorIndex === i
-                  ? "lg:col-span-2"
-                  : ""
-              }`}
+              className={`group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300  flex relative ${isEditing && expandedFacultyEditorIndex === i
+                ? "lg:col-span-2"
+                : ""
+                }`}
             >
               {/* Delete Button */}
               {isEditing && (
@@ -6453,11 +6456,10 @@ Upon successful completion of this course, students will be able to:
             <button
               key={tab.id}
               onClick={() => setResearchTab(tab.id)}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all text-sm ${
-                researchTab === tab.id
-                  ? "bg-[#003366] text-white shadow-md"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all text-sm ${researchTab === tab.id
+                ? "bg-[#003366] text-white shadow-md"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
             >
               {tab.label}
             </button>
@@ -6700,11 +6702,10 @@ Upon successful completion of this course, students will be able to:
                   <button
                     key={year}
                     onClick={() => setProjectYear(year)}
-                    className={`px-6 py-2.5 rounded-lg font-medium transition-all text-sm ${
-                      projectYear === year
-                        ? "bg-[#003366] text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
+                    className={`px-6 py-2.5 rounded-lg font-medium transition-all text-sm ${projectYear === year
+                      ? "bg-[#003366] text-white shadow-md"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
                   >
                     UG Project {year}
                   </button>
@@ -7032,7 +7033,7 @@ Upon successful completion of this course, students will be able to:
         <div className="space-y-5">
           {activitiesData.slice(0, activitiesVisible).map((activity, idx) => (
             <motion.div
-              key={idx}
+              key={`activity-${(activity.title || "").substring(0, 20)}-${(activity.date || "").substring(0, 20)}-${(activity.participants || "").substring(0, 20)}`}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.03, duration: 0.35 }}
@@ -7060,7 +7061,7 @@ Upon successful completion of this course, students will be able to:
                   {isEditing ? (
                     <EditableImage
                       src={activity.image}
-                      fallbackSrc={defaultActivities[idx]?.image || ""}
+                      fallbackSrc={activity.image === "" ? "" : (defaultActivities[idx]?.image || "")}
                       onSave={(url) => updateActivity(idx, "image", url)}
                       alt={activity.title}
                       className="w-full h-48 sm:h-full object-contain bg-gray-50"
@@ -7577,22 +7578,20 @@ Upon successful completion of this course, students will be able to:
             <div className="inline-flex rounded-lg bg-gray-100 p-1">
               <button
                 onClick={() => setAchievementTab("faculty")}
-                className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
-                  achievementTab === "faculty"
-                    ? "bg-[#003366] text-white shadow-md"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
-                }`}
+                className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${achievementTab === "faculty"
+                  ? "bg-[#003366] text-white shadow-md"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
+                  }`}
               >
                 <FaChalkboardTeacher className="text-lg" />
                 Faculty Achievements
               </button>
               <button
                 onClick={() => setAchievementTab("student")}
-                className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
-                  achievementTab === "student"
-                    ? "bg-[#003366] text-white shadow-md"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
-                }`}
+                className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${achievementTab === "student"
+                  ? "bg-[#003366] text-white shadow-md"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
+                  }`}
               >
                 <FaUserGraduate className="text-lg" />
                 Student Achievements
@@ -8982,11 +8981,10 @@ Upon successful completion of this course, students will be able to:
                     <button
                       key={year}
                       onClick={() => setPatentsYear(year)}
-                      className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${
-                        patentsYear === year
-                          ? "bg-ssgmce-blue text-white shadow-md"
-                          : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
-                      }`}
+                      className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${patentsYear === year
+                        ? "bg-ssgmce-blue text-white shadow-md"
+                        : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
+                        }`}
                     >
                       {year}
                     </button>
@@ -9082,11 +9080,10 @@ Upon successful completion of this course, students will be able to:
                     <button
                       key={year}
                       onClick={() => setPatentsYear(year)}
-                      className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${
-                        patentsYear === year
-                          ? "bg-ssgmce-blue text-white shadow-md"
-                          : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
-                      }`}
+                      className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${patentsYear === year
+                        ? "bg-ssgmce-blue text-white shadow-md"
+                        : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
+                        }`}
                     >
                       {year}
                     </button>
@@ -9195,11 +9192,10 @@ Upon successful completion of this course, students will be able to:
                     <button
                       key={year}
                       onClick={() => setPatentsYear(year)}
-                      className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${
-                        patentsYear === year
-                          ? "bg-ssgmce-blue text-white shadow-md"
-                          : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
-                      }`}
+                      className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${patentsYear === year
+                        ? "bg-ssgmce-blue text-white shadow-md"
+                        : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
+                        }`}
                     >
                       {year}
                     </button>
@@ -9292,11 +9288,10 @@ Upon successful completion of this course, students will be able to:
                     <button
                       key={year}
                       onClick={() => setPatentsYear(year)}
-                      className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${
-                        patentsYear === year
-                          ? "bg-ssgmce-blue text-white shadow-md"
-                          : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
-                      }`}
+                      className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${patentsYear === year
+                        ? "bg-ssgmce-blue text-white shadow-md"
+                        : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
+                        }`}
                     >
                       {year}
                     </button>
@@ -9534,11 +9529,10 @@ Upon successful completion of this course, students will be able to:
                 <button
                   key={year}
                   onClick={() => setInternshipYear(year)}
-                  className={`px-6 py-2 text-sm font-bold rounded-md transition-all ${
-                    internshipYear === year
-                      ? "bg-white text-ssgmce-blue shadow-md"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`px-6 py-2 text-sm font-bold rounded-md transition-all ${internshipYear === year
+                    ? "bg-white text-ssgmce-blue shadow-md"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   Session: {year}
                 </button>
@@ -9805,10 +9799,9 @@ Upon successful completion of this course, students will be able to:
   const SidebarLink = ({ id, label, index, collectionName }) => (
     <div
       className={`relative w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-between group overflow-hidden cursor-pointer
-        ${
-          activeTab === id
-            ? "bg-gradient-to-r from-ssgmce-blue to-ssgmce-dark-blue text-white shadow-lg border-l-4 border-ssgmce-orange"
-            : "text-gray-700 hover:bg-gradient-to-r hover:from-orange-50 hover:to-blue-50 hover:text-ssgmce-blue hover:shadow-md hover:scale-[1.02]"
+        ${activeTab === id
+          ? "bg-gradient-to-r from-ssgmce-blue to-ssgmce-dark-blue text-white shadow-lg border-l-4 border-ssgmce-orange"
+          : "text-gray-700 hover:bg-gradient-to-r hover:from-orange-50 hover:to-blue-50 hover:text-ssgmce-blue hover:shadow-md hover:scale-[1.02]"
         }`}
       onClick={() => setActiveTab(id)}
     >

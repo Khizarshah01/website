@@ -9,7 +9,8 @@
     "check:syntax": "node scripts/checkSyntax.js",
     "admin:sync": "node scripts/createAdmin.js",
     "seed:admin-office": "node scripts/seedAdminOfficePages.js",
-    "seed:admin-office:overwrite": "node scripts/seedAdminOfficePages.js --overwrite"
+    "seed:admin-office:overwrite": "node scripts/seedAdminOfficePages.js --overwrite",
+    "seed:department-admins": "node scripts/createDepartmentAdmins.js"
   },
   "keywords": [
     "mern",
