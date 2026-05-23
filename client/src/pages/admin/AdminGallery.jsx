@@ -69,7 +69,9 @@ const AdminGallery = () => {
   const [deleteCategoryId, setDeleteCategoryId] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [filterCategory, setFilterCategory] = useState("All");
+  const [modalType, setModalType] = useState("image");
   const fileInputRef = useRef(null);
+  const videoFileInputRef = useRef(null);
 
   const authHeader = () => ({});
 
@@ -203,11 +205,19 @@ const AdminGallery = () => {
     }
   }, [categoryOptions, defaultCategory, imageForm.category]);
 
+  useEffect(() => {
+    if (!showImageForm || modalType !== "video" || !videoFileInputRef.current) {
+      return;
+    }
+
+    const input = videoFileInputRef.current;
+    input.value = "";
+    // delay slightly to ensure modal is visible before opening file picker
+    setTimeout(() => input.click(), 50);
+  }, [showImageForm, modalType]);
+
   const handleImageUpload = async (file) => {
     if (!file) return;
-
-    const fd = new FormData();
-    fd.append("image", file);
 
     try {
       setUploading(true);
@@ -222,6 +232,27 @@ const AdminGallery = () => {
       setImageForm((currentForm) => ({ ...currentForm, imageUrl: uploadedUrl }));
     } catch (err) {
       setError(getUploadErrorMessage(err, "Image upload failed."));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleVideoUpload = async (file) => {
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      setError("");
+      const res = await uploadAsset({
+        endpoint: "/upload/video",
+        fieldName: "video",
+        file,
+      });
+      const uploadedUrl = res.data?.fileUrl || res.data?.url || "";
+      if (!uploadedUrl) throw new Error("Upload URL missing.");
+      setImageForm((currentForm) => ({ ...currentForm, imageUrl: uploadedUrl }));
+    } catch (err) {
+      setError(getUploadErrorMessage(err, "Video upload failed."));
     } finally {
       setUploading(false);
     }
@@ -399,7 +430,7 @@ const AdminGallery = () => {
               Gallery Images
             </h1>
             <p className="mt-1 text-gray-500 dark:text-gray-400">
-              Upload images and manage gallery categories from one place.
+              Upload images and videos and manage gallery categories from one place.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -412,11 +443,22 @@ const AdminGallery = () => {
             <button
               onClick={() => {
                 resetImageForm();
+                setModalType("image");
                 setShowImageForm(true);
               }}
               className="flex items-center gap-2 rounded-lg bg-cyan-600 px-5 py-2.5 font-medium text-white shadow-lg transition-colors hover:bg-cyan-700"
             >
               <FaPlus /> Add Image
+            </button>
+            <button
+              onClick={() => {
+                resetImageForm();
+                setModalType("video");
+                setShowImageForm(true);
+              }}
+              className="flex items-center gap-2 rounded-lg bg-slate-700 px-5 py-2.5 font-medium text-white shadow-lg transition-colors hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-500"
+            >
+              <FaUpload /> Upload Video
             </button>
           </div>
         </div>
@@ -537,7 +579,7 @@ const AdminGallery = () => {
               No Gallery Images
             </h3>
             <p className="text-gray-500 dark:text-gray-400">
-              Add your first gallery image using the button above.
+              Add your first gallery item using the button above.
             </p>
           </div>
         ) : (
@@ -608,7 +650,13 @@ const AdminGallery = () => {
           <div className="my-8 w-full max-w-xl rounded-2xl bg-white shadow-2xl dark:bg-[#1a1a2e]">
             <div className="flex items-center justify-between border-b border-gray-200 p-6 dark:border-gray-700">
               <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-                {editingImageId ? "Edit Gallery Image" : "Add Gallery Image"}
+                {editingImageId
+                  ? modalType === "video"
+                    ? "Edit Gallery Video"
+                    : "Edit Gallery Image"
+                  : modalType === "video"
+                  ? "Add Gallery Video"
+                  : "Add Gallery Image"}
               </h2>
               <button
                 onClick={resetImageForm}
@@ -621,16 +669,30 @@ const AdminGallery = () => {
             <form onSubmit={handleImageSubmit} className="space-y-5 p-6">
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Image *
+                  {modalType === "video" ? "Video *" : "Image *"}
                 </label>
                 <div className="flex items-start gap-4">
                   <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-800/50">
                     {imageForm.imageUrl ? (
-                      <img
-                        src={resolveUploadedAssetUrl(imageForm.imageUrl)}
-                        alt="Preview"
-                        className="h-full w-full object-cover"
-                      />
+                      (() => {
+                        const url = String(imageForm.imageUrl || "");
+                        const isVideo = /\.(mp4|webm|ogg)(\?.*)?$/i.test(url) || url.includes("/uploads/videos/");
+                        if (isVideo) {
+                          return (
+                            <video controls className="h-full w-full object-cover">
+                              <source src={resolveUploadedAssetUrl(imageForm.imageUrl)} />
+                              Your browser does not support the video tag.
+                            </video>
+                          );
+                        }
+                        return (
+                          <img
+                            src={resolveUploadedAssetUrl(imageForm.imageUrl)}
+                            alt="Preview"
+                            className="h-full w-full object-cover"
+                          />
+                        );
+                      })()
                     ) : (
                       <FaFileImage className="text-2xl text-gray-300 dark:text-gray-600" />
                     )}
@@ -639,9 +701,16 @@ const AdminGallery = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        if (fileInputRef.current) {
-                          fileInputRef.current.value = "";
-                          fileInputRef.current.click();
+                        if (modalType === "video") {
+                          if (videoFileInputRef.current) {
+                            videoFileInputRef.current.value = "";
+                            videoFileInputRef.current.click();
+                          }
+                        } else {
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = "";
+                            fileInputRef.current.click();
+                          }
                         }
                       }}
                       disabled={uploading}
@@ -652,7 +721,7 @@ const AdminGallery = () => {
                       ) : (
                         <FaUpload />
                       )}
-                      {uploading ? "Uploading..." : "Upload Image"}
+                      {uploading ? "Uploading..." : modalType === "video" ? "Upload Video" : "Upload Image"}
                     </button>
                     <input
                       ref={fileInputRef}
@@ -666,9 +735,20 @@ const AdminGallery = () => {
                       }}
                     />
                     <input
+                      ref={videoFileInputRef}
+                      type="file"
+                      accept="video/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const selectedFile = e.target.files?.[0];
+                        handleVideoUpload(selectedFile);
+                        e.target.value = "";
+                      }}
+                    />
+                    <input
                       type="text"
                       inputMode="url"
-                      placeholder="https://... or /uploads/images/..."
+                      placeholder={modalType === "video" ? "https://... or /uploads/videos/..." : "https://... or /uploads/images/..."}
                       value={imageForm.imageUrl}
                       onChange={(e) =>
                         setImageForm((currentForm) => ({
@@ -767,7 +847,13 @@ const AdminGallery = () => {
                   className="flex items-center gap-2 rounded-lg bg-cyan-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-cyan-700"
                 >
                   <FaSave />
-                  {editingImageId ? "Update Image" : "Add Image"}
+                  {editingImageId
+                    ? modalType === "video"
+                      ? "Update Video"
+                      : "Update Image"
+                    : modalType === "video"
+                    ? "Add Video"
+                    : "Add Image"}
                 </button>
               </div>
             </form>

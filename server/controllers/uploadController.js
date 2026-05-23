@@ -14,6 +14,7 @@ const {
 const UPLOAD_TEMP_DIR = path.resolve(__dirname, "..", "uploads", ".tmp");
 const UPLOAD_MAX_IMAGE_MB = Number(process.env.UPLOAD_MAX_IMAGE_MB || 100);
 const UPLOAD_MAX_DOCUMENT_MB = Number(process.env.UPLOAD_MAX_DOCUMENT_MB || 250);
+const UPLOAD_MAX_VIDEO_MB = Number(process.env.UPLOAD_MAX_VIDEO_MB || 1024);
 const IMAGE_MAX_SIZE_BYTES = Math.max(UPLOAD_MAX_IMAGE_MB, 1) * 1024 * 1024;
 const DOCUMENT_MAX_SIZE_BYTES =
   Math.max(UPLOAD_MAX_DOCUMENT_MB, 1) * 1024 * 1024;
@@ -33,6 +34,12 @@ const ALLOWED_IMAGE_EXTENSIONS = new Set([
   ".webp",
   ".gif",
 ]);
+const ALLOWED_VIDEO_MIME_TYPES = new Set([
+  "video/mp4",
+  "video/webm",
+  "video/ogg",
+]);
+const ALLOWED_VIDEO_EXTENSIONS = new Set([".mp4", ".webm", ".ogg"]);
 const DOCUMENT_MIME_TO_EXTENSIONS = {
   "application/pdf": [".pdf"],
   "application/msword": [".doc"],
@@ -395,6 +402,19 @@ const upload = createUploadHandler({
   maxBytes: IMAGE_MAX_SIZE_BYTES,
 });
 
+// Multer upload instance (videos)
+const videoUpload = createUploadHandler({
+  fileFilter: (req, file, cb) => {
+    const extension = getExtension(file);
+    if (ALLOWED_VIDEO_MIME_TYPES.has(file.mimetype) && ALLOWED_VIDEO_EXTENSIONS.has(extension)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only MP4, WEBM and OGG video files are allowed."), false);
+    }
+  },
+  maxBytes: Math.max(UPLOAD_MAX_VIDEO_MB, 1) * 1024 * 1024,
+});
+
 // --- Document / file upload ---
 const documentFilter = (req, file, cb) => {
   const extension = getExtension(file);
@@ -475,6 +495,61 @@ const uploadSingleImage = async (req, res) => {
   } catch (error) {
     console.error("Upload error:", error);
     return sendUploadError(res, error, "File upload failed");
+  } finally {
+    await cleanupTempUpload(req.file?.path);
+  }
+};
+
+// Upload single video handler
+const uploadSingleVideo = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No file uploaded" });
+    }
+
+    const extension = getExtension(req.file);
+    if (!ALLOWED_VIDEO_EXTENSIONS.has(extension) || !ALLOWED_VIDEO_MIME_TYPES.has(req.file.mimetype)) {
+      throw new Error("Only MP4, WEBM and OGG video files are allowed.");
+    }
+
+    const originalName = sanitizeOriginalName(req.file.originalname);
+    const scope = resolveUploadScope(req);
+    const filename = buildScopedFilename(scope, "upload", originalName);
+    try {
+      await uploadFileToGridFS({
+        filePath: req.file.path,
+        filename,
+        contentType: req.file.mimetype,
+        category: "videos",
+        originalName,
+        scope,
+      });
+    } catch (storageError) {
+      if (!shouldFallbackToLocalStorage(storageError)) {
+        throw storageError;
+      }
+
+      console.warn(
+        "[UPLOAD] GridFS unavailable or over quota. Falling back to local disk storage for video upload.",
+      );
+      await moveTempFileToLocalUploads({
+        sourcePath: req.file.path,
+        filename,
+        category: "videos",
+      });
+    }
+
+    const fileUrl = `/uploads/videos/${filename}`;
+    res.status(200).json({
+      success: true,
+      message: "Video uploaded successfully",
+      url: fileUrl,
+      fileUrl: fileUrl,
+      filename,
+    });
+  } catch (error) {
+    console.error("Video upload error:", error);
+    return sendUploadError(res, error, "Video upload failed");
   } finally {
     await cleanupTempUpload(req.file?.path);
   }
@@ -718,4 +793,7 @@ module.exports = {
   nirfUpload,
   uploadNirfPdf,
   streamUploadedFile,
+  videoUpload,
+  uploadSingleVideo,
 };
+

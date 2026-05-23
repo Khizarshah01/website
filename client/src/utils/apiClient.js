@@ -144,7 +144,7 @@ apiClient.interceptors.request.use((config) => {
   }
 
   const normalizedUrl = String(config.url || "").toLowerCase();
-  const isScopedUploadEndpoint = /\/upload\/(image|file)(?:$|[/?#])/i.test(
+  const isScopedUploadEndpoint = /\/upload\/(image|file|video)(?:$|[/?#])/i.test(
     normalizedUrl,
   );
 

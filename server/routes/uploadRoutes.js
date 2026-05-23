@@ -10,6 +10,8 @@ const {
   deleteFile,
   nirfUpload,
   uploadNirfPdf,
+  videoUpload,
+  uploadSingleVideo,
 } = require("../controllers/uploadController");
 
 // Protected routes - admin or coordinator (coordinators need upload for faculty images)
@@ -23,6 +25,13 @@ router.post(
   adminOrCoordinator,
   upload.single("image"),
   uploadSingleImage,
+);
+router.post(
+  "/video",
+  protect,
+  adminOrCoordinator,
+  videoUpload.single("video"),
+  uploadSingleVideo,
 );
 router.post(
   "/file",
