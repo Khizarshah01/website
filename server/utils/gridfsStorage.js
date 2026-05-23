@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const fs = require("fs");
 
 const BUCKET_NAME = "uploads";
-const VALID_CATEGORIES = new Set(["images", "documents", "nirf"]);
+const VALID_CATEGORIES = new Set(["images", "documents", "nirf", "videos"]);
 
 const normalizeCategory = (category = "") => {
   const normalized = String(category || "").trim().toLowerCase();

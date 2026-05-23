@@ -4,6 +4,7 @@ export const UPLOAD_LIMIT_TEXT = {
   image: "Large image uploads are supported.",
   document: "Large document uploads are supported.",
   nirf: "Large PDF uploads are supported.",
+  video: "Large video uploads are supported (up to 1GB).",
 };
 
 export const validateUploadFile = (file, { kind = "document" } = {}) => {
@@ -13,6 +14,10 @@ export const validateUploadFile = (file, { kind = "document" } = {}) => {
 
   if (kind === "image" && !String(file.type || "").startsWith("image/")) {
     throw new Error("Please select a valid image file.");
+  }
+
+  if (kind === "video" && !String(file.type || "").startsWith("video/")) {
+    throw new Error("Please select a valid video file.");
   }
 
   if (kind === "pdf" && file.type !== "application/pdf") {
@@ -61,9 +66,11 @@ export const uploadAsset = async ({
     kind:
       endpoint === "/upload/image"
         ? "image"
-        : endpoint === "/upload/nirf-pdf"
-          ? "pdf"
-          : "document",
+        : endpoint === "/upload/video"
+          ? "video"
+          : endpoint === "/upload/nirf-pdf"
+            ? "pdf"
+            : "document",
   });
 
   const formData = new FormData();
