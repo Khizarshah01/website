@@ -13,14 +13,7 @@ import {
 import { goBackOrFallback } from "../utils/navigation";
 import { logUnexpectedError } from "../utils/apiErrors";
 
-// Import faculty data from all departments
-import { APPLIED_DEFAULT_FACULTY } from "./departments/AppliedSciences";
-import { defaultFaculty as CSE_DEFAULT_FACULTY } from "../data/cseDefaults";
-import { defaultFaculty as ENTC_DEFAULT_FACULTY } from "../data/entcDefaults";
-import { defaultFaculty as ELECTRICAL_DEFAULT_FACULTY } from "../data/electricalDefaults";
-import { defaultFaculty as MBA_DEFAULT_FACULTY } from "../data/mbaDefaults";
-import { defaultFaculty as MECH_DEFAULT_FACULTY } from "../data/mechanicalDefaults";
-import { defaultFaculty as IT_DEFAULT_FACULTY } from "../data/itDefaults";
+// Static default imports removed to use fully dynamic backend data
 
 // Import CSE Faculty Photos for resolving photo references
 import jmpPhoto from "../assets/images/departments/cse/faculty/JMP.jpg";
@@ -297,50 +290,34 @@ const normalizeFacultyCollection = (items = [], department, photoMap = {}) =>
       normalized.specialization =
         facultyMember.specialization || normalized.area.join(", ");
 
+      // Ensure array fields are actually arrays to prevent mapping errors
+      const arrayFields = ['coursesTaught', 'membership', 'publications', 'fellowship', 'achievements'];
+      arrayFields.forEach(field => {
+        if (normalized[field]) {
+           if (!Array.isArray(normalized[field])) {
+              // Convert string to array by splitting on newlines if it's a string
+              normalized[field] = String(normalized[field]).split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+           }
+        } else {
+           normalized[field] = [];
+        }
+      });
+
+      // Ensure string fields
+      const stringFields = ['research', 'fdp'];
+      stringFields.forEach(field => {
+        if (!normalized[field]) {
+          normalized[field] = "";
+        } else if (Array.isArray(normalized[field])) {
+          normalized[field] = normalized[field].join("\n");
+        }
+      });
+
       return normalized;
     });
 
-// Resolve CSE faculty photos from string references to actual imports
-const resolvedCseFaculty = normalizeFacultyCollection(
-  CSE_DEFAULT_FACULTY,
-  "cse",
-  csePhotoMap,
-);
+// Static fallback processing removed.
 
-// Resolve ENTC faculty photos from string references to actual imports
-const resolvedEntcFaculty = normalizeFacultyCollection(
-  ENTC_DEFAULT_FACULTY,
-  "entc",
-  entcPhotoMap,
-);
-
-// Resolve Electrical faculty photos from string references to actual imports
-const resolvedElectricalFaculty = normalizeFacultyCollection(
-  ELECTRICAL_DEFAULT_FACULTY,
-  "electrical",
-  electricalPhotoMap,
-);
-
-// Resolve MBA faculty photos from string references to actual imports
-const resolvedMbaFaculty = normalizeFacultyCollection(
-  MBA_DEFAULT_FACULTY,
-  "mba",
-  mbaPhotoMap,
-);
-
-// Resolve Mechanical faculty photos from string references to actual imports
-const resolvedMechFaculty = normalizeFacultyCollection(
-  MECH_DEFAULT_FACULTY,
-  "mechanical",
-  mechPhotoMap,
-);
-
-// Resolve IT faculty photos from string references to actual imports
-const resolvedItFaculty = normalizeFacultyCollection(
-  IT_DEFAULT_FACULTY,
-  "it",
-  itPhotoMap,
-);
 
 const resolveCseFacultyItems = (items = []) =>
   normalizeFacultyCollection(items, "cse", csePhotoMap);
@@ -414,19 +391,13 @@ const getDepartmentFromPath = (path = "") =>
   )?.[0] || "";
 
 const buildFacultyDirectory = (liveFacultyByDept = {}) => [
-  ...(liveFacultyByDept.applied?.length
-    ? liveFacultyByDept.applied
-    : normalizeFacultyCollection(APPLIED_DEFAULT_FACULTY, "applied")),
-  ...(liveFacultyByDept.cse?.length ? liveFacultyByDept.cse : resolvedCseFaculty),
-  ...(liveFacultyByDept.entc?.length ? liveFacultyByDept.entc : resolvedEntcFaculty),
-  ...(liveFacultyByDept.electrical?.length
-    ? liveFacultyByDept.electrical
-    : resolvedElectricalFaculty),
-  ...(liveFacultyByDept.mba?.length ? liveFacultyByDept.mba : resolvedMbaFaculty),
-  ...(liveFacultyByDept.mechanical?.length
-    ? liveFacultyByDept.mechanical
-    : resolvedMechFaculty),
-  ...(liveFacultyByDept.it?.length ? liveFacultyByDept.it : resolvedItFaculty),
+  ...(liveFacultyByDept.applied || []),
+  ...(liveFacultyByDept.cse || []),
+  ...(liveFacultyByDept.entc || []),
+  ...(liveFacultyByDept.electrical || []),
+  ...(liveFacultyByDept.mba || []),
+  ...(liveFacultyByDept.mechanical || []),
+  ...(liveFacultyByDept.it || []),
 ];
 
 export const useFacultyDirectoryData = () => {
@@ -439,13 +410,13 @@ export const useFacultyDirectoryData = () => {
     const loadLiveFaculty = async () => {
       try {
         const pageRequests = [
-          ["cse", "/api/pages/departments-cse"],
-          ["entc", "/api/pages/departments-entc"],
-          ["it", "/api/pages/departments-it"],
-          ["electrical", "/api/pages/departments-electrical"],
-          ["mechanical", "/api/pages/departments-mechanical"],
-          ["mba", "/api/pages/departments-mba"],
-          ["applied", "/api/pages/departments-applied-sciences"],
+          ["cse", "/pages/departments-cse"],
+          ["entc", "/pages/departments-entc"],
+          ["it", "/pages/departments-it"],
+          ["electrical", "/pages/departments-electrical"],
+          ["mechanical", "/pages/departments-mechanical"],
+          ["mba", "/pages/departments-mba"],
+          ["applied", "/pages/departments-applied-sciences"],
         ];
 
         const responses = await Promise.allSettled(
@@ -470,7 +441,7 @@ export const useFacultyDirectoryData = () => {
                   ? data.templateData?.facultyData
                   : data.templateData?.faculty;
 
-          if (!Array.isArray(storedFaculty) || storedFaculty.length === 0) {
+          if (!Array.isArray(storedFaculty)) {
             return;
           }
 
@@ -537,7 +508,11 @@ const FacultyDetail = () => {
       candidates[0];
     if (foundFaculty) {
       setFaculty(foundFaculty);
+      console.log("true", foundFaculty);
+
     } else {
+      console.log("false");
+
       setFaculty(null);
     }
   }, [facultyId, facultyDirectory, location.state?.from]);
@@ -877,5 +852,5 @@ const FacultyDetail = () => {
 };
 
 // Export the faculty data for use in other components
-export { APPLIED_DEFAULT_FACULTY, resolveCseFacultyItems };
+export { resolveCseFacultyItems };
 export default FacultyDetail;
