@@ -2317,13 +2317,23 @@ const Electrical = () => {
 
     if (typeof stored === "string" && stored.trim()) {
       const lines = stored.split("\n").map((line) => line.trim());
+      const separatorIndex = lines.findIndex((line) => line.match(/^\|\s*[-:]+\s*\|/));
+      
+      if (separatorIndex !== -1) {
+        // Count only lines that have a number in the first column to avoid counting multiple offers as multiple students
+        return lines
+          .slice(separatorIndex + 1)
+          .filter((line) => line.match(/^\|\s*\d+\s*\|/)).length;
+      }
+      
+      // Fallback
       const tableStart = lines.findIndex((line) =>
-        line.startsWith("| Sr. No."),
+        line.startsWith("| Sr. No.") || line.startsWith("| S. N."),
       );
       if (tableStart !== -1) {
         return lines
           .slice(tableStart + 2)
-          .filter((line) => line.startsWith("|")).length;
+          .filter((line) => line.match(/^\|\s*\d+\s*\|/)).length;
       }
     }
 
