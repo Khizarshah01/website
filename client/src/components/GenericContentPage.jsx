@@ -2069,7 +2069,7 @@ Constituted By **All India Council for Technical Education, New Delhi**
                                 key={`governing-cell-${rowIndex}-${cellIndex}`}
                                 className={`border-b border-slate-200 px-2 py-3 leading-relaxed text-slate-600 whitespace-normal break-words sm:px-4 md:px-5 md:py-4 ${
                                   cellIndex === 0
-                                    ? "whitespace-nowrap text-center font-medium tabular-nums text-slate-800"
+                                    ? "text-center font-medium text-slate-800"
                                     : ""
                                 }`}
                               >
