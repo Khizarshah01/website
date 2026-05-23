@@ -28,6 +28,22 @@ const MARKDOWN_COMPONENTS = {
   li: ({ children }) => <li className="mb-1 text-gray-700">{children}</li>,
   ul: ({ children }) => <ul className="mb-4 list-disc space-y-1 pl-5">{children}</ul>,
   ol: ({ children }) => <ol className="mb-4 list-decimal space-y-1 pl-5">{children}</ol>,
+  table: ({ children }) => (
+    <div className="my-4 overflow-x-auto rounded-lg border border-gray-200">
+      <table className="min-w-full text-sm">{children}</table>
+    </div>
+  ),
+  thead: ({ children }) => <thead className="bg-gray-50">{children}</thead>,
+  tbody: ({ children }) => <tbody className="divide-y divide-gray-100 bg-white">{children}</tbody>,
+  tr: ({ children }) => <tr>{children}</tr>,
+  th: ({ children }) => (
+    <th className="border-b border-gray-200 px-3 py-2 text-left font-semibold text-gray-700">
+      {children}
+    </th>
+  ),
+  td: ({ children }) => (
+    <td className="border-b border-gray-100 px-3 py-2 align-top text-gray-700">{children}</td>
+  ),
   a: ({ href, children }) => (
     <a
       href={href}

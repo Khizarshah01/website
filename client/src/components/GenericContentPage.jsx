@@ -2035,53 +2035,51 @@ Constituted By **All India Council for Technical Education, New Delhi**
                       </div>
                     </div>
 
-                    <div className="overflow-x-auto">
-                      <table className="w-full min-w-[780px] table-fixed border-collapse overflow-hidden rounded-xl">
-                        <colgroup>
-                          <col style={{ width: "7%" }} />
-                          <col style={{ width: "27%" }} />
-                          <col style={{ width: "42%" }} />
-                          <col style={{ width: "24%" }} />
-                        </colgroup>
-                        <thead className="bg-ssgmce-blue text-white">
-                          <tr>
-                            {parsedTable.headers.map((header, index) => (
-                              <th
-                                key={`${header}-${index}`}
-                                className="px-5 py-4 text-center text-sm font-semibold md:text-[1.05rem] whitespace-normal break-words"
+                    <table className="w-full table-fixed border-collapse overflow-hidden rounded-xl text-[11px] sm:text-sm md:text-[0.98rem]">
+                      <colgroup>
+                        <col style={{ width: "7%" }} />
+                        <col style={{ width: "27%" }} />
+                        <col style={{ width: "42%" }} />
+                        <col style={{ width: "24%" }} />
+                      </colgroup>
+                      <thead className="bg-ssgmce-blue text-white">
+                        <tr>
+                          {parsedTable.headers.map((header, index) => (
+                            <th
+                              key={`${header}-${index}`}
+                              className="px-2 py-3 text-center font-semibold leading-tight whitespace-normal break-words sm:px-4 md:px-5 md:py-4"
+                            >
+                              {header}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {parsedTable.rows.map((row, rowIndex) => (
+                          <tr
+                            key={`governing-row-${rowIndex}`}
+                            className={
+                              rowIndex % 2 === 0
+                                ? "bg-white"
+                                : "bg-slate-50/80"
+                            }
+                          >
+                            {row.map((cell, cellIndex) => (
+                              <td
+                                key={`governing-cell-${rowIndex}-${cellIndex}`}
+                                className={`border-b border-slate-200 px-2 py-3 leading-relaxed text-slate-600 whitespace-normal break-words sm:px-4 md:px-5 md:py-4 ${
+                                  cellIndex === 0
+                                    ? "text-center font-medium text-slate-800"
+                                    : ""
+                                }`}
                               >
-                                {header}
-                              </th>
+                                {cell}
+                              </td>
                             ))}
                           </tr>
-                        </thead>
-                        <tbody>
-                          {parsedTable.rows.map((row, rowIndex) => (
-                            <tr
-                              key={`governing-row-${rowIndex}`}
-                              className={
-                                rowIndex % 2 === 0
-                                  ? "bg-white"
-                                  : "bg-slate-50/80"
-                              }
-                            >
-                              {row.map((cell, cellIndex) => (
-                                <td
-                                  key={`governing-cell-${rowIndex}-${cellIndex}`}
-                                  className={`border-b border-slate-200 px-5 py-4 text-[15px] leading-relaxed text-slate-600 whitespace-normal break-words md:text-[0.98rem] ${
-                                    cellIndex === 0
-                                      ? "text-center font-medium text-slate-800"
-                                      : ""
-                                  }`}
-                                >
-                                  {cell}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                        ))}
+                      </tbody>
+                    </table>
 
                     {trailingParagraphs.length > 0 && (
                       <div className="space-y-2">
