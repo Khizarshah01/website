@@ -7,6 +7,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import AdminOfficeSidebar from "./AdminOfficeSidebar";
+import mainGateImg from "../assets/images/home/Main-Gate.jpeg";
 import { isAdminOfficeDbEnabled } from "../config/adminOfficeHybridFlags";
 import { sanitizeMarkdownHtml } from "../utils/sanitizeMarkdown";
 
@@ -129,6 +130,7 @@ const AdminOfficePageLayout = ({
 
   const hasDbContent = shouldUseDbContent && visibleSections.length > 0;
   const pageTitle = dbPage?.pageTitle || title;
+  const bannerImage = dbPage?.bannerImage || mainGateImg;
 
   const renderEditButton = (section) => {
     if (!enableInlineEditFallback || !isInlineEditMode || !pageId) return null;
@@ -156,7 +158,11 @@ const AdminOfficePageLayout = ({
       return (
         <div className="space-y-2">
           {items.map((item, index) => {
-            const href = item?.route || item?.url || "#";
+            const itemTitle = String(item?.title || "").toLowerCase();
+            const href =
+              itemTitle.includes("student life")
+                ? "/gallery"
+                : item?.route || item?.url || "#";
             return (
               <a
                 key={`${href}-${index}`}
@@ -232,10 +238,13 @@ const AdminOfficePageLayout = ({
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-ssgmce-blue to-ssgmce-dark-blue py-16">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <nav className="mb-4 text-sm text-blue-200">
+      <div
+        className="relative bg-cover bg-center"
+        style={{ backgroundImage: `url(${bannerImage})`, minHeight: 200 }}
+      >
+        <div className="absolute inset-0 bg-ssgmce-dark-blue/80"></div>
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center" style={{ minHeight: 200 }}>
+          <nav className="mb-4 text-sm text-blue-100">
             <span>Home</span>
             <span className="mx-2">/</span>
             <span>Facilities</span>
@@ -244,7 +253,13 @@ const AdminOfficePageLayout = ({
             <span className="mx-2">/</span>
             <span className="text-white">{pageTitle}</span>
           </nav>
-          <h1 ref={heroRef} className="text-3xl font-bold text-white md:text-4xl">{pageTitle}</h1>
+
+          <h1
+            ref={heroRef}
+            className="text-2xl font-extrabold text-white drop-shadow-md md:text-3xl lg:text-4xl"
+          >
+            {pageTitle}
+          </h1>
         </div>
       </div>
 

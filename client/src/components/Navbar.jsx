@@ -298,7 +298,7 @@ const Navbar = () => {
         { name: "Academics", path: "/academics/planner" },
         { name: "Admission & Fees", path: "/admissions/fees" },
         { name: "Research", path: "/research/rdc" },
-        { name: "Student Life", path: "/activities/innovo" },
+        { name: "Student Life", path: "/gallery" },
         { name: "Information Corner", path: "/documents" },
         { name: "Contact us", path: "/contact" },
       ],

@@ -182,9 +182,11 @@ const NIRFRanking = () => {
     }));
     try {
       const fd = new FormData();
-      fd.append("pdf", file);
+      fd.append("pdf", file);
+
       const uploadRes = await apiClient.post("/upload/nirf-pdf", fd);
-      const fileUrl = uploadRes.data.fileUrl;
+      const fileUrl = uploadRes.data.fileUrl;
+
       const existingId = nirfEntryIds[key];
       if (existingId) {
         await apiClient.put(
@@ -235,7 +237,6 @@ const NIRFRanking = () => {
       <PageHeader
         title="NIRF Ranking"
         subtitle="National Institutional Ranking Framework"
-        backgroundImage="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&q=80"
       />
 
       <div className="container mx-auto px-4 py-12 max-w-7xl">
