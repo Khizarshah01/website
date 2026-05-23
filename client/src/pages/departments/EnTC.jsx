@@ -6184,55 +6184,31 @@ On completion of the course, the students will be able to:
                 )}
                 {/* Image Area - Fixed Width */}
                 <div className="w-32 sm:w-40 bg-gray-50 flex-shrink-0 relative overflow-hidden border-r border-gray-100">
-                  {resolvedPhoto ? (
-                    <EditableImage
-                      src={resolvedPhoto}
-                      onSave={(val) =>
-                        updateFacultyList((list) => {
-                          list[i] = { ...list[i], photo: val };
-                          return list;
-                        })
-                      }
-                      alt={fac.name || "Faculty"}
-                      className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <FaUserTie className="text-5xl text-gray-300" />
-                    </div>
-                  )}
+                  <EditableImage
+                    src={resolvedPhoto || ""}
+                    onSave={(val) =>
+                      updateFacultyList((list) => {
+                        list[i] = { ...list[i], photo: val };
+                        return list;
+                      })
+                    }
+                    alt={fac.name || "Faculty"}
+                    className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
+                  />
                 </div>
 
                 {/* Content Area */}
                 <div className="p-5 flex-1 flex flex-col justify-center">
                   <h4 className="text-lg font-bold text-gray-900 group-hover:text-ssgmce-blue transition-colors">
-                    {fac.id && !fac.isIndustry ? (
-                      <Link
-                        to={`/faculty/${fac.id}`}
-                        state={{ from: getPathWithTab(location, "faculty") }}
-                        className="hover:underline"
-                      >
-                        <EditableText
-                          value={fac.name}
-                          onSave={(val) =>
-                            updateFacultyList((list) => {
-                              list[i] = { ...list[i], name: val };
-                              return list;
-                            })
-                          }
-                        />
-                      </Link>
-                    ) : (
-                      <EditableText
-                        value={fac.name}
-                        onSave={(val) =>
-                          updateFacultyList((list) => {
-                            list[i] = { ...list[i], name: val };
-                            return list;
-                          })
-                        }
-                      />
-                    )}
+                    <EditableText
+                      value={fac.name}
+                      onSave={(val) =>
+                        updateFacultyList((list) => {
+                          list[i] = { ...list[i], name: val };
+                          return list;
+                        })
+                      }
+                    />
                   </h4>
                   <p className="text-ssgmce-blue font-medium text-sm mb-3 uppercase tracking-wide text-[11px]">
                     <EditableText
@@ -6248,11 +6224,11 @@ On completion of the course, the students will be able to:
 
                   {/* Compact Details */}
                   <div className="space-y-2 text-sm text-gray-600">
-                    {fac.area && (
+                    {(fac.area || isEditing) && (
                       <p className="line-clamp-2 text-xs">
                         <span className="font-bold text-gray-700">Area: </span>
                         <EditableText
-                          value={fac.area.join(", ")}
+                          value={Array.isArray(fac.area) ? fac.area.join(", ") : fac.area || "Research areas..."}
                           onSave={(val) =>
                             updateFacultyList((list) => {
                               list[i] = {
@@ -6270,11 +6246,11 @@ On completion of the course, the students will be able to:
                     )}
 
                     <div className="pt-2 flex flex-col gap-1">
-                      {fac.email && (
+                      {(fac.email || isEditing) && (
                         <div className="flex items-center hover:text-ssgmce-blue transition-colors truncate text-xs">
                           <FaEnvelope className="mr-2 text-gray-400" />
                           <EditableText
-                            value={fac.email}
+                            value={fac.email || "email@ssgmce.ac.in"}
                             onSave={(val) =>
                               updateFacultyList((list) => {
                                 list[i] = { ...list[i], email: val };
@@ -6284,11 +6260,11 @@ On completion of the course, the students will be able to:
                           />
                         </div>
                       )}
-                      {fac.phone && (
+                      {(fac.phone || isEditing) && (
                         <span className="flex items-center text-xs">
                           <FaPhone className="mr-2 text-gray-400" />
                           <EditableText
-                            value={fac.phone}
+                            value={fac.phone || "+91XXXXXXXXXX"}
                             onSave={(val) =>
                               updateFacultyList((list) => {
                                 list[i] = { ...list[i], phone: val };
@@ -6537,23 +6513,17 @@ On completion of the course, the students will be able to:
                   )}
                   {/* Image Area */}
                   <div className="w-32 sm:w-40 bg-gray-50 flex-shrink-0 relative overflow-hidden border-r border-gray-100">
-                    {resolvedPhoto ? (
-                      <EditableImage
-                        src={resolvedPhoto}
-                        onSave={(val) =>
-                          updateStaffList((list) => {
-                            list[i] = { ...list[i], photo: val };
-                            return list;
-                          })
-                        }
-                        alt={staff.name}
-                        className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <FaUserTie className="text-5xl text-gray-300" />
-                      </div>
-                    )}
+                    <EditableImage
+                      src={resolvedPhoto || ""}
+                      onSave={(val) =>
+                        updateStaffList((list) => {
+                          list[i] = { ...list[i], photo: val };
+                          return list;
+                        })
+                      }
+                      alt={staff.name}
+                      className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
+                    />
                   </div>
 
                   {/* Content Area */}

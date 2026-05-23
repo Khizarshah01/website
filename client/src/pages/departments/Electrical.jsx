@@ -2317,13 +2317,23 @@ const Electrical = () => {
 
     if (typeof stored === "string" && stored.trim()) {
       const lines = stored.split("\n").map((line) => line.trim());
+      const separatorIndex = lines.findIndex((line) => line.match(/^\|\s*[-:]+\s*\|/));
+      
+      if (separatorIndex !== -1) {
+        // Count only lines that have a number in the first column to avoid counting multiple offers as multiple students
+        return lines
+          .slice(separatorIndex + 1)
+          .filter((line) => line.match(/^\|\s*\d+\s*\|/)).length;
+      }
+      
+      // Fallback
       const tableStart = lines.findIndex((line) =>
-        line.startsWith("| Sr. No."),
+        line.startsWith("| Sr. No.") || line.startsWith("| S. N."),
       );
       if (tableStart !== -1) {
         return lines
           .slice(tableStart + 2)
-          .filter((line) => line.startsWith("|")).length;
+          .filter((line) => line.match(/^\|\s*\d+\s*\|/)).length;
       }
     }
 
@@ -6154,41 +6164,16 @@ Upon successful completion of this course, students will be able to:
 
               {/* Image Area - Fixed Width */}
               <div className="w-32 sm:w-40 bg-gray-50 flex-shrink-0 relative overflow-hidden border-r border-gray-100">
-                {fac.photo ? (
-                  <EditableImage
-                    src={fac.photo}
-                    onSave={(url) => {
-                      const updated = [...t("facultyData", defaultFacultyData)];
-                      updated[i].photo = url;
-                      updateField("facultyData", updated);
-                    }}
-                    alt={fac.name}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
-                  />
-                ) : (
-                  <div
-                    className="w-full h-full flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => {
-                      if (isEditing) {
-                        const url = prompt("Enter faculty photo URL:");
-                        if (url) {
-                          const updated = [
-                            ...t("facultyData", defaultFacultyData),
-                          ];
-                          updated[i].photo = url;
-                          updateField("facultyData", updated);
-                        }
-                      }
-                    }}
-                  >
-                    <FaUserTie className="text-5xl text-gray-300" />
-                    {isEditing && (
-                      <span className="absolute bottom-2 text-xs text-gray-500">
-                        Click to add
-                      </span>
-                    )}
-                  </div>
-                )}
+                <EditableImage
+                  src={fac.photo || ""}
+                  onSave={(url) => {
+                    const updated = [...t("facultyData", defaultFacultyData)];
+                    updated[i].photo = url;
+                    updateField("facultyData", updated);
+                  }}
+                  alt={fac.name}
+                  className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
+                />
               </div>
 
               {/* Content Area */}
