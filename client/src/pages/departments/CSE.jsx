@@ -954,7 +954,7 @@ const normalizeIndustrialVisits = (visits) => {
 
 const prideTableComponents = {
   table: ({ node, ...props }) => (
-    <table className="min-w-full divide-y divide-gray-200" {...props} />
+    <table className="w-full table-fixed border-collapse text-[11px] sm:text-sm" {...props} />
   ),
   thead: ({ node, ...props }) => <thead className="bg-gray-50" {...props} />,
   tbody: ({ node, ...props }) => (
@@ -963,12 +963,15 @@ const prideTableComponents = {
   tr: ({ node, ...props }) => <tr className="hover:bg-gray-50" {...props} />,
   th: ({ node, ...props }) => (
     <th
-      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+      className="px-2 py-2 text-left text-[10px] font-medium uppercase tracking-wider text-gray-500 sm:px-4 sm:py-3 sm:text-xs"
       {...props}
     />
   ),
   td: ({ node, ...props }) => (
-    <td className="px-6 py-4 text-sm text-gray-900" {...props} />
+    <td
+      className="break-words px-2 py-2 text-gray-900 sm:px-4 sm:py-3"
+      {...props}
+    />
   ),
 };
 
@@ -977,7 +980,7 @@ const PrideMdView = ({ markdown }) => {
   if (!sections.length) {
     return (
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="overflow-x-auto p-4">
+        <div className="p-4">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={prideTableComponents}
@@ -995,7 +998,7 @@ const PrideMdView = ({ markdown }) => {
           <div className="bg-gradient-to-r from-ssgmce-blue to-ssgmce-dark-blue text-white px-6 py-4">
             <h4 className="text-xl font-bold">{section.heading}</h4>
           </div>
-          <div className="overflow-x-auto">
+          <div className="px-4 py-2 sm:px-6 sm:py-4">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={prideTableComponents}
@@ -2325,7 +2328,8 @@ const CSE = () => {
     setUploadingFiles((prev) => ({ ...prev, [uploadKey]: true }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         // Batch all three fields in a single update to avoid stale state race condition
@@ -2819,7 +2823,8 @@ const CSE = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (response.data.fileUrl) {
@@ -2926,7 +2931,8 @@ const CSE = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (response.data.fileUrl) {
@@ -3166,7 +3172,8 @@ const CSE = () => {
 
   const deleteNewsletterFileIfNeeded = async (link) => {
     const deletablePath = getDeletableUploadPath(link);
-    if (!deletablePath) return;
+    if (!deletablePath) return;
+
 
     try {
       await apiClient.delete("/upload/file", { params: {
@@ -3238,7 +3245,8 @@ const CSE = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -3492,7 +3500,8 @@ const CSE = () => {
 
   const deleteAchievementFileIfNeeded = async (link) => {
     const deletablePath = getAchievementDeletableUploadPath(link);
-    if (!deletablePath) return;
+    if (!deletablePath) return;
+
 
     try {
       await apiClient.delete("/upload/file", { params: {
@@ -3529,7 +3538,8 @@ const CSE = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("image", file);
+
       const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
