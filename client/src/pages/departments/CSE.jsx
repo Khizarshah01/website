@@ -5636,6 +5636,42 @@ const CSE = () => {
 
                 {/* Compact Details */}
                 <div className="space-y-2 text-sm text-gray-600">
+                  {(fac.qualification || isEditing) && (
+                    <div className="line-clamp-2 text-xs">
+                      <span className="font-bold text-gray-700">
+                        Qualification: 
+                      </span>
+                      <EditableText
+                        value={fac.qualification || "Qualification..."}
+                        onSave={(val) => updateFaculty(i, "qualification", val)}
+                      />
+                    </div>
+                  )}
+
+                  {(fac.experience || isEditing) && (
+                    <div className="line-clamp-2 text-xs">
+                      <span className="font-bold text-gray-700">
+                        Experience: 
+                      </span>
+                      <EditableText
+                        value={fac.experience || "Experience..."}
+                        onSave={(val) => updateFaculty(i, "experience", val)}
+                      />
+                    </div>
+                  )}
+
+                  {(fac.scholarIds || isEditing) && (
+                    <div className="line-clamp-2 text-xs">
+                      <span className="font-bold text-gray-700">
+                        Scholar IDs: 
+                      </span>
+                      <EditableText
+                        value={fac.scholarIds || "Scholar IDs..."}
+                        onSave={(val) => updateFaculty(i, "scholarIds", val)}
+                      />
+                    </div>
+                  )}
+
                   {(fac.area || isEditing) && (
                     <div className="line-clamp-2 text-xs">
                       <span className="font-bold text-gray-700">
