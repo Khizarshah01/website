@@ -102,7 +102,7 @@ const Home = () => {
   const liveNewsItems = Array.isArray(newsData) ? newsData : [];
   const liveUpcomingEvents = Array.isArray(upcomingEventsData) ? upcomingEventsData : [];
   const liveAllEvents = Array.isArray(allEventsData) ? allEventsData : [];
-  const newsItems = liveNewsItems.length > 0 ? liveNewsItems : newsError ? staticNews : [];
+  const newsItems = liveNewsItems.length > 0 ? liveNewsItems : staticNews;
   const upcomingEvents =
     liveUpcomingEvents.length > 0
       ? liveUpcomingEvents
