@@ -26,10 +26,10 @@ const DepartmentTemplate = () => {
   }, [activeTab]);
 
   const academicsLinks = [
-    { id: 'overview', label: 'Department Overview' },
-    { id: 'hod', label: 'Words from HOD' },
-    { id: 'vision-mission', label: 'Vision, Mission, PEO & PSO' },
-    { id: 'faculty', label: 'Faculty Members' },
+        { id: 'overview', label: 'Department Overview' },
+        { id: 'vision-mission', label: 'Vision, Mission, PEO & PSO' },
+        { id: 'hod', label: 'Words from HOD' },
+        { id: 'faculty', label: 'Faculty Members' },
     { id: 'laboratories', label: 'Infrastructure and Laboratories' },
     { id: 'curriculum', label: 'Curriculum & Structure' },
     { id: 'student-activities', label: 'Student Activities & Chapters' },
