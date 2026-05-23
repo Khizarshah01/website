@@ -40,6 +40,9 @@ export const EditProvider = ({ children, pageId, initialData = {} }) => {
   const [data, setData] = useState(initialData);
   const [hasChanges, setHasChanges] = useState(false);
   const [history, setHistory] = useState([]);
+  
+  // Create a ref to hold the absolute latest data synchronously
+  const dataRef = useRef(initialData);
   const savedDataRef = useRef(initialData);
 
   const pushHistory = (snapshot) => {
@@ -51,6 +54,7 @@ export const EditProvider = ({ children, pageId, initialData = {} }) => {
       if (prev.length === 0) return prev;
       const next = [...prev];
       const snapshot = next.pop();
+      dataRef.current = snapshot;
       setData(snapshot);
       setHasChanges(true);
       return next;
@@ -60,6 +64,7 @@ export const EditProvider = ({ children, pageId, initialData = {} }) => {
   const canUndo = history.length > 0;
 
   const discardChanges = () => {
+    dataRef.current = savedDataRef.current;
     setData(savedDataRef.current);
     setHistory([]);
     setHasChanges(false);
@@ -71,28 +76,33 @@ export const EditProvider = ({ children, pageId, initialData = {} }) => {
    * @param {any} value - New value to set
    */
   const updateData = (path, value) => {
-    setData((prevData) => {
-      pushHistory(prevData);
-      const newData = { ...prevData };
-      const keys = path.replace(/\[(\d+)\]/g, ".$1").split(".");
-      let current = newData;
+    pushHistory(dataRef.current);
+    
+    // Synchronously build the new data object and update the ref
+    const newData = { ...dataRef.current };
+    const keys = path.replace(/\[(\d+)\]/g, ".$1").split(".");
+    let current = newData;
 
-      for (let i = 0; i < keys.length - 1; i++) {
-        const key = keys[i];
-        if (!current[key] || typeof current[key] !== "object") {
-          current[key] = {};
-        } else if (Array.isArray(current[key])) {
-          current[key] = [...current[key]]; // preserve array type
-        } else {
-          current[key] = { ...current[key] };
-        }
-        current = current[key];
+    for (let i = 0; i < keys.length - 1; i++) {
+      const key = keys[i];
+      if (!current[key] || typeof current[key] !== "object") {
+        current[key] = {};
+      } else if (Array.isArray(current[key])) {
+        current[key] = [...current[key]]; // preserve array type
+      } else {
+        current[key] = { ...current[key] };
       }
+      current = current[key];
+    }
 
-      current[keys[keys.length - 1]] = value;
-      setHasChanges(true);
-      return newData;
-    });
+    current[keys[keys.length - 1]] = value;
+    
+    // Update ref immediately so that saveData can access it even before render
+    dataRef.current = newData;
+    
+    // Queue React state update
+    setData(newData);
+    setHasChanges(true);
   };
 
   /**
@@ -105,9 +115,12 @@ export const EditProvider = ({ children, pageId, initialData = {} }) => {
     }
 
     try {
+      // Small delay to ensure any pending blur events on active inputs have fully executed
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
       const response = await apiClient.put(
         `/pages/${pageId}`,
-        data, // send the full data object directly so the server can merge top-level fields
+        dataRef.current, // send the synchronously updated data
       );
 
       if (response.data.success) {
