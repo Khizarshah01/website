@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useEdit } from "../../contexts/EditContext";
 import { FaUpload, FaTrash, FaTimes } from "react-icons/fa";
 import {
@@ -61,6 +61,12 @@ const EditableImage = ({
     ? resolvedFallbackUrl
     : resolvedImageUrl || resolvedFallbackUrl;
 
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [displayImageUrl]);
+
   const applyFallbackImage = (event) => {
     if (
       resolvedFallbackUrl &&
@@ -69,7 +75,7 @@ const EditableImage = ({
       event.currentTarget.src = resolvedFallbackUrl;
       return;
     }
-    event.currentTarget.style.display = "none";
+    setImageFailed(true);
   };
 
   const handleFileSelect = async (file) => {
@@ -164,7 +170,7 @@ const EditableImage = ({
 
   // View Mode (not editing)
   if (!isEditing) {
-    return displayImageUrl ? (
+    return displayImageUrl && !imageFailed ? (
       <img
         src={displayImageUrl}
         alt={alt}
@@ -252,7 +258,7 @@ const EditableImage = ({
   // Edit Mode - Image Display
   return (
     <div className="relative group">
-      {displayImageUrl ? (
+      {displayImageUrl && !imageFailed ? (
         <>
           <img
             src={displayImageUrl}
