@@ -969,7 +969,7 @@ const prideTableComponents = {
   ),
   td: ({ node, ...props }) => (
     <td
-      className="break-words px-2 py-2 text-gray-900 sm:px-4 sm:py-3"
+      className="break-words px-2 py-2 text-gray-900 first:whitespace-nowrap first:tabular-nums first:text-center sm:px-4 sm:py-3"
       {...props}
     />
   ),
