@@ -7103,7 +7103,10 @@ Upon successful completion of this course, students will be able to:
                           className="w-full"
                         />
                       ) : (
-                        activity.title
+                        <div 
+                          dangerouslySetInnerHTML={{ __html: activity.title }} 
+                          className="[&>p]:m-0 [&>p]:p-0 inline-block w-full"
+                        />
                       )}
                     </div>
                   </div>
