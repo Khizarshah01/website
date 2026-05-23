@@ -77,12 +77,48 @@ const DepartmentTabsSidebar = ({
   renderAcademicsLabel,
   renderIndustryLabel,
 }) => {
+  // Ensure consistent ordering for department academics links across pages.
+  // Preferred order: Overview -> Vision/Mission/PEO/PSO -> Words from HOD -> Faculty
+  const reorderAcademicsLinks = (links = []) => {
+    if (!Array.isArray(links) || links.length === 0) return links;
+
+    const seen = new Set();
+    const prioritized = [];
+
+    const pushMatching = (predicate) => {
+      links.forEach((l) => {
+        if (!seen.has(l.id) && predicate(String(l.label || "").toLowerCase())) {
+          prioritized.push(l);
+          seen.add(l.id);
+        }
+      });
+    };
+
+    // 1) Overview
+    pushMatching((label) => label.includes("overview") || label.includes("department overview"));
+    // 2) Vision / Mission / PEO / PSO
+    pushMatching((label) => /vision|mission|peo|pso/.test(label));
+    // 3) HOD / Head / Words from HOD
+    pushMatching((label) => /hod|head of department|words from hod|message from the hod|message from hod/.test(label));
+    // 4) Faculty
+    pushMatching((label) => /faculty|faculty members|faculty & staff/.test(label));
+
+    // Append remaining links preserving original order
+    links.forEach((l) => {
+      if (!seen.has(l.id)) {
+        prioritized.push(l);
+        seen.add(l.id);
+      }
+    });
+
+    return prioritized;
+  };
   const navContent = (
     <nav>
       <ul className="max-h-[65vh] space-y-4 overflow-y-auto pr-1">
         <SidebarGroup
           title={academicsTitle}
-          links={academicsLinks}
+          links={reorderAcademicsLinks(academicsLinks)}
           activeTab={activeTab}
           onTabChange={onTabChange}
           icon={FaUniversity}
