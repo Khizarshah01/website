@@ -564,7 +564,7 @@ const VideoGallery = ({ videos, channelUrl }) => {
                     alt={video.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                  <div className="absolute inset-0 flex items-center justify-center bg-ssgmce-dark-blue/50 group-hover:bg-ssgmce-dark-blue/60 transition-colors">
                     <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
                       <svg
                         className="w-5 h-5 text-ssgmce-blue ml-0.5"

@@ -1,24 +1,14 @@
 import React from "react";
 import FacilitiesSidebar from "../components/FacilitiesSidebar";
+import PageHeader from "../components/PageHeader";
 
 const Facilities = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-ssgmce-blue to-ssgmce-dark-blue py-16">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <nav className="mb-4 text-sm text-blue-200">
-            <span>Home</span>
-            <span className="mx-2">/</span>
-            <span className="text-white">Facilities</span>
-          </nav>
-          <h1 className="text-3xl font-bold text-white md:text-4xl">Campus Facilities</h1>
-          <p className="mt-4 text-lg text-blue-100 md:text-xl">
-            Discover our state-of-the-art infrastructure and comprehensive facilities designed for excellence
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Campus Facilities"
+        subtitle="Discover our state-of-the-art infrastructure and comprehensive facilities designed for excellence"
+      />
 
       {/* Main Content */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
