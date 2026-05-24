@@ -16,13 +16,13 @@ const NewsTicker = ({ items = [] }) => {
         .news-badge { background: linear-gradient(90deg,#ff6b6b,#ff3b3b); }
         .news-track { display:inline-flex; align-items:center; gap:10rem; white-space:nowrap; animation: marquee 50s linear infinite; }
         .news-track:hover { animation-play-state: paused; }
-        .news-item { display:inline-flex; align-items:center; gap:0.5rem; }
+        .news-item { display:inline-flex; align-items:center; gap:0.75rem; flex-shrink:0; }
         .news-dot { width:12px; height:12px; border-radius:9999px; background:#ff3b3b; box-shadow:0 0 14px rgba(255,59,59,0.8); animation: blinkDot 1s ease-in-out infinite; flex-shrink:0; }
         .pulse-dot { width:10px; height:10px; border-radius:9999px; background: radial-gradient(circle, #ff6b6b 0%, #ff3b3b 60%); box-shadow:0 0 12px rgba(255,60,60,0.36); }
         .news-cta { background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.06); }
         @media (max-width: 640px) {
           .news-wrap { gap:0.65rem; }
-          .news-track { gap:1.15rem; }
+          .news-track { gap:3rem; }
           .news-item { font-size:14px; }
           .news-dot { width:10px; height:10px; }
         }
@@ -48,7 +48,7 @@ const NewsTicker = ({ items = [] }) => {
             <div className="news-track mt-2">
               {[...items, ...items].map((it, idx) => (
                 <span key={idx} className="news-item text-base font-medium text-white/95">
-                  <video src={newVideo} autoPlay loop muted playsInline className="h-14 w-auto object-contain flex-shrink-0" />
+                  <video src={newVideo} autoPlay loop muted playsInline className="h-10 sm:h-14 w-auto object-contain flex-shrink-0 mr-1 sm:mr-2" />
                   {it?.title || 'Latest update from SSGMCE'}
                 </span>
               ))}
