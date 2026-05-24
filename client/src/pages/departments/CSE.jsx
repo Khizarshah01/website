@@ -5675,10 +5675,7 @@ const CSE = () => {
                   {(fac.area || isEditing) && (
                     <div className="line-clamp-2 text-xs">
                       <span className="font-bold text-gray-700">
-                        <EditableText
-                          value={t("facultyAreaLabel", "Area: ")}
-                          onSave={(val) => updateData("facultyAreaLabel", val)}
-                        />
+                        Area:{" "}
                       </span>
                       <EditableText
                         value={
