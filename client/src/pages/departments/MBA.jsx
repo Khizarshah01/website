@@ -70,6 +70,7 @@ import {
   FaUpload,
   FaPlus,
   FaTrash,
+  FaLink,
 } from "react-icons/fa";
 
 // Import HOD photo
@@ -2022,7 +2023,8 @@ const MBA = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -2139,7 +2141,8 @@ const MBA = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -2619,7 +2622,8 @@ const MBA = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -2842,7 +2846,8 @@ const MBA = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -2904,7 +2909,8 @@ const MBA = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -3691,7 +3697,8 @@ const MBA = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -4046,7 +4053,8 @@ const MBA = () => {
 
   const deleteNewsletterFileIfNeeded = async (link) => {
     const deletablePath = getDeletableUploadPath(link);
-    if (!deletablePath) return;
+    if (!deletablePath) return;
+
 
     try {
       await apiClient.delete("/upload/file", { params: {
@@ -4118,7 +4126,8 @@ const MBA = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -4290,7 +4299,8 @@ const MBA = () => {
 
   const deleteAchievementFileIfNeeded = async (link) => {
     const deletablePath = getAchievementDeletableUploadPath(link);
-    if (!deletablePath) return;
+    if (!deletablePath) return;
+
 
     try {
       await apiClient.delete("/upload/file", { params: {
@@ -4332,7 +4342,8 @@ const MBA = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("image", file);
+
       const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
@@ -4533,7 +4544,8 @@ const MBA = () => {
     setUploadingFiles((prev) => ({ ...prev, [uploadKey]: true }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const key = `templateData.curriculum.${section}`;
@@ -9734,7 +9746,7 @@ After successfully completing the course, students will be able to:
                               </span>
                             </td>
                             <td className="px-6 py-4 font-mono text-xs text-gray-500 whitespace-nowrap text-right">
-                              {pat.link ? (
+                              {pat.link && pat.link.trim() !== "" && pat.link.trim() !== "-" ? (
                                 <a
                                   href={pat.link}
                                   target="_blank"
@@ -9849,13 +9861,14 @@ After successfully completing the course, students will be able to:
                               {pub.journal}
                             </td>
                             <td className="px-6 py-4 text-right">
-                              {pub.link ? (
+                              {pub.link && pub.link.trim() !== "" && pub.link.trim() !== "-" ? (
                                 <a
                                   href={pub.link}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center text-ssgmce-blue hover:text-ssgmce-dark-blue font-bold px-3 py-1 bg-blue-50 rounded-lg transition-colors border border-blue-100"
                                 >
+                                  <FaLink className="mr-1.5 shrink-0 " />
                                   View{" "}
                                   <FaExternalLinkAlt className="ml-2 text-[10px]" />
                                 </a>
@@ -9962,13 +9975,14 @@ After successfully completing the course, students will be able to:
                               {conf.journal}
                             </td>
                             <td className="px-6 py-4 text-right">
-                              {conf.link ? (
+                              {conf.link && conf.link.trim() !== "" && conf.link.trim() !== "-" ? (
                                 <a
                                   href={conf.link}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center text-ssgmce-blue hover:text-ssgmce-dark-blue font-bold px-3 py-1 bg-blue-50 rounded-lg transition-colors border border-blue-100"
                                 >
+                                  <FaLink className="mr-1.5 shrink-0 " />
                                   View{" "}
                                   <FaExternalLinkAlt className="ml-2 text-[10px]" />
                                 </a>
@@ -10066,7 +10080,7 @@ After successfully completing the course, students will be able to:
                               {cr.name}
                             </td>
                             <td className="px-6 py-4 text-gray-700">
-                              {cr.link ? (
+                              {cr.link && cr.link.trim() !== "" && cr.link.trim() !== "-" ? (
                                 <a
                                   href={cr.link}
                                   target="_blank"
@@ -10178,7 +10192,7 @@ After successfully completing the course, students will be able to:
                               {book.coAuthors ? `, ${book.coAuthors}` : ""}
                             </td>
                             <td className="px-6 py-4 text-gray-700">
-                              {book.link ? (
+                              {book.link && book.link.trim() !== "" && book.link.trim() !== "-" ? (
                                 <a
                                   href={book.link}
                                   target="_blank"

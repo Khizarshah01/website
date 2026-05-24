@@ -130,6 +130,7 @@ import {
   FaUpload,
   FaPlus,
   FaTrash,
+  FaLink,
 } from "react-icons/fa";
 
 // IT_DEFAULT_FACULTY is now imported and resolved above via itDefaults.js + itPhotoMap
@@ -1183,7 +1184,8 @@ const IT = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -1278,7 +1280,8 @@ const IT = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("image", file);
+
       const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
@@ -1374,7 +1377,8 @@ const IT = () => {
     setMouReportErrors((prev) => ({ ...prev, [uploadKey]: "" }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const mous = getItMous();
@@ -1610,7 +1614,8 @@ const IT = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -2046,7 +2051,7 @@ const IT = () => {
 
   const getPlacementMarkdown = (year) => {
     const records = placementRecordsByYear[year] || [];
-    const header = `## Placement Record � ${year}`;
+    const header = `## Placement Record — ${year}`;
     const intro =
       year === currentPlacementYear
         ? "*Placements still in progress for the current academic year.*\n\n"
@@ -2089,7 +2094,7 @@ const IT = () => {
   };
 
   const placementRecordsToMarkdown = (year, records) => {
-    const header = `## Placement Record � ${year}`;
+    const header = `## Placement Record — ${year}`;
     const intro =
       year === currentPlacementYear
         ? "*Placements still in progress for the current academic year.*\n\n"
@@ -2306,7 +2311,8 @@ const IT = () => {
 
   const deleteNewsletterFileIfNeeded = async (link) => {
     const deletablePath = getDeletableUploadPath(link);
-    if (!deletablePath) return;
+    if (!deletablePath) return;
+
 
     try {
       await apiClient.delete("/upload/file", { params: {
@@ -2378,7 +2384,8 @@ const IT = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
 
       if (!response.data.fileUrl) {
@@ -2550,7 +2557,8 @@ const IT = () => {
 
   const deleteAchievementFileIfNeeded = async (link) => {
     const deletablePath = getAchievementDeletableUploadPath(link);
-    if (!deletablePath) return;
+    if (!deletablePath) return;
+
 
     try {
       await apiClient.delete("/upload/file", { params: {
@@ -2592,7 +2600,8 @@ const IT = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("image", file);
+
       const response = await apiClient.post("/upload/image", formData);
 
       if (!response.data.fileUrl) {
@@ -2854,7 +2863,8 @@ const IT = () => {
     setUploadingFiles((prev) => ({ ...prev, [uploadKey]: true }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file);
+
       const response = await apiClient.post("/upload/file", formData);
       if (response.data.fileUrl) {
         const key = `templateData.curriculum.${section}`;
@@ -3956,7 +3966,7 @@ After successful completion of the course, students will be able to:
 
 1. Understand the definitions and fundamental concepts of entrepreneurship and start-ups
 2. Understand the role of a business plan in guiding the implementation of business ideas
-3. Understand the company�s organization structure and its role in effective management. Course Name: Environmental Science Course Code: 3SH208VE
+3. Understand the company's organization structure and its role in effective management. Course Name: Environmental Science Course Code: 3SH208VE
 4. Understand the multidisciplinary nature of environment and Renewable and non-renewable resources
 5. Understand natural environment and its relationship with human activities
 6. Understand the basic concepts and problems and follow sustainable development practices`,
@@ -4004,7 +4014,7 @@ After successful completion of the course, students will be able to:
 2. Apply synchronization and deadlock-related issues
 3. Investigate memory management techniques
 
-### 4IT215VS Computer Skills � I
+### 4IT215VS Computer Skills — I
 
 After successful completion of the course, students will be able to:
 
@@ -4182,7 +4192,7 @@ After successful completion of the course, students will be able to:
 5. Apply knowledge of signals, transmission media, and error detection and correction techniques in data communication
 6. Illustrate the building blocks and functioning of a digital communication system
 
-### 6IT09 Computer Skill Lab � IV
+### 6IT09 Computer Skill Lab — IV
 
 After successful completion of the course, students will be able to:
 
@@ -7374,7 +7384,7 @@ After successful completion of the course, students will be able to:
                               </span>
                             </td>
                             <td className="px-6 py-4 font-mono text-xs text-gray-500 whitespace-nowrap text-right">
-                              {pat.link ? (
+                              {pat.link && pat.link.trim() !== "" && pat.link.trim() !== "-" ? (
                                 <a
                                   href={pat.link}
                                   target="_blank"
@@ -7489,13 +7499,14 @@ After successful completion of the course, students will be able to:
                               {pub.journal}
                             </td>
                             <td className="px-6 py-4 text-right">
-                              {pub.link ? (
+                              {pub.link && pub.link.trim() !== "" && pub.link.trim() !== "-" ? (
                                 <a
                                   href={pub.link}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center text-ssgmce-blue hover:text-ssgmce-dark-blue font-bold px-3 py-1 bg-blue-50 rounded-lg transition-colors border border-blue-100"
                                 >
+                                  <FaLink className="mr-1.5 shrink-0 " />
                                   View{" "}
                                   <FaExternalLinkAlt className="ml-2 text-[10px]" />
                                 </a>
@@ -7602,13 +7613,14 @@ After successful completion of the course, students will be able to:
                               {conf.journal}
                             </td>
                             <td className="px-6 py-4 text-right">
-                              {conf.link ? (
+                              {conf.link && conf.link.trim() !== "" && conf.link.trim() !== "-" ? (
                                 <a
                                   href={conf.link}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center text-ssgmce-blue hover:text-ssgmce-dark-blue font-bold px-3 py-1 bg-blue-50 rounded-lg transition-colors border border-blue-100"
                                 >
+                                  <FaLink className="mr-1.5 shrink-0 " />
                                   View{" "}
                                   <FaExternalLinkAlt className="ml-2 text-[10px]" />
                                 </a>
@@ -7706,7 +7718,7 @@ After successful completion of the course, students will be able to:
                               {cr.name}
                             </td>
                             <td className="px-6 py-4 text-gray-700">
-                              {cr.link ? (
+                              {cr.link && cr.link.trim() !== "" && cr.link.trim() !== "-" ? (
                                 <a
                                   href={cr.link}
                                   target="_blank"
@@ -7818,7 +7830,7 @@ After successful completion of the course, students will be able to:
                               {book.coAuthors ? `, ${book.coAuthors}` : ""}
                             </td>
                             <td className="px-6 py-4 text-gray-700">
-                              {book.link ? (
+                              {book.link && book.link.trim() !== "" && book.link.trim() !== "-" ? (
                                 <a
                                   href={book.link}
                                   target="_blank"
@@ -8285,7 +8297,7 @@ After successful completion of the course, students will be able to:
                 <div className="bg-gradient-to-r from-ssgmce-blue to-blue-700 text-white p-4">
                   <h4 className="text-lg font-bold flex items-center gap-2">
                     <FaBook className="text-ssgmce-orange" />
-                    UG Projects � {ugProjectYear}
+                    UG Projects — {ugProjectYear}
                   </h4>
                 </div>
                 <div className="overflow-x-auto">
@@ -8329,7 +8341,7 @@ After successful completion of the course, students will be able to:
                                   <FaExternalLinkAlt className="text-xs" /> View
                                 </a>
                               ) : (
-                                <span className="text-gray-400 text-xs">�</span>
+                                <span className="text-gray-400 text-xs">-</span>
                               )}
                             </td>
                           )}

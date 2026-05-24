@@ -44,6 +44,7 @@ import {
   FaTimes,
   FaChevronLeft,
   FaChevronRight,
+  FaLink,
 } from "react-icons/fa";
 
 // Import HOD Photo
@@ -3027,15 +3028,16 @@ The department has three well equipped laboratories namely **Physics, Chemistry 
                       </div>
                     </div>
 
-                    {program.link ? (
+                    {program.link && program.link.trim() !== "" && program.link.trim() !== "-" ? (
                       <a
                         href={program.link}
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex items-center gap-2 text-ssgmce-blue hover:text-ssgmce-orange font-semibold text-sm hover:underline transition-colors"
                       >
+                        <FaLink className="mr-1.5 shrink-0 " />
                         Detail Report
-                        <FaExternalLinkAlt className="text-xs" />
+                        <FaExternalLinkAlt className="text-xs ml-2" />
                       </a>
                     ) : (
                       <span className="inline-flex items-center gap-2 text-gray-400 font-semibold text-sm">

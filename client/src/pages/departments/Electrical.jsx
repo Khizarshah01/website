@@ -91,6 +91,7 @@ import {
   FaPlus,
   FaTrash,
   FaUpload,
+  FaLink,
 } from "react-icons/fa";
 
 // ─── Pride section: markdown converter helpers ─────────────────────────────────
@@ -9137,13 +9138,14 @@ Upon successful completion of this course, students will be able to:
                               {pub.journal}
                             </td>
                             <td className="px-6 py-4 text-right">
-                              {pub.link ? (
+                              {pub.link && pub.link.trim() !== "" && pub.link.trim() !== "-" ? (
                                 <a
                                   href={pub.link}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center text-ssgmce-blue hover:text-ssgmce-dark-blue font-bold px-3 py-1 bg-blue-50 rounded-lg transition-colors border border-blue-100"
                                 >
+                                  <FaLink className="mr-1.5 shrink-0 " />
                                   View{" "}
                                   <FaExternalLinkAlt className="ml-2 text-[10px]" />
                                 </a>

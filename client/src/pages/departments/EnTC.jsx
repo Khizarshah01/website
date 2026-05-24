@@ -49,6 +49,7 @@ import {
   FaUpload,
   FaChevronLeft,
   FaChevronRight,
+  FaLink,
 } from "react-icons/fa";
 
 // Faculty Photos
@@ -2939,9 +2940,9 @@ const EnTC = () => {
       typeof issue.sourceUrl === "string" ? issue.sourceUrl.trim() : "";
     const link = typeof issue.link === "string" ? issue.link.trim() : "";
 
-    // Prefer canonical source URL for magazine PDFs when available.
+    // Prefer link (uploads) over the legacy sourceUrl to avoid 404 redirects
+    if (link && link !== "#") return resolveUploadedAssetUrl(link);
     if (sourceUrl) return encodeURI(sourceUrl);
-    if (link && link !== "#") return link;
     return "#";
   };
 
@@ -8571,13 +8572,14 @@ On completion of the course, the students will be able to:
                               {pub.journal}
                             </td>
                             <td className="px-6 py-4 text-right">
-                              {pub.link ? (
+                              {pub.link && pub.link.trim() !== "" && pub.link.trim() !== "-" ? (
                                 <a
                                   href={pub.link}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center text-ssgmce-blue hover:text-ssgmce-dark-blue font-bold px-3 py-1 bg-blue-50 rounded-lg transition-colors border border-blue-100"
                                 >
+                                  <FaLink className="mr-1.5 shrink-0 " />
                                   View{" "}
                                   <FaExternalLinkAlt className="ml-2 text-[10px]" />
                                 </a>
@@ -8684,13 +8686,14 @@ On completion of the course, the students will be able to:
                               {conf.journal}
                             </td>
                             <td className="px-6 py-4 text-right">
-                              {conf.link ? (
+                              {conf.link && conf.link.trim() !== "" && conf.link.trim() !== "-" ? (
                                 <a
                                   href={conf.link}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center text-ssgmce-blue hover:text-ssgmce-dark-blue font-bold px-3 py-1 bg-blue-50 rounded-lg transition-colors border border-blue-100"
                                 >
+                                  <FaLink className="mr-1.5 shrink-0 " />
                                   View{" "}
                                   <FaExternalLinkAlt className="ml-2 text-[10px]" />
                                 </a>
