@@ -6204,10 +6204,7 @@ Upon successful completion of this course, students will be able to:
                   {(fac.area || isEditing) && (
                     <div className="line-clamp-2 text-xs">
                       <span className="font-bold text-gray-700">
-                        <EditableText
-                          value={t("facultyAreaLabel", "Area: ")}
-                          onSave={(val) => updateField("facultyAreaLabel", val)}
-                        />
+                        Area:{" "}
                       </span>
                       <EditableText
                         value={
