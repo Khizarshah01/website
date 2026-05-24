@@ -44,7 +44,9 @@ import {
   FaPlus,
   FaTrash,
   FaUpload,
+  FaLink,
 } from "react-icons/fa";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { getPathWithTab, getRequestedTab } from "../../utils/navigation";
 
@@ -197,16 +199,16 @@ const parseUgProjectsMarkdown = (markdown = "", fallbackYear = "2024-25") => {
   const sections =
     headingMatches.length > 0
       ? headingMatches.map((match, index) => {
-          const start = match.index ?? 0;
-          const end =
-            index + 1 < headingMatches.length
-              ? headingMatches[index + 1].index
-              : text.length;
-          return {
-            year: match[1].trim(),
-            body: text.slice(start, end),
-          };
-        })
+        const start = match.index ?? 0;
+        const end =
+          index + 1 < headingMatches.length
+            ? headingMatches[index + 1].index
+            : text.length;
+        return {
+          year: match[1].trim(),
+          body: text.slice(start, end),
+        };
+      })
       : [{ year: fallbackYear, body: text }];
 
   const years = [];
@@ -2012,10 +2014,10 @@ const CSE = () => {
     ...Object.keys(
       storedPlacementObject && typeof storedPlacementObject === "object"
         ? Object.fromEntries(
-            Object.entries(storedPlacementObject).filter(
-              ([key]) => !["years", "details", "markdown"].includes(key),
-            ),
-          )
+          Object.entries(storedPlacementObject).filter(
+            ([key]) => !["years", "details", "markdown"].includes(key),
+          ),
+        )
         : {},
     ),
   ]).sort(compareAcademicYearsDesc);
@@ -2508,9 +2510,9 @@ const CSE = () => {
     const nextActivities = sourceActivities.map((activity, activityIndex) =>
       activityIndex === index
         ? normalizeCseActivity({
-            ...activity,
-            [field]: value,
-          })
+          ...activity,
+          [field]: value,
+        })
         : activity,
     );
 
@@ -2554,11 +2556,11 @@ const CSE = () => {
     const normalizedRecords = orderedYears.reduce((acc, year) => {
       acc[year] = Array.isArray(records?.[year])
         ? records[year].map((project) => ({
-            id: String(project?.id || "").trim(),
-            title: String(project?.title || "").trim(),
-            link: String(project?.link || "").trim(),
-            fileName: String(project?.fileName || "").trim(),
-          }))
+          id: String(project?.id || "").trim(),
+          title: String(project?.title || "").trim(),
+          link: String(project?.link || "").trim(),
+          fileName: String(project?.fileName || "").trim(),
+        }))
         : [];
       return acc;
     }, {});
@@ -2742,8 +2744,8 @@ const CSE = () => {
         id: String(visit?.id || createIndustrialVisitId()).trim(),
         industries: Array.isArray(visit?.industries)
           ? visit.industries
-              .map((item) => String(item || "").trim())
-              .filter(Boolean)
+            .map((item) => String(item || "").trim())
+            .filter(Boolean)
           : [],
         class: String(visit?.class || "").trim(),
         date: String(visit?.date || "").trim(),
@@ -2833,9 +2835,9 @@ const CSE = () => {
           visits.map((visit) =>
             visit.id === visitId
               ? {
-                  ...visit,
-                  report: response.data.fileUrl,
-                }
+                ...visit,
+                report: response.data.fileUrl,
+              }
               : visit,
           ),
         );
@@ -2941,9 +2943,9 @@ const CSE = () => {
           mous.map((mou) =>
             mou.id === mouId
               ? {
-                  ...mou,
-                  report: response.data.fileUrl,
-                }
+                ...mou,
+                report: response.data.fileUrl,
+              }
               : mou,
           ),
         );
@@ -3176,7 +3178,8 @@ const CSE = () => {
 
 
     try {
-      await apiClient.delete("/upload/file", { params: {
+      await apiClient.delete("/upload/file", {
+        params: {
           path: deletablePath,
         },
       });
@@ -3308,9 +3311,9 @@ const CSE = () => {
   const ugProjectMarkdownByYear = t("ugProjects.markdownByYear", {});
   const currentUgProjects = Array.isArray(ugProjectRecords?.[projectYear])
     ? ugProjectRecords[projectYear].map((project) => ({
-        ...project,
-        link: resolveCseUgProjectReportLink(project, projectYear),
-      }))
+      ...project,
+      link: resolveCseUgProjectReportLink(project, projectYear),
+    }))
     : [];
   const selectedUgProjectsMarkdown =
     ugProjectMarkdownByYear?.[projectYear] ||
@@ -3504,7 +3507,8 @@ const CSE = () => {
 
 
     try {
-      await apiClient.delete("/upload/file", { params: {
+      await apiClient.delete("/upload/file", {
+        params: {
           path: deletablePath,
         },
       });
@@ -4080,11 +4084,10 @@ const CSE = () => {
               <button
                 key={tab}
                 onClick={() => setVmTab(tab)}
-                className={`px-8 py-4 font-bold text-sm uppercase tracking-wider transition-all relative ${
-                  vmTab === tab
-                    ? "text-ssgmce-blue bg-white"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                }`}
+                className={`px-8 py-4 font-bold text-sm uppercase tracking-wider transition-all relative ${vmTab === tab
+                  ? "text-ssgmce-blue bg-white"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  }`}
               >
                 <span className="inline-flex items-center gap-2">
                   {tab === "vision" ? (
@@ -4219,11 +4222,10 @@ const CSE = () => {
               <button
                 key={tab.id}
                 onClick={() => setPoTab(tab.id)}
-                className={`px-6 py-4 font-bold text-sm transition-all relative whitespace-nowrap ${
-                  poTab === tab.id
-                    ? "text-white bg-[#003366]"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
+                className={`px-6 py-4 font-bold text-sm transition-all relative whitespace-nowrap ${poTab === tab.id
+                  ? "text-white bg-[#003366]"
+                  : "text-gray-600 hover:bg-gray-100"
+                  }`}
               >
                 {tab.label}
               </button>
@@ -4672,31 +4674,28 @@ const CSE = () => {
           <div className="flex gap-2 mb-6 border-b">
             <button
               onClick={() => setPrideTab("gate")}
-              className={`px-6 py-3 font-semibold transition-colors ${
-                prideTab === "gate"
-                  ? "border-b-4 border-ssgmce-orange text-ssgmce-blue"
-                  : "text-gray-600 hover:text-ssgmce-blue"
-              }`}
+              className={`px-6 py-3 font-semibold transition-colors ${prideTab === "gate"
+                ? "border-b-4 border-ssgmce-orange text-ssgmce-blue"
+                : "text-gray-600 hover:text-ssgmce-blue"
+                }`}
             >
               GATE Qualified
             </button>
             <button
               onClick={() => setPrideTab("toppers")}
-              className={`px-6 py-3 font-semibold transition-colors ${
-                prideTab === "toppers"
-                  ? "border-b-4 border-ssgmce-orange text-ssgmce-blue"
-                  : "text-gray-600 hover:text-ssgmce-blue"
-              }`}
+              className={`px-6 py-3 font-semibold transition-colors ${prideTab === "toppers"
+                ? "border-b-4 border-ssgmce-orange text-ssgmce-blue"
+                : "text-gray-600 hover:text-ssgmce-blue"
+                }`}
             >
               University Toppers
             </button>
             <button
               onClick={() => setPrideTab("alumni")}
-              className={`px-6 py-3 font-semibold transition-colors ${
-                prideTab === "alumni"
-                  ? "border-b-4 border-ssgmce-orange text-ssgmce-blue"
-                  : "text-gray-600 hover:text-ssgmce-blue"
-              }`}
+              className={`px-6 py-3 font-semibold transition-colors ${prideTab === "alumni"
+                ? "border-b-4 border-ssgmce-orange text-ssgmce-blue"
+                : "text-gray-600 hover:text-ssgmce-blue"
+                }`}
             >
               Top Alumni
             </button>
@@ -5434,11 +5433,10 @@ const CSE = () => {
                 <button
                   key={year}
                   onClick={() => setProjectYear(year)}
-                  className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${
-                    projectYear === year
-                      ? "bg-ssgmce-blue text-white shadow-md"
-                      : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
-                  }`}
+                  className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${projectYear === year
+                    ? "bg-ssgmce-blue text-white shadow-md"
+                    : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
+                    }`}
                 >
                   {year}
                 </button>
@@ -5487,7 +5485,7 @@ const CSE = () => {
                       {project.title}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {project.link ? (
+                      {project.link && project.link.trim() !== "" && project.link.trim() !== "-" ? (
                         <a
                           href={project.link}
                           target="_blank"
@@ -5578,15 +5576,14 @@ const CSE = () => {
         <div className="grid items-start gap-6 lg:grid-cols-2">
           {t("faculty", defaultFaculty).map((fac, i) => (
             <motion.div
-              key={i}
+              key={fac.id || i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className={`group relative flex overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:shadow-lg ${
-                isEditing && expandedFacultyEditorIndex === i
-                  ? "lg:col-span-2"
-                  : ""
-              }`}
+              className={`group relative flex overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:shadow-lg ${isEditing && expandedFacultyEditorIndex === i
+                ? "lg:col-span-2"
+                : ""
+                }`}
             >
               {/* Delete Button */}
               {isEditing && (
@@ -5639,7 +5636,7 @@ const CSE = () => {
                   {(fac.qualification || isEditing) && (
                     <div className="line-clamp-2 text-xs">
                       <span className="font-bold text-gray-700">
-                        Qualification: 
+                        Qualification:
                       </span>
                       <EditableText
                         value={fac.qualification || "Qualification..."}
@@ -5651,7 +5648,7 @@ const CSE = () => {
                   {(fac.experience || isEditing) && (
                     <div className="line-clamp-2 text-xs">
                       <span className="font-bold text-gray-700">
-                        Experience: 
+                        Experience:
                       </span>
                       <EditableText
                         value={fac.experience || "Experience..."}
@@ -5663,7 +5660,7 @@ const CSE = () => {
                   {(fac.scholarIds || isEditing) && (
                     <div className="line-clamp-2 text-xs">
                       <span className="font-bold text-gray-700">
-                        Scholar IDs: 
+                        Scholar IDs:
                       </span>
                       <EditableText
                         value={fac.scholarIds || "Scholar IDs..."}
@@ -6277,19 +6274,19 @@ const CSE = () => {
                 <div className="flex gap-2 mb-4 justify-end">
                   {selectedCurriculumItems.filter((k) => k.startsWith("be-"))
                     .length > 0 && (
-                    <button
-                      onClick={() => deleteSelectedCurriculumItems("be")}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-xs font-semibold"
-                    >
-                      <FaTrash /> Delete Selected (
-                      {
-                        selectedCurriculumItems.filter((k) =>
-                          k.startsWith("be-"),
-                        ).length
-                      }
-                      )
-                    </button>
-                  )}
+                      <button
+                        onClick={() => deleteSelectedCurriculumItems("be")}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-xs font-semibold"
+                      >
+                        <FaTrash /> Delete Selected (
+                        {
+                          selectedCurriculumItems.filter((k) =>
+                            k.startsWith("be-"),
+                          ).length
+                        }
+                        )
+                      </button>
+                    )}
                   <button
                     onClick={() => addCurriculumItem("be")}
                     className="flex items-center gap-2 px-3 py-1.5 bg-ssgmce-blue text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-semibold"
@@ -6336,11 +6333,10 @@ const CSE = () => {
                                     )
                                   }
                                   placeholder="Link URL or use upload"
-                                  className={`text-xs px-2 py-1 border rounded w-40 ${
-                                    item.fileUrl
-                                      ? "border-green-400 bg-green-50"
-                                      : "border-gray-300"
-                                  }`}
+                                  className={`text-xs px-2 py-1 border rounded w-40 ${item.fileUrl
+                                    ? "border-green-400 bg-green-50"
+                                    : "border-gray-300"
+                                    }`}
                                 />
                                 {item.fileName && (
                                   <span
@@ -6363,13 +6359,12 @@ const CSE = () => {
                                 />
                                 <label
                                   htmlFor={`file-upload-be-${i}`}
-                                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors ${
-                                    uploadingFiles[`be-${i}`]
-                                      ? "bg-gray-300 text-gray-500"
-                                      : item.fileUrl
-                                        ? "bg-green-500 text-white hover:bg-green-600"
-                                        : "bg-blue-500 text-white hover:bg-blue-600"
-                                  }`}
+                                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors ${uploadingFiles[`be-${i}`]
+                                    ? "bg-gray-300 text-gray-500"
+                                    : item.fileUrl
+                                      ? "bg-green-500 text-white hover:bg-green-600"
+                                      : "bg-blue-500 text-white hover:bg-blue-600"
+                                    }`}
                                   title={
                                     item.fileUrl
                                       ? "Re-upload PDF"
@@ -6437,19 +6432,19 @@ const CSE = () => {
                 <div className="flex gap-2 mb-4 justify-end">
                   {selectedCurriculumItems.filter((k) => k.startsWith("me-"))
                     .length > 0 && (
-                    <button
-                      onClick={() => deleteSelectedCurriculumItems("me")}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-xs font-semibold"
-                    >
-                      <FaTrash /> Delete Selected (
-                      {
-                        selectedCurriculumItems.filter((k) =>
-                          k.startsWith("me-"),
-                        ).length
-                      }
-                      )
-                    </button>
-                  )}
+                      <button
+                        onClick={() => deleteSelectedCurriculumItems("me")}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-xs font-semibold"
+                      >
+                        <FaTrash /> Delete Selected (
+                        {
+                          selectedCurriculumItems.filter((k) =>
+                            k.startsWith("me-"),
+                          ).length
+                        }
+                        )
+                      </button>
+                    )}
                   <button
                     onClick={() => addCurriculumItem("me")}
                     className="flex items-center gap-2 px-3 py-1.5 bg-ssgmce-blue text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-semibold"
@@ -6496,11 +6491,10 @@ const CSE = () => {
                                     )
                                   }
                                   placeholder="Link URL or use upload"
-                                  className={`text-xs px-2 py-1 border rounded w-40 ${
-                                    item.fileUrl
-                                      ? "border-green-400 bg-green-50"
-                                      : "border-gray-300"
-                                  }`}
+                                  className={`text-xs px-2 py-1 border rounded w-40 ${item.fileUrl
+                                    ? "border-green-400 bg-green-50"
+                                    : "border-gray-300"
+                                    }`}
                                 />
                                 {item.fileName && (
                                   <span
@@ -6523,13 +6517,12 @@ const CSE = () => {
                                 />
                                 <label
                                   htmlFor={`file-upload-me-${i}`}
-                                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors ${
-                                    uploadingFiles[`me-${i}`]
-                                      ? "bg-gray-300 text-gray-500"
-                                      : item.fileUrl
-                                        ? "bg-green-500 text-white hover:bg-green-600"
-                                        : "bg-blue-500 text-white hover:bg-blue-600"
-                                  }`}
+                                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded cursor-pointer transition-colors ${uploadingFiles[`me-${i}`]
+                                    ? "bg-gray-300 text-gray-500"
+                                    : item.fileUrl
+                                      ? "bg-green-500 text-white hover:bg-green-600"
+                                      : "bg-blue-500 text-white hover:bg-blue-600"
+                                    }`}
                                   title={
                                     item.fileUrl
                                       ? "Re-upload PDF"
@@ -7428,11 +7421,10 @@ const CSE = () => {
                       <button
                         key={year}
                         onClick={() => setResearchYear(year)}
-                        className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${
-                          researchYear === year
-                            ? "bg-ssgmce-blue text-white shadow-md"
-                            : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
-                        }`}
+                        className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${researchYear === year
+                          ? "bg-ssgmce-blue text-white shadow-md"
+                          : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
+                          }`}
                       >
                         {year}
                       </button>
@@ -7499,7 +7491,7 @@ const CSE = () => {
                               </span>
                             </td>
                             <td className="px-6 py-4 font-mono text-xs text-gray-500 whitespace-nowrap text-right">
-                              {pat.link ? (
+                              {pat.link && pat.link.trim() !== "" && pat.link.trim() !== "-" ? (
                                 <a
                                   href={pat.link}
                                   target="_blank"
@@ -7577,11 +7569,10 @@ const CSE = () => {
                       <button
                         key={year}
                         onClick={() => setResearchYear(year)}
-                        className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${
-                          researchYear === year
-                            ? "bg-ssgmce-blue text-white shadow-md"
-                            : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
-                        }`}
+                        className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${researchYear === year
+                          ? "bg-ssgmce-blue text-white shadow-md"
+                          : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
+                          }`}
                       >
                         {year}
                       </button>
@@ -7661,13 +7652,14 @@ const CSE = () => {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex flex-col items-end gap-1">
-                              {pub.link ? (
+                              {pub.link && pub.link.trim() !== "" && pub.link.trim() !== "-" ? (
                                 <a
                                   href={pub.link}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center text-ssgmce-blue hover:text-ssgmce-dark-blue font-bold px-3 py-1 bg-blue-50 rounded-lg transition-colors border border-blue-100"
                                 >
+                                  <FaLink className="mr-1.5 shrink-0 " />
                                   View{" "}
                                   <FaExternalLinkAlt className="ml-2 text-[10px]" />
                                 </a>
@@ -7734,11 +7726,10 @@ const CSE = () => {
                       <button
                         key={year}
                         onClick={() => setResearchYear(year)}
-                        className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${
-                          researchYear === year
-                            ? "bg-ssgmce-blue text-white shadow-md"
-                            : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
-                        }`}
+                        className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${researchYear === year
+                          ? "bg-ssgmce-blue text-white shadow-md"
+                          : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
+                          }`}
                       >
                         {year}
                       </button>
@@ -7798,7 +7789,7 @@ const CSE = () => {
                               {cr.name}
                             </td>
                             <td className="px-6 py-4 text-gray-700">
-                              {cr.link ? (
+                              {cr.link && cr.link.trim() !== "" && cr.link.trim() !== "-" ? (
                                 <a
                                   href={cr.link}
                                   target="_blank"
@@ -7875,11 +7866,10 @@ const CSE = () => {
                       <button
                         key={year}
                         onClick={() => setResearchYear(year)}
-                        className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${
-                          researchYear === year
-                            ? "bg-ssgmce-blue text-white shadow-md"
-                            : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
-                        }`}
+                        className={`px-3 py-1 text-xs font-bold whitespace-nowrap rounded-full transition-all ${researchYear === year
+                          ? "bg-ssgmce-blue text-white shadow-md"
+                          : "bg-white text-gray-500 hover:text-ssgmce-blue border border-gray-200"
+                          }`}
                       >
                         {year}
                       </button>
@@ -7943,7 +7933,7 @@ const CSE = () => {
                               {book.coAuthors ? `, ${book.coAuthors}` : ""}
                             </td>
                             <td className="px-6 py-4 text-gray-700">
-                              {book.link ? (
+                              {book.link && book.link.trim() !== "" && book.link.trim() !== "-" ? (
                                 <a
                                   href={book.link}
                                   target="_blank"
@@ -8034,11 +8024,10 @@ const CSE = () => {
                 <button
                   key={year}
                   onClick={() => setInternshipYear(year)}
-                  className={`px-6 py-2 text-sm font-bold rounded-md transition-all ${
-                    internshipYear === year
-                      ? "bg-white text-ssgmce-blue shadow-md"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`px-6 py-2 text-sm font-bold rounded-md transition-all ${internshipYear === year
+                    ? "bg-white text-ssgmce-blue shadow-md"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   Session: {year}
                 </button>
@@ -8464,22 +8453,20 @@ const CSE = () => {
             <div className="inline-flex rounded-lg bg-gray-100 p-1">
               <button
                 onClick={() => setAchievementTab("faculty")}
-                className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
-                  achievementTab === "faculty"
-                    ? "bg-[#003366] text-white shadow-md"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
-                }`}
+                className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${achievementTab === "faculty"
+                  ? "bg-[#003366] text-white shadow-md"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
+                  }`}
               >
                 <FaChalkboardTeacher className="text-lg" />
                 Faculty Achievements
               </button>
               <button
                 onClick={() => setAchievementTab("student")}
-                className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
-                  achievementTab === "student"
-                    ? "bg-[#003366] text-white shadow-md"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
-                }`}
+                className={`px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${achievementTab === "student"
+                  ? "bg-[#003366] text-white shadow-md"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
+                  }`}
               >
                 <FaUserGraduate className="text-lg" />
                 Student Achievements
@@ -8851,11 +8838,10 @@ const CSE = () => {
     <button
       onClick={() => setActiveTab(id)}
       className={`relative w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-between group overflow-hidden
-            ${
-              activeTab === id
-                ? "bg-gradient-to-r from-ssgmce-blue to-ssgmce-dark-blue text-white shadow-lg border-l-4 border-ssgmce-orange"
-                : "text-gray-700 hover:bg-gradient-to-r hover:from-orange-50 hover:to-blue-50 hover:text-ssgmce-blue hover:shadow-md hover:scale-[1.02]"
-            }`}
+            ${activeTab === id
+          ? "bg-gradient-to-r from-ssgmce-blue to-ssgmce-dark-blue text-white shadow-lg border-l-4 border-ssgmce-orange"
+          : "text-gray-700 hover:bg-gradient-to-r hover:from-orange-50 hover:to-blue-50 hover:text-ssgmce-blue hover:shadow-md hover:scale-[1.02]"
+        }`}
     >
       <span className="flex items-center relative z-10">
         <span
