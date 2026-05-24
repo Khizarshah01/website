@@ -9,7 +9,7 @@ const NewsTicker = ({ items = [] }) => {
     <Link
       to="/news"
       aria-label="Open news page"
-      className="group block overflow-hidden border-t border-b border-white/6 bg-ssgmce-dark-blue/95 py-2.5 text-white sm:py-3"
+      className="group block overflow-hidden border-t border-b border-white/6 bg-ssgmce-dark-blue/95 text-white "
     >
       <style>{`
         .news-wrap { display:flex; align-items:center; gap:1rem; }
@@ -43,24 +43,20 @@ const NewsTicker = ({ items = [] }) => {
             </div>
           </div> */}
 
-          <div className="min-w-0 flex-1 flex items-center gap-4">
-            {/* <div className="flex items-center gap-3 flex-shrink-0 sm:hidden">
-              <video src={newVideo} autoPlay loop muted playsInline className="h-6 w-auto object-contain" />
-            </div> */}
 
-            <div className="overflow-hidden items-center mt-2 ">
-              <div className="news-track">
-                {[...items, ...items].map((it, idx) => (
-                  <span key={idx} className="news-item text-base font-medium text-white/95">
-                    <video src={newVideo} autoPlay loop muted playsInline className="h-14 w-auto object-contain flex-shrink-0" />
-                    {it?.title || 'Latest update from SSGMCE'}
-                  </span>
-                ))}
-              </div>
+          <div className="overflow-hidden items-center">
+            <div className="news-track mt-2">
+              {[...items, ...items].map((it, idx) => (
+                <span key={idx} className="news-item text-base font-medium text-white/95">
+                  <video src={newVideo} autoPlay loop muted playsInline className="h-14 w-auto object-contain flex-shrink-0" />
+                  {it?.title || 'Latest update from SSGMCE'}
+                </span>
+              ))}
             </div>
           </div>
+        </div>
 
-          {/* <div className="hidden flex-shrink-0 sm:block">
+        {/* <div className="hidden flex-shrink-0 sm:block">
             <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-white news-cta transition-transform group-hover:translate-x-1">
               View News
               <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
@@ -68,7 +64,6 @@ const NewsTicker = ({ items = [] }) => {
               </svg>
             </span>
           </div> */}
-        </div>
       </div>
     </Link>
   );
