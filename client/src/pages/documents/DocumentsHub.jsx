@@ -34,9 +34,9 @@ const DocumentsHub = () => {
     window.scrollTo(0, 0);
   }, [sectionKey]);
 
-  useEffect(() => {
-    document.title = `${activeSection?.label || "Documents"} | SSGMCE Documents`;
-  }, [activeSection]);
+  // useEffect(() => {
+  //   document.title = `${activeSection?.label || "Documents"} | SSGMCE Documents`;
+  // }, [activeSection]);
 
   if (!activeSection) return null;
 

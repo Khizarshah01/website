@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import PageHeader from '../components/PageHeader';
 import apiClient from "../utils/apiClient";
 import { resolveUploadedAssetUrl } from "../utils/uploadUrls";
 
+/* ─────────────────────── Gallery page ─────────────────────── */
 const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [galleryItems, setGalleryItems] = useState([]);
@@ -10,6 +11,11 @@ const Gallery = () => {
   const [categoryApiAvailable, setCategoryApiAvailable] = useState(false);
   const [loadingImages, setLoadingImages] = useState(true);
 
+  /* Lightbox state */
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  /* ── Fetch gallery data from API ── */
   useEffect(() => {
     const fetchGalleryData = async () => {
       try {
@@ -18,17 +24,12 @@ const Gallery = () => {
           apiClient.get("/gallery"),
           apiClient.get("/gallery/categories"),
         ]);
-
         const itemData =
-          itemsResult.status === "fulfilled" &&
-          Array.isArray(itemsResult.value.data?.data)
-            ? itemsResult.value.data.data
-            : [];
+          itemsResult.status === "fulfilled" && Array.isArray(itemsResult.value.data?.data)
+            ? itemsResult.value.data.data : [];
         const categoryData =
-          categoriesResult.status === "fulfilled" &&
-          Array.isArray(categoriesResult.value.data?.data)
-            ? categoriesResult.value.data.data
-            : [];
+          categoriesResult.status === "fulfilled" && Array.isArray(categoriesResult.value.data?.data)
+            ? categoriesResult.value.data.data : [];
         setGalleryItems(itemData);
         setGalleryCategories(categoryData);
         setCategoryApiAvailable(categoriesResult.status === "fulfilled");
@@ -40,10 +41,10 @@ const Gallery = () => {
         setLoadingImages(false);
       }
     };
-
     fetchGalleryData();
   }, []);
 
+  /* ── Fallback images ── */
   const fallbackGalleryImages = [
     { id: 1, category: "Campus", title: "College Main Building", url: "/gallery/photos/main-building.jpg", order: 1 },
     { id: 2, category: "Campus", title: "Central Library", url: "/gallery/photos/central-library.jpg", order: 2 },
@@ -59,7 +60,8 @@ const Gallery = () => {
     { id: 12, category: "Campus", title: "Seminar Hall", url: "/gallery/photos/seminar-hall.jpg", order: 12 },
   ];
 
-  const normalizedGalleryImages = useMemo(() => {
+  /* ── Normalize gallery images ── */
+  const allImages = useMemo(() => {
     if (!Array.isArray(galleryItems) || galleryItems.length === 0) {
       return fallbackGalleryImages;
     }
@@ -73,77 +75,109 @@ const Gallery = () => {
         order: Number.isFinite(Number(item.order)) ? Number(item.order) : index,
       }))
       .sort((a, b) => a.order - b.order || String(a.title).localeCompare(String(b.title)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [galleryItems]);
 
+  /* ── Categories ── */
   const categories = useMemo(() => {
     const sortedApiCategories = galleryCategories
       .map((category, index) => ({
         name: String(category?.name || "").trim(),
-        order: Number.isFinite(Number(category?.order))
-          ? Number(category.order)
-          : index,
+        order: Number.isFinite(Number(category?.order)) ? Number(category.order) : index,
       }))
-      .filter((category) => category.name)
+      .filter((c) => c.name)
       .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
-
     const apiNames = [];
-    const seenApiNames = new Set();
-    for (const category of sortedApiCategories) {
-      const lower = category.name.toLowerCase();
-      if (seenApiNames.has(lower)) continue;
-      seenApiNames.add(lower);
-      apiNames.push(category.name);
+    const seen = new Set();
+    for (const c of sortedApiCategories) {
+      const lower = c.name.toLowerCase();
+      if (seen.has(lower)) continue;
+      seen.add(lower);
+      apiNames.push(c.name);
     }
-
     const imageCategories = Array.from(
-      new Set(normalizedGalleryImages.map((img) => img.category).filter(Boolean)),
+      new Set(allImages.map((img) => img.category).filter(Boolean)),
     );
     const finalCategories = categoryApiAvailable ? apiNames : imageCategories;
     return ["All", ...finalCategories];
-  }, [categoryApiAvailable, galleryCategories, normalizedGalleryImages]);
+  }, [categoryApiAvailable, galleryCategories, allImages]);
 
   useEffect(() => {
-    if (!categories.includes(selectedCategory)) {
-      setSelectedCategory("All");
-    }
+    if (!categories.includes(selectedCategory)) setSelectedCategory("All");
   }, [categories, selectedCategory]);
 
+  /* ── Filtered images ── */
+  const filteredImages = useMemo(() =>
+    selectedCategory === "All"
+      ? allImages
+      : allImages.filter((img) => img.category === selectedCategory),
+    [selectedCategory, allImages]
+  );
+
+  /* ── Split filtered images into 3 rows for the marquee ── */
+  const [row1, row2, row3] = useMemo(() => {
+    if (filteredImages.length === 0) return [[], [], []];
+    const r1 = [], r2 = [], r3 = [];
+    filteredImages.forEach((img, i) => {
+      if (i % 3 === 0) r1.push(img);
+      else if (i % 3 === 1) r2.push(img);
+      else r3.push(img);
+    });
+    return [r1, r2, r3];
+  }, [filteredImages]);
+
+  /* ── Video gallery data ── */
   const galleryVideos = [
-    {
-      title: 'Campus Tour',
-      src: '/gallery/videos/campus-tour.mp4',
-      poster: '/gallery/posters/campus-tour.jpg',
-    },
-    {
-      title: 'Infrastructure Overview',
-      src: '/gallery/videos/infrastructure-overview.mp4',
-      poster: '/gallery/posters/infrastructure-overview.jpg',
-    },
-    {
-      title: 'Laboratory Tour',
-      src: '/gallery/videos/lab-tour.mp4',
-      poster: '/gallery/posters/lab-tour.jpg',
-    },
-    {
-      title: 'Campus Life Highlights',
-      src: '/gallery/videos/campus-life-highlights.mp4',
-      poster: '/gallery/posters/campus-life-highlights.jpg',
-    },
+    { title: 'Campus Tour', src: '/gallery/videos/campus-tour.mp4', poster: '/gallery/posters/campus-tour.jpg' },
+    { title: 'Infrastructure Overview', src: '/gallery/videos/infrastructure-overview.mp4', poster: '/gallery/posters/infrastructure-overview.jpg' },
+    { title: 'Laboratory Tour', src: '/gallery/videos/lab-tour.mp4', poster: '/gallery/posters/lab-tour.jpg' },
+    { title: 'Campus Life Highlights', src: '/gallery/videos/campus-life-highlights.mp4', poster: '/gallery/posters/campus-life-highlights.jpg' },
   ];
 
-  const filteredImages =
-    selectedCategory === "All"
-      ? normalizedGalleryImages
-      : normalizedGalleryImages.filter((img) => img.category === selectedCategory);
+  /* ── Flat index from row/col for lightbox ── */
+  const openLightbox = useCallback(
+    (img) => {
+      const idx = filteredImages.findIndex((i) => i.id === img.id);
+      setLightboxIndex(idx >= 0 ? idx : 0);
+      setLightboxOpen(true);
+    },
+    [filteredImages]
+  );
+
+  const closeLightbox = useCallback(() => setLightboxOpen(false), []);
+  const goPrev = useCallback(
+    () => setLightboxIndex((i) => (i - 1 + filteredImages.length) % filteredImages.length),
+    [filteredImages.length]
+  );
+  const goNext = useCallback(
+    () => setLightboxIndex((i) => (i + 1) % filteredImages.length),
+    [filteredImages.length]
+  );
+
+  /* Keyboard navigation */
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handleKey = (e) => {
+      if (e.key === "Escape") closeLightbox();
+      else if (e.key === "ArrowLeft") goPrev();
+      else if (e.key === "ArrowRight") goNext();
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [lightboxOpen, closeLightbox, goPrev, goNext]);
 
   return (
     <div className="animation-fade-in">
-      <PageHeader 
-        title="Photo Gallery" 
-        subtitle="Glimpses of Campus Life" 
+      <PageHeader
+        title="Photo Gallery"
+        subtitle="Glimpses of Campus Life"
       />
 
-      {/* Category Filter */}
+      {/* ── Category Filter ── */}
       <section className="py-8 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-3">
@@ -151,11 +185,10 @@ const Gallery = () => {
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
-                  selectedCategory === category
-                    ? 'bg-ssgmce-blue text-white shadow-lg scale-105'
-                    : 'bg-white text-gray-700 hover:bg-gray-100 shadow'
-                }`}
+                className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${selectedCategory === category
+                  ? 'bg-ssgmce-blue text-white shadow-lg scale-105'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 shadow'
+                  }`}
               >
                 {category}
               </button>
@@ -164,41 +197,30 @@ const Gallery = () => {
         </div>
       </section>
 
-      {/* Gallery Grid */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          {loadingImages ? (
-            <div className="text-center text-gray-500">Loading gallery images...</div>
-          ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredImages.map((image) => (
-              <div 
-                key={image.id}
-                className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300"
-              >
-                <div className="aspect-[4/3] overflow-hidden">
-                  <img 
-                    src={image.url}
-                    alt={image.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                    <span className="bg-ssgmce-orange px-3 py-1 rounded-full text-xs font-bold mb-2 inline-block">
-                      {image.category}
-                    </span>
-                    <h3 className="text-xl font-bold">{image.title}</h3>
-                  </div>
-                </div>
-              </div>
-            ))}
+      {/* ── Marquee gallery section ── */}
+      <section className="gallery-marquee-section">
+        {/* <div className="gallery-marquee-heading-wrap">
+          <h2 className="gallery-marquee-heading">Our Gallery</h2>
+          <p className="gallery-marquee-subheading">
+            Explore the vibrant life at SSGMCE through our photo collection
+          </p>
+        </div> */}
+
+        {loadingImages ? (
+          <div className="gallery-loading">
+            <div className="gallery-loading-spinner" />
+            <p>Loading gallery images…</p>
           </div>
-          )}
-        </div>
+        ) : (
+          <div className="gallery-marquee-rows">
+            <MarqueeRow images={row1} direction="left" speed={70} onImageClick={openLightbox} />
+            <MarqueeRow images={row2} direction="right" speed={85} onImageClick={openLightbox} />
+            <MarqueeRow images={row3} direction="left" speed={70} onImageClick={openLightbox} />
+          </div>
+        )}
       </section>
 
-      {/* Video Gallery Section */}
+      {/* ── Video Gallery Section ── */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center text-ssgmce-blue mb-12">Video Gallery</h2>
@@ -206,12 +228,7 @@ const Gallery = () => {
             {galleryVideos.map((video, index) => (
               <div key={index} className="rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 bg-white">
                 <div className="aspect-video bg-black">
-                  <video
-                    controls
-                    preload="metadata"
-                    poster={video.poster}
-                    className="w-full h-full object-cover"
-                  >
+                  <video controls preload="metadata" poster={video.poster} className="w-full h-full object-cover">
                     <source src={video.src} type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
@@ -260,8 +277,173 @@ const Gallery = () => {
           </div>
         </div>
       </section>
+
+
+
+      {/* ── Lightbox modal (RBU-style) ── */}
+      {lightboxOpen && filteredImages.length > 0 && (
+        <Lightbox
+          images={filteredImages}
+          currentIndex={lightboxIndex}
+          onClose={closeLightbox}
+          onPrev={goPrev}
+          onNext={goNext}
+        />
+      )}
     </div>
   );
 };
+
+/* ═══════════════════════════════════════════════════════════════
+   MarqueeRow – infinite horizontal scrolling row of images
+   ═══════════════════════════════════════════════════════════════ */
+function MarqueeRow({ images, direction = "left", speed = 30, onImageClick }) {
+  const trackRef = useRef(null);
+
+  // We duplicate the images so the scroll loops seamlessly
+  const duplicated = useMemo(() => {
+    if (!images.length) return [];
+    // duplicate enough times to fill wide screens
+    const copies = Math.max(4, Math.ceil(20 / images.length));
+    const result = [];
+    for (let c = 0; c < copies; c++) {
+      images.forEach((img, i) => result.push({ ...img, _key: `${c}-${i}` }));
+    }
+    return result;
+  }, [images]);
+
+  if (!images.length) return null;
+
+  const animClass =
+    direction === "left"
+      ? "gallery-marquee-track-left"
+      : "gallery-marquee-track-right";
+
+  return (
+    <div className="gallery-marquee-row">
+      <div
+        ref={trackRef}
+        className={`gallery-marquee-track ${animClass}`}
+        style={{ "--marquee-speed": `${speed}s` }}
+      >
+        {duplicated.map((img) => (
+          <button
+            key={img._key}
+            className="gallery-marquee-item"
+            onClick={() => onImageClick(img)}
+            type="button"
+            aria-label={`View ${img.title}`}
+          >
+            <img
+              src={img.url}
+              alt={img.title}
+              loading="lazy"
+              draggable="false"
+            />
+            <div className="gallery-marquee-item-overlay">
+              <span>{img.title}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Lightbox – fullscreen photo viewer (RBU Nagpur style)
+   ═══════════════════════════════════════════════════════════════ */
+function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
+  const current = images[currentIndex];
+  const total = images.length;
+  const touchStartX = useRef(null);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? onNext() : onPrev();
+    }
+    touchStartX.current = null;
+  };
+
+  return (
+    <div
+      className="gallery-lightbox-overlay"
+      onClick={onClose}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Counter – top left */}
+      <div className="gallery-lightbox-counter">
+        {currentIndex + 1} / {total}
+      </div>
+
+      {/* Top-right controls */}
+      <div className="gallery-lightbox-controls">
+        {/* Close */}
+        <button
+          className="gallery-lightbox-btn gallery-lightbox-close"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          aria-label="Close"
+        >
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Prev arrow */}
+      <button
+        className="gallery-lightbox-arrow gallery-lightbox-arrow-left"
+        onClick={(e) => {
+          e.stopPropagation();
+          onPrev();
+        }}
+        aria-label="Previous photo"
+      >
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+
+      {/* Image */}
+      <div className="gallery-lightbox-image-wrap" onClick={(e) => e.stopPropagation()}>
+        <img
+          src={current?.url}
+          alt={current?.title || "Gallery photo"}
+          className="gallery-lightbox-image"
+          draggable="false"
+        />
+      </div>
+
+      {/* Next arrow */}
+      <button
+        className="gallery-lightbox-arrow gallery-lightbox-arrow-right"
+        onClick={(e) => {
+          e.stopPropagation();
+          onNext();
+        }}
+        aria-label="Next photo"
+      >
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
+
+      {/* Bottom counter (large, like RBU) */}
+      <div className="gallery-lightbox-bottom-count">
+        {total}
+      </div>
+    </div>
+  );
+}
 
 export default Gallery;

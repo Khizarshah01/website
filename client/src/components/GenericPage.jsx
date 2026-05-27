@@ -26,36 +26,35 @@ const GenericPage = ({
             </aside>
           )}
           <motion.div
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.5 }}
-             className={`flex-1 min-h-[400px] ${
-               isAboutVariant
-                 ? 'rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 md:p-8 shadow-[0_10px_28px_rgba(15,23,42,0.08)]'
-                 : 'bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8 border border-gray-100'
-             }`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className={`flex-1 min-h-[400px] ${isAboutVariant
+              ? 'rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 md:p-8 shadow-[0_10px_28px_rgba(15,23,42,0.08)]'
+              : 'bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8 border border-gray-100'
+              }`}
           >
-              {showInnerTitle && (
-                <h2
-                  className={
-                    isAboutVariant
-                      ? 'text-2xl md:text-3xl font-semibold text-slate-900 mb-8 border-b border-slate-200 pb-3'
-                      : 'text-2xl font-bold text-ssgmce-blue mb-6 border-b-2 border-ssgmce-orange inline-block pb-2'
-                  }
-                >
-                    {title}
-                </h2>
-              )}
-              <div
+            {showInnerTitle && (
+              <h2
                 className={
-                  contentClassName ||
-                  (isAboutVariant
-                    ? 'max-w-none text-slate-700'
-                    : 'prose max-w-none text-gray-700')
+                  isAboutVariant
+                    ? 'text-2xl md:text-3xl font-semibold text-slate-900 mb-8 border-b border-slate-200 pb-3'
+                    : 'text-2xl font-bold text-ssgmce-blue mb-6 border-b-2 border-ssgmce-orange inline-block pb-2'
                 }
               >
-                  {children}
-              </div>
+                {title}
+              </h2>
+            )}
+            <div
+              className={
+                contentClassName ||
+                (isAboutVariant
+                  ? 'max-w-none text-slate-700'
+                  : 'prose max-w-none text-gray-700')
+              }
+            >
+              {children}
+            </div>
           </motion.div>
         </div>
       </div>

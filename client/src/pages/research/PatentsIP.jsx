@@ -40,7 +40,7 @@ const PatentsIP = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Patents & IP | Research - SSGMCE";
+    // document.title = "Patents & IP | Research - SSGMCE";
     fetchPatents();
   }, [filter]);
 

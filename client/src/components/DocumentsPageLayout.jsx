@@ -62,7 +62,7 @@ const DocumentsPageLayout = ({
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = `${pageTitle} | SSGMCE Documents`;
+    // document.title = `${pageTitle} | SSGMCE Documents`;
   }, [pageTitle]);
 
   useEffect(() => {

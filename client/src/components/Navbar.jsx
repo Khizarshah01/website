@@ -199,7 +199,7 @@ const Navbar = () => {
     },
     {
       name: "Facilities",
-      path: "/gallery",
+      path: "/facilities/admin",
       megaMenuImage: facilitiesNavbarImage,
       megaMenuTitle: "World-Class Facilities",
       dropdown: [
