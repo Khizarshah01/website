@@ -13,7 +13,8 @@ const links = [
   { name: 'Organizational Structure', path: '/about/structure' },
   { name: 'Governing Body', path: '/about/governing' },
   { name: 'Board of Directors', path: '/about/directors' },
-  { name: 'Various Committees By SGBAU & AICTE', path: '/about/committees' },
+  { name: 'Various Committees By AICTE', path: '/about/aicte-committees' },
+  { name: 'Various Committees By SGBAU', path: '/about/sgbau-committees' },
   { name: 'Contact Us', path: '/contact' },
 ];
 
@@ -26,7 +27,8 @@ const ABOUT_PATH_TO_PAGE_ID = {
   '/about/structure': 'about-structure',
   '/about/governing': 'about-governing',
   '/about/directors': 'about-directors',
-  '/about/committees': 'about-committees',
+  '/about/aicte-committees': 'about-aicte-committees',
+  '/about/sgbau-committees': 'about-sgbau-committees',
   '/contact': 'contact-us',
 };
 

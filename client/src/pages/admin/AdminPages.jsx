@@ -58,7 +58,8 @@ const NAVBAR_ROUTE_ORDER = {
     "/about/structure",
     "/about/governing",
     "/about/directors",
-    "/about/committees",
+    "/about/aicte-committees",
+    "/about/sgbau-committees",
     "/contact",
   ],
   academics: [

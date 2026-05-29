@@ -25,7 +25,8 @@ const FacultyDetail = lazy(() => import("./pages/FacultyDetail"));
 
 const AtGlance = lazy(() => import("./pages/about/AtGlance"));
 const BoardOfDirectors = lazy(() => import("./pages/about/BoardOfDirectors"));
-const Committees = lazy(() => import("./pages/about/Committees"));
+const SGBAUCommittees = lazy(() => import("./pages/about/SGBAUCommittees"));
+const AICTECommittees = lazy(() => import("./pages/about/AICTECommittees"));
 const GoverningBody = lazy(() => import("./pages/about/GoverningBody"));
 const Inspiration = lazy(() => import("./pages/about/Inspiration"));
 const Organization = lazy(() => import("./pages/about/Organization"));
@@ -866,10 +867,18 @@ function App() {
                 }
               />
               <Route
-                path="/about/committees"
+                path="/about/sgbau-committees"
                 element={
                   <Layout>
-                    <Committees />
+                    <SGBAUCommittees />
+                  </Layout>
+                }
+              />
+              <Route
+                path="/about/aicte-committees"
+                element={
+                  <Layout>
+                    <AICTECommittees />
                   </Layout>
                 }
               />

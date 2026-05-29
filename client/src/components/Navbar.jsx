@@ -92,10 +92,8 @@ const Navbar = () => {
         { name: "Organizational Structure", path: "/about/structure" },
         { name: "Governing Body", path: "/about/governing" },
         { name: "Board of Directors", path: "/about/directors" },
-        {
-          name: "Various Committees By SGBAU & AICTE",
-          path: "/about/committees",
-        },
+        { name: "Various Committees By AICTE", path: "/about/aicte-committees" },
+        { name: "Various Committees By SGBAU", path: "/about/sgbau-committees" },
         { name: "Contact us", path: "/contact" },
       ],
     },
@@ -536,10 +534,10 @@ const Navbar = () => {
                             handleTopLevelMenuClick(item);
                           }}
                           className={`px-2.5 lg:px-3 py-2.5 text-gray-700 font-medium hover:text-ssgmce-blue transition-colors duration-300 flex items-center whitespace-nowrap text-[13px] xl:text-sm ${activeDropdown === item.name
-                              ? "text-ssgmce-blue border-b-2 border-ssgmce-orange"
-                              : isActive(item.path)
-                                ? "text-ssgmce-blue border-b-2 border-ssgmce-blue"
-                                : ""
+                            ? "text-ssgmce-blue border-b-2 border-ssgmce-orange"
+                            : isActive(item.path)
+                              ? "text-ssgmce-blue border-b-2 border-ssgmce-blue"
+                              : ""
                             }`}
                         >
                           {item.name}
@@ -548,8 +546,8 @@ const Navbar = () => {
                         <Link
                           to={item.path}
                           className={`block px-2.5 lg:px-3 py-2.5 text-gray-700 font-medium hover:text-ssgmce-blue transition-colors duration-300 whitespace-nowrap text-[13px] xl:text-sm ${isActive(item.path)
-                              ? "text-ssgmce-blue border-b-2 border-ssgmce-blue"
-                              : ""
+                            ? "text-ssgmce-blue border-b-2 border-ssgmce-blue"
+                            : ""
                             }`}
                           onMouseEnter={() => setActiveDropdown(null)}
                         >
@@ -654,8 +652,8 @@ const Navbar = () => {
                     return (
                       <div
                         className={`absolute top-full z-50 w-[min(calc(100vw-9rem),1120px)] pt-2 ${activeItem.name === "Activities"
-                            ? "right-0 left-auto"
-                            : "left-0"
+                          ? "right-0 left-auto"
+                          : "left-0"
                           }`}
                       >
                         <div className="relative overflow-hidden rounded-lg bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)]">
@@ -748,10 +746,10 @@ const Navbar = () => {
                               ) : (
                                 <div
                                   className={`grid min-w-0 flex-1 gap-x-7 gap-y-2 ${colCount === 4
-                                      ? "lg:grid-cols-4"
-                                      : colCount === 3
-                                        ? "lg:grid-cols-3"
-                                        : "lg:grid-cols-2"
+                                    ? "lg:grid-cols-4"
+                                    : colCount === 3
+                                      ? "lg:grid-cols-3"
+                                      : "lg:grid-cols-2"
                                     }`}
                                 >
                                   {columns.map((col, colIdx) => (
@@ -799,9 +797,9 @@ const Navbar = () => {
                                       src={activeItem.megaMenuImage}
                                       alt={activeItem.megaMenuTitle}
                                       className={`h-full w-full object-center ${activeItem.megaMenuImageFit ===
-                                          "contain"
-                                          ? "object-contain p-4"
-                                          : "object-cover"
+                                        "contain"
+                                        ? "object-contain p-4"
+                                        : "object-cover"
                                         }`}
                                     />
                                   </div>
@@ -842,8 +840,8 @@ const Navbar = () => {
           <div
             aria-hidden={!isOpen}
             className={`md:hidden overflow-hidden transition-all duration-300 ease-out ${isOpen
-                ? "max-h-[70vh] opacity-100 translate-y-0"
-                : "max-h-0 opacity-0 -translate-y-1 pointer-events-none"
+              ? "max-h-[70vh] opacity-100 translate-y-0"
+              : "max-h-0 opacity-0 -translate-y-1 pointer-events-none"
               }`}
           >
             <div className="border-t border-gray-200 bg-white px-1 py-3 overflow-y-auto shadow-lg max-h-[70vh]">
@@ -885,8 +883,8 @@ const Navbar = () => {
                                       {subItem.name}{" "}
                                       <FaChevronRight
                                         className={`text-[9px] transition-transform ${activeSubDropdown === subItem.name
-                                            ? "rotate-90"
-                                            : ""
+                                          ? "rotate-90"
+                                          : ""
                                           }`}
                                       />
                                     </button>
@@ -935,8 +933,8 @@ const Navbar = () => {
                         to={item.path}
                         onClick={() => setIsOpen(false)}
                         className={`block px-3 py-2 rounded font-semibold text-sm ${isActive(item.path)
-                            ? "bg-ssgmce-blue text-white"
-                            : "text-gray-700 hover:bg-gray-50"
+                          ? "bg-ssgmce-blue text-white"
+                          : "text-gray-700 hover:bg-gray-50"
                           }`}
                       >
                         {item.name}

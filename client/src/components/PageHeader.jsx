@@ -72,7 +72,8 @@ const SEGMENT_LABELS = {
   structure: "Organizational Structure",
   governing: "Governing Body",
   directors: "Board of Directors",
-  committees: "Various Committees",
+  "aicte-committees": "Various Committees By AICTE",
+  "sgbau-committees": "Various Committees By SGBAU",
 
   /* Academics sub-pages */
   planner: "Academic Planner & Calendar",
