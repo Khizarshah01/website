@@ -7,6 +7,7 @@ import NewsTicker from '../components/NewsTicker';
 import useFetch from '../hooks/useFetch';
 import apiClient from '../utils/apiClient';
 import { resolveUploadedAssetUrl } from '../utils/uploadUrls';
+import ImageCarousel from '../components/ImageCarousel';
 import { HOME_LEADERSHIP } from '../data/homeLeadership';
 import droneVideo from '../assets/images/home/drone shot.mp4';
 import mainGateImg from '../assets/images/home/Main-Gate.jpeg';
@@ -604,10 +605,10 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="mx-auto grid max-w-6xl gap-7 lg:grid-cols-[0.8fr,1.2fr] lg:items-center">
             <div>
-              <img
-                src={welcomeHomeImageSrc}
+              <ImageCarousel 
+                images={welcomeConfig?.imageUrls?.length > 0 ? welcomeConfig.imageUrls : [welcomeHomeImageSrc]} 
                 alt={welcomeConfig?.homePageImageAlt || "SSGMCE campus"}
-                className="h-[250px] w-full rounded-xl border border-slate-200 object-cover shadow-[0_18px_48px_-34px_rgba(15,23,42,0.35)] sm:h-[300px] md:h-[340px]"
+                className="h-[250px] w-full rounded-xl border border-slate-200 shadow-[0_18px_48px_-34px_rgba(15,23,42,0.35)] sm:h-[300px] md:h-[340px]"
               />
             </div>
 

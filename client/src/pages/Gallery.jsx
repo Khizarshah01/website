@@ -213,9 +213,9 @@ const Gallery = () => {
           </div>
         ) : (
           <div className="gallery-marquee-rows">
-            <MarqueeRow images={row1} direction="left" speed={70} onImageClick={openLightbox} />
-            <MarqueeRow images={row2} direction="right" speed={85} onImageClick={openLightbox} />
-            <MarqueeRow images={row3} direction="left" speed={70} onImageClick={openLightbox} />
+            <MarqueeRow images={row1} direction="left" speed={80} onImageClick={openLightbox} />
+            <MarqueeRow images={row2} direction="right" speed={85 } onImageClick={openLightbox} />
+            <MarqueeRow images={row3} direction="left" speed={80} onImageClick={openLightbox} />
           </div>
         )}
       </section>
@@ -297,14 +297,18 @@ const Gallery = () => {
 /* ═══════════════════════════════════════════════════════════════
    MarqueeRow – infinite horizontal scrolling row of images
    ═══════════════════════════════════════════════════════════════ */
-function MarqueeRow({ images, direction = "left", speed = 30, onImageClick }) {
+function MarqueeRow({ images, direction = "left", speed = 70, onImageClick }) {
   const trackRef = useRef(null);
 
   // We duplicate the images so the scroll loops seamlessly
   const duplicated = useMemo(() => {
     if (!images.length) return [];
     // duplicate enough times to fill wide screens
-    const copies = Math.max(4, Math.ceil(20 / images.length));
+    let copies = Math.max(4, Math.ceil(20 / images.length));
+    // Ensure copies is an even number so that translating by -50% 
+    // seamlessly loops exactly at a full repetition of the original images.
+    if (copies % 2 !== 0) copies += 1;
+
     const result = [];
     for (let c = 0; c < copies; c++) {
       images.forEach((img, i) => result.push({ ...img, _key: `${c}-${i}` }));

@@ -417,7 +417,7 @@ const basePages = [
       },
       {
         sectionId: "hero-image",
-        title: "Campus Image",
+        title: "Campus Images",
         type: "image",
         order: 2,
         content: {
@@ -2017,9 +2017,9 @@ const sectionToMarkdownText = (section) => {
   if (typeof section.content === "string") return section.content.trim();
   return String(
     section.content?.markdown ||
-      section.content?.text ||
-      section.content?.html ||
-      "",
+    section.content?.text ||
+    section.content?.html ||
+    "",
   ).trim();
 };
 
@@ -2195,9 +2195,9 @@ const getPageById = async (req, res) => {
       requestedPageId === canonicalPageId
         ? canonicalPage || mostRecentlyUpdatedPage
         : requestedPage ||
-          canonicalPage ||
-          mostRecentlyUpdatedPage ||
-          requestedPage;
+        canonicalPage ||
+        mostRecentlyUpdatedPage ||
+        requestedPage;
 
     if (!page) {
       return res.status(404).json({
@@ -2224,9 +2224,9 @@ const getPageById = async (req, res) => {
       page.pageId === canonicalPageId
         ? page
         : {
-            ...page.toObject(),
-            pageId: canonicalPageId,
-          };
+          ...page.toObject(),
+          pageId: canonicalPageId,
+        };
 
     if (isCoordinatorReviewRequestForPage(req, canonicalPageId)) {
       const pendingApproval = await PageApproval.findOne({
@@ -2859,8 +2859,8 @@ const getPendingApprovals = async (req, res) => {
       status === "all"
         ? {}
         : {
-            status,
-          };
+          status,
+        };
 
     const approvals = await PageApproval.find(filter)
       .sort({ updatedAt: -1 })
