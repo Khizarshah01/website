@@ -60,7 +60,7 @@ const NAVBAR_ROUTE_ORDER = {
     "/about/directors",
     "/about/aicte-committees",
     "/about/sgbau-committees",
-    "/contact",
+    "/about/contact-us",
   ],
   academics: [
     "/academics/planner",
@@ -117,7 +117,7 @@ const NAVBAR_ROUTE_ORDER = {
     "/placements/recruiters",
     "/placements/career",
     "/placements/internship",
-    "/contact",
+    "/placements/contact",
   ],
   iqac: [
     "/iqac/vision",

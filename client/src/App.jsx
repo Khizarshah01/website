@@ -843,13 +843,14 @@ function App() {
                 }
               />
               <Route
-                path="/contact"
+                path="/about/contact-us"
                 element={
                   <Layout>
                     <Contact />
                   </Layout>
                 }
               />
+              <Route path="/contact" element={<Navigate to="/about/contact-us" replace />} />
               <Route
                 path="/about/glance"
                 element={

@@ -26,7 +26,7 @@ const Navbar = () => {
     { name: "FRA Fee Structure", to: "/admissions/fees" },
     { name: "Best Practices", to: "/iqac/practices" },
     { name: "SSGMCE Blog", href: "https://blogssgmce.in/" },
-    { name: "Grievance Form", to: "/contact" },
+    { name: "Grievance Form", to: "/about/contact-us" },
   ];
 
   const quickLinksRight = [
@@ -94,7 +94,7 @@ const Navbar = () => {
         { name: "Board of Directors", path: "/about/directors" },
         { name: "Various Committees By AICTE", path: "/about/aicte-committees" },
         { name: "Various Committees By SGBAU", path: "/about/sgbau-committees" },
-        { name: "Contact us", path: "/contact" },
+        { name: "Contact us", path: "/about/contact-us" },
       ],
     },
     {
@@ -234,7 +234,7 @@ const Navbar = () => {
         { name: "Major Recruiters", path: "/placements/recruiters" },
         { name: "Career Guidance Cell", path: "/placements/career" },
         { name: "Internship", path: "/placements/internship" },
-        { name: "Contact Us", path: "/contact" },
+        { name: "Contact Us", path: "/placements/contact" },
       ],
     },
     {
@@ -298,7 +298,7 @@ const Navbar = () => {
         { name: "Research", path: "/research/rdc" },
         { name: "Student Life", path: "/gallery" },
         { name: "Information Corner", path: "/documents" },
-        { name: "Contact us", path: "/contact" },
+        { name: "Contact us", path: "/about/contact-us" },
       ],
     },
     {
@@ -355,9 +355,17 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="ssgmce-header-shell text-white">
-        <div className="ssgmce-header-pattern" />
-        <div className="container relative mx-auto px-3 py-3 md:px-4 md:py-4">
+      <header
+        className="text-white relative overflow-hidden"
+        style={{
+          backgroundImage: `linear-gradient(rgba(30, 58, 138, 0.82), rgba(30, 58, 138, 0.82)), url(${admissionsNavbarImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-ssgmce-dark-blue/75 via-transparent to-ssgmce-dark-blue/75" />
+        <div className="container relative z-10 mx-auto px-3 py-3 md:px-4 md:py-4">
           <div className="mb-4 flex overflow-x-auto pb-2 -mx-3 px-3 md:mx-0 md:px-0 md:pb-0 md:flex-wrap md:items-center md:justify-between gap-2 md:gap-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex shrink-0 items-center gap-2 md:flex-wrap md:justify-start">
               {quickLinksLeft.map((link) =>

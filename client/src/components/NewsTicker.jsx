@@ -6,9 +6,8 @@ const NewsTicker = ({ items = [] }) => {
   if (!items || items.length === 0) return null;
 
   return (
-    <Link
-      to="/news"
-      aria-label="Open news page"
+    <div
+      aria-label="News ticker"
       className="group block overflow-hidden border-t border-b border-white/6 bg-ssgmce-dark-blue/95 text-white"
     >
       <style>{`
@@ -16,7 +15,7 @@ const NewsTicker = ({ items = [] }) => {
         .news-badge { background: linear-gradient(90deg,#ff6b6b,#ff3b3b); }
         .news-track { display:inline-flex; align-items:center; gap:8rem; white-space:nowrap; animation: marquee 50s linear infinite; }
         .news-track:hover { animation-play-state: paused; }
-        .news-item { display:inline-flex; align-items:center;flex-shrink:0; }
+        .news-item { display:inline-flex; align-items:center;flex-shrink:0; cursor: pointer; }
         .news-dot { width:12px; height:12px; border-radius:9999px; background:#ff3b3b; box-shadow:0 0 14px rgba(255,59,59,0.8); animation: blinkDot 1s ease-in-out infinite; flex-shrink:0; }
         .pulse-dot { width:10px; height:10px; border-radius:9999px; background: radial-gradient(circle, #ff6b6b 0%, #ff3b3b 60%); box-shadow:0 0 12px rgba(255,60,60,0.36); }
         .news-cta { background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.06); }
@@ -30,22 +29,29 @@ const NewsTicker = ({ items = [] }) => {
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
       `}</style>
 
-      <div className="w-full">
+      <div className="w-full md:px-12 lg:px-24 xl:px-32">
         <div className="news-wrap ">
-          <div className="overflow-hidden items-center">
+          <div className="hidden md:block whitespace-nowrap font-bold text-white z-10 md:text-xl">
+            Notification :
+          </div>
+          <div className="overflow-hidden items-center w-full">
             <div className="news-track mt-2">
               {[...items, ...items].map((it, idx) => (
-                <span key={idx} className="news-item text-base font-medium text-white/95">
+                <Link
+                  key={idx}
+                  to={it?._id || it?.id ? `/news?id=${it._id || it.id}` : "/news"}
+                  className="news-item text-base font-medium text-white/95 hover:text-[#ff6b6b] transition-colors"
+                >
                   <img src={newGif} alt="New" className="h-10 sm:h-14 w-auto object-contain " />
                   {it?.title || 'Latest update from SSGMCE'}
-                </span>
+                </Link>
               ))}
             </div>
           </div>
         </div>
 
       </div>
-    </Link>
+    </div>
   );
 };
 

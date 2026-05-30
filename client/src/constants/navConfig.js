@@ -56,7 +56,7 @@ const SECTIONS = [
           { name: "Board of Directors", path: "/about/directors" },
           { name: "Various Committees By AICTE", path: "/about/aicte-committees" },
           { name: "Various Committees By SGBAU", path: "/about/sgbau-committees" },
-          { name: "Contact us", path: "/contact" },
+          { name: "Contact us", path: "/about/contact-us" },
         ],
       },
     ],
@@ -234,7 +234,7 @@ const SECTIONS = [
         items: [
           { name: "Career Guidance Cell", path: "/placements/career" },
           { name: "Internship", path: "/placements/internship" },
-          { name: "Contact Us", path: "/contact" },
+          { name: "Contact Us", path: "/placements/contact" },
         ],
       },
     ],

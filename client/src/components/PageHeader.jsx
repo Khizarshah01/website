@@ -264,8 +264,12 @@ function buildBreadcrumbs(pathname, pageTitle) {
     }
 
     // Use FIRST_PATHS for top-level sections that are just parent containers
-    const linkPath =
+    let linkPath =
       !isLast && i === 0 && FIRST_PATHS[seg] ? FIRST_PATHS[seg] : builtPath;
+
+    if (builtPath === "/admin/visual") {
+      linkPath = "/admin/pages";
+    }
 
     crumbs.push({ label, path: linkPath, isLast });
   }
@@ -296,15 +300,8 @@ const PageHeader = ({ title, subtitle, backgroundImage }) => {
 
   return (
     <div
-      className="relative overflow-hidden py-16 text-center text-white md:py-20"
-      style={{
-        backgroundImage: `linear-gradient(rgba(30, 58, 138, 0.82), rgba(30, 58, 138, 0.82)), url(${resolvedBackgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
+      className="relative overflow-hidden py-8 text-center text-white md:py-10 bg-ssgmce-blue"
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-ssgmce-dark-blue/75 via-transparent to-ssgmce-dark-blue/75" />
       <div className="container mx-auto px-4 relative z-10">
         {/* Breadcrumb navigation */}
         {breadcrumbs.length > 0 && (

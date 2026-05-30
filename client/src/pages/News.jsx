@@ -1,8 +1,11 @@
 import PageHeader from "../components/PageHeader";
 import NewsCard from "../components/NewsCard";
 import useFetch from "../hooks/useFetch";
+import { useSearchParams, Link } from "react-router-dom";
 
 const News = () => {
+  const [searchParams] = useSearchParams();
+  const selectedId = searchParams.get("id");
   const {
     data: newsData,
     loading,
@@ -62,12 +65,16 @@ const News = () => {
     },
   ];
 
-  const newsItems =
+  const baseNewsItems =
     Array.isArray(newsData) && newsData.length > 0
       ? newsData
       : error
         ? staticNews
         : [];
+
+  const newsItems = selectedId 
+    ? baseNewsItems.filter((item) => (item._id || item.id) === selectedId)
+    : baseNewsItems;
 
   return (
     <div className="animation-fade-in">
@@ -90,6 +97,17 @@ const News = () => {
                   <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
                     Live news could not be fetched, showing latest available
                     updates.
+                  </div>
+                )}
+
+                {selectedId && (
+                  <div className="mb-6">
+                    <Link to="/news" className="text-ssgmce-blue font-medium hover:underline inline-flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                      </svg>
+                      Back to All News
+                    </Link>
                   </div>
                 )}
 

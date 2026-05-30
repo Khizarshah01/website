@@ -15,7 +15,7 @@ const links = [
   { name: 'Board of Directors', path: '/about/directors' },
   { name: 'Various Committees By AICTE', path: '/about/aicte-committees' },
   { name: 'Various Committees By SGBAU', path: '/about/sgbau-committees' },
-  { name: 'Contact Us', path: '/contact' },
+  { name: 'Contact Us', path: '/about/contact-us' },
 ];
 
 const ABOUT_PATH_TO_PAGE_ID = {
@@ -29,7 +29,7 @@ const ABOUT_PATH_TO_PAGE_ID = {
   '/about/directors': 'about-directors',
   '/about/aicte-committees': 'about-aicte-committees',
   '/about/sgbau-committees': 'about-sgbau-committees',
-  '/contact': 'contact-us',
+  '/about/contact-us': 'contact-us',
 };
 
 const AboutSidebar = ({ sections }) => {
