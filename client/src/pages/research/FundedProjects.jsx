@@ -35,7 +35,7 @@ const FundedProjects = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Funded Projects | Research - SSGMCE";
+    // document.title = "Funded Projects | Research - SSGMCE";
     fetchProjects();
   }, [filter]);
 

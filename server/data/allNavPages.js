@@ -528,10 +528,20 @@ const aboutPages = [
     sections: [],
   },
   {
-    pageId: "about-committees",
-    pageTitle: "Various Committees By SGBAU & AICTE",
-    pageDescription: "Committees",
-    route: "/about/committees",
+    pageId: "about-sgbau-committees",
+    pageTitle: "Various Committees By SGBAU",
+    pageDescription: "SGBAU Committees",
+    route: "/about/sgbau-committees",
+    category: "about",
+    template: "generic",
+    isPublished: true,
+    sections: [],
+  },
+  {
+    pageId: "about-aicte-committees",
+    pageTitle: "Various Committees By AICTE",
+    pageDescription: "AICTE Committees",
+    route: "/about/aicte-committees",
     category: "about",
     template: "generic",
     isPublished: true,
@@ -1359,7 +1369,7 @@ const facilitiesPages = [
         order: 2,
         isVisible: true,
         content: {
-          text: "<ul><li>Server Hosting for SAP ERP of Shri Gajanan Maharaj Sansthan, Shegaon</li><li>Server Hosting for SAP ERP of Shri Sant Gajanan Maharaj College of Engineering, Shegaon</li><li>24x7x365 Internet &amp; Intranet Facility</li><li>Website Hosting:<ul><li>www.ssgmce.ac.in</li><li>www.ssgmce.org</li><li>www.ssgmcealumni.com</li><li>www.sgst.solar</li></ul></li><li>Mail Service: mail.ssgmce.ac.in</li><li>Wi-Fi and Fibre Ring Network Connectivity to College Campus</li><li>VPN Connectivity to Sansthan’s branches: Pandharpur, Alandi, Tryambakeshwar, Omkareshwar</li></ul>",
+          text: "<ul><li>Server Hosting for SAP ERP of Shri Gajanan Maharaj Sansthan, Shegaon</li><li>Server Hosting for SAP ERP of Shri Sant Gajanan Maharaj College of Engineering, Shegaon</li><li>24x7x365 Internet &amp; Intranet Facility</li><li>Website Hosting:<ul><li>www.ssgmce.ac.in</li><li>www.ssgmce.ac.in</li><li>www.ssgmcealumni.com</li><li>www.sgst.solar</li></ul></li><li>Mail Service: mail.ssgmce.ac.in</li><li>Wi-Fi and Fibre Ring Network Connectivity to College Campus</li><li>VPN Connectivity to Sansthan’s branches: Pandharpur, Alandi, Tryambakeshwar, Omkareshwar</li></ul>",
         },
       },
       {

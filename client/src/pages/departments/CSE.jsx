@@ -4445,7 +4445,7 @@ const CSE = () => {
                 />
               </div>
               <p className="text-gray-600 text-sm mt-1">
-                Computer Science & Engineering
+                Department of Computer Science & Engineering
               </p>
 
               <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">

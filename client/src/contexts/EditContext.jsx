@@ -165,13 +165,13 @@ export const EditProvider = ({ children, pageId, initialData = {} }) => {
    * @param {object} section - Section object with sectionId, type, title, order, content
    */
   const addSection = (section) => {
-    setData((prev) => {
-      pushHistory(prev);
-      return {
-        ...prev,
-        sections: [...(prev.sections || []), section],
-      };
-    });
+    pushHistory(dataRef.current);
+    const newData = {
+      ...dataRef.current,
+      sections: [...(dataRef.current.sections || []), section],
+    };
+    dataRef.current = newData;
+    setData(newData);
     setHasChanges(true);
   };
 
@@ -180,14 +180,14 @@ export const EditProvider = ({ children, pageId, initialData = {} }) => {
    * @param {number} index - Index of the section to remove
    */
   const removeSection = (index) => {
-    setData((prev) => {
-      pushHistory(prev);
-      const sections = [...(prev.sections || [])];
-      sections.splice(index, 1);
-      // Re-sequence order so there are no gaps
-      const reordered = sections.map((s, i) => ({ ...s, order: i + 1 }));
-      return { ...prev, sections: reordered };
-    });
+    pushHistory(dataRef.current);
+    const sections = [...(dataRef.current.sections || [])];
+    sections.splice(index, 1);
+    // Re-sequence order so there are no gaps
+    const reordered = sections.map((s, i) => ({ ...s, order: i + 1 }));
+    const newData = { ...dataRef.current, sections: reordered };
+    dataRef.current = newData;
+    setData(newData);
     setHasChanges(true);
   };
 
@@ -197,22 +197,21 @@ export const EditProvider = ({ children, pageId, initialData = {} }) => {
    * @param {"up"|"down"} direction
    */
   const moveSection = (index, direction) => {
-    setData((prev) => {
-      pushHistory(prev);
-      const sections = [...(prev.sections || [])];
-      const swapIndex = direction === "up" ? index - 1 : index + 1;
-      if (swapIndex < 0 || swapIndex >= sections.length) return prev;
-
+    pushHistory(dataRef.current);
+    const sections = [...(dataRef.current.sections || [])];
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+    if (swapIndex >= 0 && swapIndex < sections.length) {
       // Swap the two sections
       [sections[index], sections[swapIndex]] = [
         sections[swapIndex],
         sections[index],
       ];
-
-      // Re-sequence order values to match positions
-      const reordered = sections.map((s, i) => ({ ...s, order: i + 1 }));
-      return { ...prev, sections: reordered };
-    });
+    }
+    // Re-sequence order values to match positions
+    const reordered = sections.map((s, i) => ({ ...s, order: i + 1 }));
+    const newData = { ...dataRef.current, sections: reordered };
+    dataRef.current = newData;
+    setData(newData);
     setHasChanges(true);
   };
 

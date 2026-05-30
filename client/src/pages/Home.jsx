@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaGraduationCap, FaUsers, FaTrophy, FaBuilding, FaArrowRight, FaClock, FaMapMarkerAlt, FaMicroscope, FaHandshake, FaPlus, FaMinus, FaQuoteLeft, FaExternalLinkAlt, FaChevronLeft, FaChevronRight, FaChalkboardTeacher, FaBookOpen } from 'react-icons/fa';
+import { FaGraduationCap, FaUsers, FaTrophy, FaBuilding, FaArrowRight, FaClock, FaMapMarkerAlt, FaPlus, FaMinus, FaQuoteLeft, FaExternalLinkAlt, FaChevronLeft, FaChevronRight} from 'react-icons/fa';
 import StatCard from '../components/StatCard';
 import NewsCard from '../components/NewsCard';
 import NewsTicker from '../components/NewsTicker';
@@ -109,8 +109,8 @@ const Home = () => {
       : liveAllEvents.length > 0
         ? liveAllEvents
         : upcomingEventsError || allEventsError
-        ? staticUpcomingEvents
-        : [];
+          ? staticUpcomingEvents
+          : [];
 
   const defaultAccreditations = [
     { label: 'AICTE', desc: 'Approved', logo: aicteLogo, logoAlt: 'AICTE logo' },
@@ -229,23 +229,23 @@ const Home = () => {
   const heroConfig = homeConfig?.hero || {};
   const accreditations = Array.isArray(homeConfig?.accreditations?.items)
     ? homeConfig.accreditations.items.map((item) => ({
-        label: item?.label || '',
-        desc: item?.desc || '',
-        logo: isBundlerOnlyAssetPath(item?.logoUrl || item?.logo)
-          ? accreditationLogoByLabel[item?.label] || ''
-          : resolveUploadedAssetUrl(item?.logoUrl || item?.logo || ''),
-        logoAlt: item?.logoAlt || `${item?.label || 'Accreditation'} logo`,
-      }))
+      label: item?.label || '',
+      desc: item?.desc || '',
+      logo: isBundlerOnlyAssetPath(item?.logoUrl || item?.logo)
+        ? accreditationLogoByLabel[item?.label] || ''
+        : resolveUploadedAssetUrl(item?.logoUrl || item?.logo || ''),
+      logoAlt: item?.logoAlt || `${item?.label || 'Accreditation'} logo`,
+    }))
     : defaultAccreditations;
   const studentCornerItems = Array.isArray(homeConfig?.studentCorner?.items)
     ? homeConfig.studentCorner.items.map((item, index) => ({
-        id: item?.id || `student-corner-${index + 1}`,
-        title: item?.title || '',
-        image: isBundlerOnlyAssetPath(item?.imageUrl || item?.image)
-          ? defaultStudentCornerItems[index]?.image || ''
-          : resolveUploadedAssetUrl(item?.imageUrl || item?.image || ''),
-        text: item?.text || '',
-      }))
+      id: item?.id || `student-corner-${index + 1}`,
+      title: item?.title || '',
+      image: isBundlerOnlyAssetPath(item?.imageUrl || item?.image)
+        ? defaultStudentCornerItems[index]?.image || ''
+        : resolveUploadedAssetUrl(item?.imageUrl || item?.image || ''),
+      text: item?.text || '',
+    }))
     : defaultStudentCornerItems;
   const activeStudentCorner =
     studentCornerItems.find((item) => item.id === activeCorner) || studentCornerItems[0];
@@ -258,30 +258,30 @@ const Home = () => {
   const mergedRecruiters =
     recruiters.length > 0
       ? [
-          ...recruiters.map((recruiter) => {
-            const normalizedName = normalizeRecruiterName(recruiter.name);
-            const brandDefaults = recruiterDefaultsByName[normalizedName];
+        ...recruiters.map((recruiter) => {
+          const normalizedName = normalizeRecruiterName(recruiter.name);
+          const brandDefaults = recruiterDefaultsByName[normalizedName];
 
-            if (!brandDefaults) {
-              return recruiter;
-            }
+          if (!brandDefaults) {
+            return recruiter;
+          }
 
-            return {
-              ...brandDefaults,
-              ...recruiter,
-              logoUrl: recruiter.logoUrl || recruiter.logo || brandDefaults.logoUrl,
-              website: recruiter.website || brandDefaults.website,
-            };
-          }),
-          ...fallbackRecruiters.filter(
-            (recruiter) =>
-              !recruiters.some(
-                (liveRecruiter) =>
-                  normalizeRecruiterName(liveRecruiter.name) ===
-                  normalizeRecruiterName(recruiter.name),
-              ),
-          ),
-        ]
+          return {
+            ...brandDefaults,
+            ...recruiter,
+            logoUrl: recruiter.logoUrl || recruiter.logo || brandDefaults.logoUrl,
+            website: recruiter.website || brandDefaults.website,
+          };
+        }),
+        ...fallbackRecruiters.filter(
+          (recruiter) =>
+            !recruiters.some(
+              (liveRecruiter) =>
+                normalizeRecruiterName(liveRecruiter.name) ===
+                normalizeRecruiterName(recruiter.name),
+            ),
+        ),
+      ]
       : fallbackRecruiters;
 
   const homepageRecruiters = mergedRecruiters;
@@ -294,17 +294,17 @@ const Home = () => {
     : [];
   const homepageLeadership = Array.isArray(homeConfig?.leadershipCards) && homeConfig.leadershipCards.length > 0
     ? homeConfig.leadershipCards.map((member, index) => ({
-        id: member?.id || `leadership-${index + 1}`,
-        name: member?.name || '',
-        designation: member?.designation || '',
-        department: member?.department || '',
-        email: member?.email || '',
-        image: isBundlerOnlyAssetPath(member?.imageUrl || member?.image)
-          ? HOME_LEADERSHIP[index]?.image || ''
-          : resolveUploadedAssetUrl(member?.imageUrl || member?.image || ''),
-        accentClass: member?.accentClass || "bg-gray-200",
-        link: member?.link || "/faculty",
-      }))
+      id: member?.id || `leadership-${index + 1}`,
+      name: member?.name || '',
+      designation: member?.designation || '',
+      department: member?.department || '',
+      email: member?.email || '',
+      image: isBundlerOnlyAssetPath(member?.imageUrl || member?.image)
+        ? HOME_LEADERSHIP[index]?.image || ''
+        : resolveUploadedAssetUrl(member?.imageUrl || member?.image || ''),
+      accentClass: member?.accentClass || "bg-gray-200",
+      link: member?.link || "/faculty",
+    }))
     : HOME_LEADERSHIP;
   const marqueeLeadership = homepageLeadership.length > 0
     ? [...homepageLeadership, ...homepageLeadership]
@@ -313,61 +313,61 @@ const Home = () => {
   const coreStrengthItems = Array.isArray(coreStrengthsConfig?.items) && coreStrengthsConfig.items.length > 0
     ? coreStrengthsConfig.items
     : [
-        {
-          kicker: "Academics",
-          title: "Academic Excellence",
-          text: "B.E., M.E., MBA and Ph.D. programs across 7 departments affiliated to SGBAU, Amravati with NAAC and NBA accreditation.",
-          link: "/academics",
-          linkLabel: "Explore Programs",
-        },
-        {
-          kicker: "Campus",
-          title: "Student Life",
-          text: "IEEE, ISTE, ACM chapters, GDG club, Drone Club, E-Cell, NSS, NCC and cultural festivals like Pursuit and Parishkriti.",
-          link: "/gallery",
-          linkLabel: "View Gallery",
-        },
-        {
-          kicker: "Outcomes",
-          title: "Placements",
-          text: "TCS Top Priority College with 35+ recruiters including Infosys, Wipro, Cognizant, Capgemini and more visiting annually.",
-          link: "/placements/brochure",
-          linkLabel: "Placement Stats",
-        },
-      ];
+      {
+        kicker: "Academics",
+        title: "Academic Excellence",
+        text: "B.E., M.E., MBA and Ph.D. programs across 7 departments affiliated to SGBAU, Amravati with NAAC and NBA accreditation.",
+        link: "/academics",
+        linkLabel: "Explore Programs",
+      },
+      {
+        kicker: "Campus",
+        title: "Student Life",
+        text: "IEEE, ISTE, ACM chapters, GDG club, Drone Club, E-Cell, NSS, NCC and cultural festivals like Pursuit and Parishkriti.",
+        link: "/gallery",
+        linkLabel: "View Gallery",
+      },
+      {
+        kicker: "Outcomes",
+        title: "Placements",
+        text: "TCS Top Priority College with 35+ recruiters including Infosys, Wipro, Cognizant, Capgemini and more visiting annually.",
+        link: "/placements/brochure",
+        linkLabel: "Placement Stats",
+      },
+    ];
   const welcomeConfig = homeConfig?.welcome || {};
   const whyChooseConfig = homeConfig?.whyChooseUs || {};
   const whyChooseItems = Array.isArray(whyChooseConfig?.items) && whyChooseConfig.items.length > 0
     ? whyChooseConfig.items
     : [
-        {
-          title: "Best Labs",
-          text: "State-of-the-art laboratories help students build practical knowledge through experimentation, projects and applied engineering work.",
-          imageUrl: electronicsLabImg,
-          link: "/facilities/computing",
-        },
-        {
-          title: "Best Teachers",
-          text: "Faculty mentorship strengthens communication, teamwork, time management and problem-solving alongside core academics.",
-          imageUrl: campusViewImg,
-          link: "/faculty",
-        },
-        {
-          title: "Best Library",
-          text: "The fully automated and digitalised library functions as an excellent information center for students, faculty and researchers.",
-          imageUrl: extraCurricularImg,
-          link: "h",
-        },
-      ];
+      {
+        title: "Best Labs",
+        text: "State-of-the-art laboratories help students build practical knowledge through experimentation, projects and applied engineering work.",
+        imageUrl: electronicsLabImg,
+        link: "/facilities/computing",
+      },
+      {
+        title: "Best Teachers",
+        text: "Faculty mentorship strengthens communication, teamwork, time management and problem-solving alongside core academics.",
+        imageUrl: campusViewImg,
+        link: "/faculty",
+      },
+      {
+        title: "Best Library",
+        text: "The fully automated and digitalised library functions as an excellent information center for students, faculty and researchers.",
+        imageUrl: extraCurricularImg,
+        link: "h",
+      },
+    ];
   const statsConfig = homeConfig?.stats || {};
   const statsItems = Array.isArray(statsConfig?.items) && statsConfig.items.length > 0
     ? statsConfig.items
     : [
-        { number: "7", label: "Departments" },
-        { number: "3000+", label: "Students" },
-        { number: "150+", label: "Faculty Members" },
-        { number: "12000+", label: "Alumni Network" },
-      ];
+      { number: "7", label: "Departments" },
+      { number: "3000+", label: "Students" },
+      { number: "150+", label: "Faculty Members" },
+      { number: "12000+", label: "Alumni Network" },
+    ];
   const leadershipConfig = homeConfig?.leadership || {};
   const newsEventsConfig = homeConfig?.newsEvents || {};
   const studentCornerConfig = homeConfig?.studentCorner || {};
@@ -665,13 +665,6 @@ const Home = () => {
             {whyChooseItems.slice(0, 3).map((item, index) => {
               const fallbackImages = [electronicsLabImg, campusViewImg, extraCurricularImg];
               const resolvedImage = resolveHomeAsset(item?.imageUrl || item?.image, fallbackImages[index] || campusViewImg);
-              const styleVariants = [
-                { icon: FaMicroscope, color: "text-ssgmce-blue", chip: "bg-ssgmce-blue/8" },
-                { icon: FaChalkboardTeacher, color: "text-ssgmce-orange", chip: "bg-orange-50" },
-                { icon: FaBookOpen, color: "text-ssgmce-accent", chip: "bg-teal-50" },
-              ];
-              const variant = styleVariants[index] || styleVariants[0];
-              const Icon = variant.icon;
 
               return (
                 <Link
@@ -687,9 +680,6 @@ const Home = () => {
                       loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent" />
-                    <div className={`absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-lg ${variant.chip} bg-white/92 backdrop-blur-sm`}>
-                      <Icon className={`text-base ${variant.color}`} />
-                    </div>
                   </div>
                   <div className="p-5">
                     <h3 className="text-[1.22rem] font-bold text-slate-900">{item?.title || ''}</h3>
@@ -838,23 +828,23 @@ const Home = () => {
             {/* Latest News */}
             <div>
               <div className="flex justify-between items-end mb-8">
-                 <div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-800">{newsEventsConfig?.newsTitle || 'Latest News'}</h2>
-                    <div className="w-12 h-0.5 bg-ssgmce-orange mt-3 rounded-full"></div>
-                 </div>
-                 <Link to={newsEventsConfig?.newsLink || '/news'} className="text-sm font-medium text-ssgmce-blue hover:text-ssgmce-orange transition-colors">
-                   {newsEventsConfig?.newsLinkLabel || 'View All'} &rarr;
-                 </Link>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-800">{newsEventsConfig?.newsTitle || 'Latest News'}</h2>
+                  <div className="w-12 h-0.5 bg-ssgmce-orange mt-3 rounded-full"></div>
+                </div>
+                <Link to={newsEventsConfig?.newsLink || '/news'} className="text-sm font-medium text-ssgmce-blue hover:text-ssgmce-orange transition-colors">
+                  {newsEventsConfig?.newsLinkLabel || 'View All'} &rarr;
+                </Link>
               </div>
               <div className="space-y-3">
                 {newsItems.slice(0, newsItemsToShow).map((item) => (
-                    <NewsCard
-                      key={item._id}
-                      title={item.title}
-                      date={item.publishDate || item.date || item.createdAt}
-                      description={item.description}
-                      category={item.category || 'General'}
-                    />
+                  <NewsCard
+                    key={item._id}
+                    title={item.title}
+                    date={item.publishDate || item.date || item.createdAt}
+                    description={item.description}
+                    category={item.category || 'General'}
+                  />
                 ))}
                 {newsItems.length === 0 && (
                   <div className="rounded-xl border border-dashed border-gray-200 bg-white p-6 text-sm text-ssgmce-muted">
@@ -867,13 +857,13 @@ const Home = () => {
             {/* Upcoming Events */}
             <div>
               <div className="flex justify-between items-end mb-8">
-                 <div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-800">{newsEventsConfig?.eventsTitle || 'Upcoming Events'}</h2>
-                    <div className="w-12 h-0.5 bg-ssgmce-blue mt-3 rounded-full"></div>
-                 </div>
-                 <Link to={newsEventsConfig?.eventsLink || '/events'} className="text-sm font-medium text-ssgmce-blue hover:text-ssgmce-orange transition-colors">
-                   {newsEventsConfig?.eventsLinkLabel || 'Calendar'} &rarr;
-                 </Link>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-800">{newsEventsConfig?.eventsTitle || 'Upcoming Events'}</h2>
+                  <div className="w-12 h-0.5 bg-ssgmce-blue mt-3 rounded-full"></div>
+                </div>
+                <Link to={newsEventsConfig?.eventsLink || '/events'} className="text-sm font-medium text-ssgmce-blue hover:text-ssgmce-orange transition-colors">
+                  {newsEventsConfig?.eventsLinkLabel || 'Calendar'} &rarr;
+                </Link>
               </div>
               <div className="bg-ssgmce-surface rounded-xl p-6 border border-gray-100">
                 {upcomingEvents.slice(0, eventsToShow).map((event) => {
@@ -919,49 +909,49 @@ const Home = () => {
                     No upcoming events found. Add events from Admin &gt; Events.
                   </div>
                 )}
-                  {/* Event Item 1 */}
-                  <div className="hidden gap-4 mb-5 pb-5 border-b border-gray-100 last:border-0 last:mb-0 last:pb-0">
-                      <div className="text-center min-w-[56px] bg-white rounded-lg py-2.5 px-3 shadow-sm border border-gray-100">
-                          <div className="text-xl font-bold text-ssgmce-blue leading-tight">24</div>
-                          <div className="text-[10px] uppercase font-semibold text-ssgmce-muted">APR</div>
-                      </div>
-                      <div>
-                          <h4 className="font-semibold text-gray-800 hover:text-ssgmce-blue transition-colors cursor-pointer mb-1.5 text-sm">ICICGR 2026 — International Conference</h4>
-                          <div className="flex items-center text-xs text-ssgmce-muted">
-                             <FaClock className="mr-1.5" size={10} /> 09:00 AM
-                             <FaMapMarkerAlt className="ml-3 mr-1.5" size={10} /> E&TC Department
-                          </div>
-                          <p className="text-[10px] text-ssgmce-muted mt-1">Innovations in Communication, Geoscience and Robotics</p>
-                      </div>
+                {/* Event Item 1 */}
+                <div className="hidden gap-4 mb-5 pb-5 border-b border-gray-100 last:border-0 last:mb-0 last:pb-0">
+                  <div className="text-center min-w-[56px] bg-white rounded-lg py-2.5 px-3 shadow-sm border border-gray-100">
+                    <div className="text-xl font-bold text-ssgmce-blue leading-tight">24</div>
+                    <div className="text-[10px] uppercase font-semibold text-ssgmce-muted">APR</div>
                   </div>
-                  {/* Event Item 2 */}
-                  <div className="hidden gap-4 mb-5 pb-5 border-b border-gray-100 last:border-0 last:mb-0 last:pb-0">
-                      <div className="text-center min-w-[56px] bg-white rounded-lg py-2.5 px-3 shadow-sm border border-gray-100">
-                          <div className="text-xl font-bold text-ssgmce-blue leading-tight">--</div>
-                          <div className="text-[10px] uppercase font-semibold text-ssgmce-muted">2026</div>
-                      </div>
-                      <div>
-                          <h4 className="font-semibold text-gray-800 hover:text-ssgmce-blue transition-colors cursor-pointer mb-1.5 text-sm">Pursuit 2026 — Technical Festival</h4>
-                          <div className="flex items-center text-xs text-ssgmce-muted">
-                             <FaMapMarkerAlt className="mr-1.5" size={10} /> SSGMCE Campus
-                          </div>
-                          <p className="text-[10px] text-ssgmce-muted mt-1">Annual technical fest with competitions and workshops</p>
-                      </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-800 hover:text-ssgmce-blue transition-colors cursor-pointer mb-1.5 text-sm">ICICGR 2026 — International Conference</h4>
+                    <div className="flex items-center text-xs text-ssgmce-muted">
+                      <FaClock className="mr-1.5" size={10} /> 09:00 AM
+                      <FaMapMarkerAlt className="ml-3 mr-1.5" size={10} /> E&TC Department
+                    </div>
+                    <p className="text-[10px] text-ssgmce-muted mt-1">Innovations in Communication, Geoscience and Robotics</p>
                   </div>
-                  {/* Event Item 3 */}
-                  <div className="hidden gap-4 mb-5 pb-5 border-b border-gray-100 last:border-0 last:mb-0 last:pb-0">
-                      <div className="text-center min-w-[56px] bg-white rounded-lg py-2.5 px-3 shadow-sm border border-gray-100">
-                          <div className="text-xl font-bold text-ssgmce-blue leading-tight">--</div>
-                          <div className="text-[10px] uppercase font-semibold text-ssgmce-muted">2026</div>
-                      </div>
-                      <div>
-                          <h4 className="font-semibold text-gray-800 hover:text-ssgmce-blue transition-colors cursor-pointer mb-1.5 text-sm">Parishkriti 2026 — Cultural Festival</h4>
-                          <div className="flex items-center text-xs text-ssgmce-muted">
-                             <FaMapMarkerAlt className="mr-1.5" size={10} /> SSGMCE Campus
-                          </div>
-                          <p className="text-[10px] text-ssgmce-muted mt-1">Annual cultural celebration with performances and events</p>
-                      </div>
+                </div>
+                {/* Event Item 2 */}
+                <div className="hidden gap-4 mb-5 pb-5 border-b border-gray-100 last:border-0 last:mb-0 last:pb-0">
+                  <div className="text-center min-w-[56px] bg-white rounded-lg py-2.5 px-3 shadow-sm border border-gray-100">
+                    <div className="text-xl font-bold text-ssgmce-blue leading-tight">--</div>
+                    <div className="text-[10px] uppercase font-semibold text-ssgmce-muted">2026</div>
                   </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-800 hover:text-ssgmce-blue transition-colors cursor-pointer mb-1.5 text-sm">Pursuit 2026 — Technical Festival</h4>
+                    <div className="flex items-center text-xs text-ssgmce-muted">
+                      <FaMapMarkerAlt className="mr-1.5" size={10} /> SSGMCE Campus
+                    </div>
+                    <p className="text-[10px] text-ssgmce-muted mt-1">Annual technical fest with competitions and workshops</p>
+                  </div>
+                </div>
+                {/* Event Item 3 */}
+                <div className="hidden gap-4 mb-5 pb-5 border-b border-gray-100 last:border-0 last:mb-0 last:pb-0">
+                  <div className="text-center min-w-[56px] bg-white rounded-lg py-2.5 px-3 shadow-sm border border-gray-100">
+                    <div className="text-xl font-bold text-ssgmce-blue leading-tight">--</div>
+                    <div className="text-[10px] uppercase font-semibold text-ssgmce-muted">2026</div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-800 hover:text-ssgmce-blue transition-colors cursor-pointer mb-1.5 text-sm">Parishkriti 2026 — Cultural Festival</h4>
+                    <div className="flex items-center text-xs text-ssgmce-muted">
+                      <FaMapMarkerAlt className="mr-1.5" size={10} /> SSGMCE Campus
+                    </div>
+                    <p className="text-[10px] text-ssgmce-muted mt-1">Annual cultural celebration with performances and events</p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -993,9 +983,8 @@ const Home = () => {
                         <button
                           type="button"
                           onClick={() => setActiveCorner(item.id)}
-                          className={`flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left transition-colors ${
-                            isActive ? 'bg-[#2f5f8d] text-white' : 'bg-[#f8fafc] text-[#2f5f8d] hover:bg-[#f1f5f9]'
-                          }`}
+                          className={`flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left transition-colors ${isActive ? 'bg-[#2f5f8d] text-white' : 'bg-[#f8fafc] text-[#2f5f8d] hover:bg-[#f1f5f9]'
+                            }`}
                         >
                           {isActive ? <FaMinus className="text-[10px]" /> : <FaPlus className="text-[10px]" />}
                           <span className="text-[0.9rem] font-semibold leading-tight">{item.title}</span>

@@ -39,7 +39,7 @@ const ResearchOverview = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Research & Innovation | SSGMCE";
+    // document.title = "Research & Innovation | SSGMCE";
     fetchData();
   }, []);
 

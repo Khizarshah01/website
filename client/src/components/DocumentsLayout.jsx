@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import PageHeader from "./PageHeader";
 import DocumentsSidebar from "./DocumentsSidebar";
 import DocumentGrid from "./DocumentGrid";
@@ -16,7 +16,7 @@ const DocumentsLayout = ({
 }) => {
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = `${pageTitle} | SSGMCE Documents`;
+    // document.title = `${pageTitle} | SSGMCE Documents`;
   }, [pageTitle]);
 
   return (

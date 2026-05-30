@@ -26,7 +26,7 @@ const Navbar = () => {
     { name: "FRA Fee Structure", to: "/admissions/fees" },
     { name: "Best Practices", to: "/iqac/practices" },
     { name: "SSGMCE Blog", href: "https://blogssgmce.in/" },
-    { name: "Grievance Form", to: "/contact" },
+    { name: "Grievance Form", to: "/about/contact-us" },
   ];
 
   const quickLinksRight = [
@@ -92,11 +92,9 @@ const Navbar = () => {
         { name: "Organizational Structure", path: "/about/structure" },
         { name: "Governing Body", path: "/about/governing" },
         { name: "Board of Directors", path: "/about/directors" },
-        {
-          name: "Various Committees By SGBAU & AICTE",
-          path: "/about/committees",
-        },
-        { name: "Contact us", path: "/contact" },
+        { name: "Various Committees By AICTE", path: "/about/aicte-committees" },
+        { name: "Various Committees By SGBAU", path: "/about/sgbau-committees" },
+        { name: "Contact us", path: "/about/contact-us" },
       ],
     },
     {
@@ -199,7 +197,7 @@ const Navbar = () => {
     },
     {
       name: "Facilities",
-      path: "/gallery",
+      path: "/facilities/admin",
       megaMenuImage: facilitiesNavbarImage,
       megaMenuTitle: "World-Class Facilities",
       dropdown: [
@@ -236,7 +234,7 @@ const Navbar = () => {
         { name: "Major Recruiters", path: "/placements/recruiters" },
         { name: "Career Guidance Cell", path: "/placements/career" },
         { name: "Internship", path: "/placements/internship" },
-        { name: "Contact Us", path: "/contact" },
+        { name: "Contact Us", path: "/placements/contact" },
       ],
     },
     {
@@ -300,7 +298,7 @@ const Navbar = () => {
         { name: "Research", path: "/research/rdc" },
         { name: "Student Life", path: "/gallery" },
         { name: "Information Corner", path: "/documents" },
-        { name: "Contact us", path: "/contact" },
+        { name: "Contact us", path: "/about/contact-us" },
       ],
     },
     {
@@ -357,9 +355,17 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="ssgmce-header-shell text-white">
-        <div className="ssgmce-header-pattern" />
-        <div className="container relative mx-auto px-3 py-3 md:px-4 md:py-4">
+      <header
+        className="text-white relative overflow-hidden"
+        style={{
+          backgroundImage: `linear-gradient(rgba(30, 58, 138, 0.82), rgba(30, 58, 138, 0.82)), url(${admissionsNavbarImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-ssgmce-dark-blue/75 via-transparent to-ssgmce-dark-blue/75" />
+        <div className="container relative z-10 mx-auto px-3 py-3 md:px-4 md:py-4">
           <div className="mb-4 flex overflow-x-auto pb-2 -mx-3 px-3 md:mx-0 md:px-0 md:pb-0 md:flex-wrap md:items-center md:justify-between gap-2 md:gap-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex shrink-0 items-center gap-2 md:flex-wrap md:justify-start">
               {quickLinksLeft.map((link) =>
@@ -536,10 +542,10 @@ const Navbar = () => {
                             handleTopLevelMenuClick(item);
                           }}
                           className={`px-2.5 lg:px-3 py-2.5 text-gray-700 font-medium hover:text-ssgmce-blue transition-colors duration-300 flex items-center whitespace-nowrap text-[13px] xl:text-sm ${activeDropdown === item.name
-                              ? "text-ssgmce-blue border-b-2 border-ssgmce-orange"
-                              : isActive(item.path)
-                                ? "text-ssgmce-blue border-b-2 border-ssgmce-blue"
-                                : ""
+                            ? "text-ssgmce-blue border-b-2 border-ssgmce-orange"
+                            : isActive(item.path)
+                              ? "text-ssgmce-blue border-b-2 border-ssgmce-blue"
+                              : ""
                             }`}
                         >
                           {item.name}
@@ -548,8 +554,8 @@ const Navbar = () => {
                         <Link
                           to={item.path}
                           className={`block px-2.5 lg:px-3 py-2.5 text-gray-700 font-medium hover:text-ssgmce-blue transition-colors duration-300 whitespace-nowrap text-[13px] xl:text-sm ${isActive(item.path)
-                              ? "text-ssgmce-blue border-b-2 border-ssgmce-blue"
-                              : ""
+                            ? "text-ssgmce-blue border-b-2 border-ssgmce-blue"
+                            : ""
                             }`}
                           onMouseEnter={() => setActiveDropdown(null)}
                         >
@@ -654,8 +660,8 @@ const Navbar = () => {
                     return (
                       <div
                         className={`absolute top-full z-50 w-[min(calc(100vw-9rem),1120px)] pt-2 ${activeItem.name === "Activities"
-                            ? "right-0 left-auto"
-                            : "left-0"
+                          ? "right-0 left-auto"
+                          : "left-0"
                           }`}
                       >
                         <div className="relative overflow-hidden rounded-lg bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)]">
@@ -748,10 +754,10 @@ const Navbar = () => {
                               ) : (
                                 <div
                                   className={`grid min-w-0 flex-1 gap-x-7 gap-y-2 ${colCount === 4
-                                      ? "lg:grid-cols-4"
-                                      : colCount === 3
-                                        ? "lg:grid-cols-3"
-                                        : "lg:grid-cols-2"
+                                    ? "lg:grid-cols-4"
+                                    : colCount === 3
+                                      ? "lg:grid-cols-3"
+                                      : "lg:grid-cols-2"
                                     }`}
                                 >
                                   {columns.map((col, colIdx) => (
@@ -799,9 +805,9 @@ const Navbar = () => {
                                       src={activeItem.megaMenuImage}
                                       alt={activeItem.megaMenuTitle}
                                       className={`h-full w-full object-center ${activeItem.megaMenuImageFit ===
-                                          "contain"
-                                          ? "object-contain p-4"
-                                          : "object-cover"
+                                        "contain"
+                                        ? "object-contain p-4"
+                                        : "object-cover"
                                         }`}
                                     />
                                   </div>
@@ -842,8 +848,8 @@ const Navbar = () => {
           <div
             aria-hidden={!isOpen}
             className={`md:hidden overflow-hidden transition-all duration-300 ease-out ${isOpen
-                ? "max-h-[70vh] opacity-100 translate-y-0"
-                : "max-h-0 opacity-0 -translate-y-1 pointer-events-none"
+              ? "max-h-[70vh] opacity-100 translate-y-0"
+              : "max-h-0 opacity-0 -translate-y-1 pointer-events-none"
               }`}
           >
             <div className="border-t border-gray-200 bg-white px-1 py-3 overflow-y-auto shadow-lg max-h-[70vh]">
@@ -885,8 +891,8 @@ const Navbar = () => {
                                       {subItem.name}{" "}
                                       <FaChevronRight
                                         className={`text-[9px] transition-transform ${activeSubDropdown === subItem.name
-                                            ? "rotate-90"
-                                            : ""
+                                          ? "rotate-90"
+                                          : ""
                                           }`}
                                       />
                                     </button>
@@ -935,8 +941,8 @@ const Navbar = () => {
                         to={item.path}
                         onClick={() => setIsOpen(false)}
                         className={`block px-3 py-2 rounded font-semibold text-sm ${isActive(item.path)
-                            ? "bg-ssgmce-blue text-white"
-                            : "text-gray-700 hover:bg-gray-50"
+                          ? "bg-ssgmce-blue text-white"
+                          : "text-gray-700 hover:bg-gray-50"
                           }`}
                       >
                         {item.name}

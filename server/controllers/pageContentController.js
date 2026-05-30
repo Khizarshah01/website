@@ -780,21 +780,21 @@ const basePages = [
       },
     ],
   },
-  // Committees Page
+  // SGBAU Committees Page
   {
-    pageId: "about-committees",
-    pageTitle: "Committees",
-    pageDescription: "Institutional Committees",
-    route: "/about/committees",
+    pageId: "about-sgbau-committees",
+    pageTitle: "Various Committees By SGBAU",
+    pageDescription: "SGBAU Committees",
+    route: "/about/sgbau-committees",
     category: "about",
     sections: [
       {
         sectionId: "intro",
-        title: "About Committees",
+        title: "About SGBAU Committees",
         type: "text",
         order: 1,
         content: {
-          text: "SSGMCE has established various committees to ensure smooth functioning of academic, administrative, and extracurricular activities. These committees work towards maintaining quality standards and fostering a conducive learning environment.",
+          text: "SSGMCE has established various committees mandated by SGBAU to ensure smooth functioning of academic and administrative activities.",
         },
       },
       {
@@ -806,39 +806,43 @@ const basePages = [
           cards: [
             {
               title: "Academic Council",
-              description:
-                "Oversees curriculum design, examination, and academic policies",
+              description: "Oversees curriculum design, examination, and academic policies",
               icon: "FaBook",
               color: "blue",
             },
             {
               title: "Board of Studies",
-              description:
-                "Reviews and updates course content for each department",
+              description: "Reviews and updates course content for each department",
               icon: "FaClipboardList",
               color: "orange",
-            },
-            {
-              title: "Research Committee",
-              description:
-                "Promotes research activities and monitors PhD programs",
-              icon: "FaFlask",
-              color: "blue",
-            },
-            {
-              title: "Library Committee",
-              description: "Manages library resources and services",
-              icon: "FaBookOpen",
-              color: "orange",
-            },
-          ],
+            }
+          ]
+        }
+      }
+    ]
+  },
+  // AICTE Committees Page
+  {
+    pageId: "about-aicte-committees",
+    pageTitle: "Various Committees By AICTE",
+    pageDescription: "AICTE Committees",
+    route: "/about/aicte-committees",
+    category: "about",
+    sections: [
+      {
+        sectionId: "intro",
+        title: "About AICTE Committees",
+        type: "text",
+        order: 1,
+        content: {
+          text: "SSGMCE has established various committees as per AICTE guidelines to ensure a safe and conducive learning environment.",
         },
       },
       {
         sectionId: "admin-committees",
         title: "Administrative Committees",
         type: "cards",
-        order: 3,
+        order: 2,
         content: {
           cards: [
             {
@@ -858,17 +862,11 @@ const basePages = [
               description: "Handles complaints related to harassment",
               icon: "FaGavel",
               color: "blue",
-            },
-            {
-              title: "Discipline Committee",
-              description: "Maintains discipline and decorum",
-              icon: "FaUserShield",
-              color: "orange",
-            },
-          ],
-        },
-      },
-    ],
+            }
+          ]
+        }
+      }
+    ]
   },
   // Organization Structure Page
   {

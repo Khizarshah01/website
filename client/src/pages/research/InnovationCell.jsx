@@ -31,7 +31,7 @@ const InnovationCell = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Innovation Cell | Research - SSGMCE";
+    // document.title = "Innovation Cell | Research - SSGMCE";
     fetchInnovations();
   }, [filter]);
 

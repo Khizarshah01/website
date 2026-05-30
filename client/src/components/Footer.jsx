@@ -9,7 +9,7 @@ const quickLinks = [
   { label: 'Departments', to: '/departments' },
   { label: 'Placements', to: '/placements/brochure' },
   { label: 'Research', to: '/research/rdc' },
-  { label: 'Contact Us', to: '/contact' },
+  { label: 'Contact Us', to: '/about/contact-us' },
 ];
 
 const importantLinks = [

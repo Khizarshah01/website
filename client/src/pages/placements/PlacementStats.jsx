@@ -11,7 +11,7 @@ const PlacementStats = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Placement Statistics | SSGMCE";
+    // document.title = "Placement Statistics | SSGMCE";
     
     apiClient
       .get("/pages/placements-statistics")

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FaDownload, FaEdit, FaFilePdf } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import apiClient from "../utils/apiClient";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
@@ -239,24 +239,23 @@ const AdminOfficePageLayout = ({
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div
-        className="relative bg-cover bg-center"
-        style={{ backgroundImage: `url(${bannerImage})`, minHeight: 200 }}
+        className="relative bg-ssgmce-blue"
+        style={{ minHeight: 200 }}
       >
-        <div className="absolute inset-0 bg-ssgmce-dark-blue/80"></div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center" style={{ minHeight: 200 }}>
-          <nav className="mb-4 text-sm text-blue-100">
-            <span>Home</span>
-            <span className="mx-2">/</span>
-            <span>Facilities</span>
-            <span className="mx-2">/</span>
-            <span>Administrative Office</span>
-            <span className="mx-2">/</span>
-            <span className="text-white">{pageTitle}</span>
+          <nav className="mb-4 text-sm text-blue-100 flex items-center justify-center space-x-2">
+            <Link to="/" className="hover:text-white hover:underline transition-colors">Home</Link>
+            <span className="text-blue-300">/</span>
+            <Link to="/facilities/admin" className="hover:text-white hover:underline transition-colors">Facilities</Link>
+            <span className="text-blue-300">/</span>
+            <Link to="/facilities/administrative-office" className="hover:text-white hover:underline transition-colors">Administrative Office</Link>
+            <span className="text-blue-300">/</span>
+            <span className="text-white font-medium">{pageTitle}</span>
           </nav>
 
           <h1
             ref={heroRef}
-            className="text-2xl font-extrabold text-white drop-shadow-md md:text-3xl lg:text-4xl"
+            className="text-2xl font-extrabold text-white md:text-3xl lg:text-4xl"
           >
             {pageTitle}
           </h1>

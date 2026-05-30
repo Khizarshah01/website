@@ -92,7 +92,7 @@ const NIRFRanking = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "NIRF Ranking | SSGMCE";
+    // document.title = "SSGMCE | SHEGAON";
   }, []);
 
   // Fetch CMS sections from API (skip when inside visual editor — EditContext has them)
