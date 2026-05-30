@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import DOMPurify from "dompurify";
 import apiClient from "../utils/apiClient";
 import GenericPage from "./GenericPage";
@@ -17,8 +17,10 @@ import DocumentsSidebar from "./DocumentsSidebar";
 import AboutSidebar from "./AboutSidebar";
 import EditableText from "./admin/EditableText";
 import EditableImage from "./admin/EditableImage";
+import EditableImageCarousel from "./admin/EditableImageCarousel";
 import EditableSection from "./admin/EditableSection";
 import MarkdownEditor from "./admin/MarkdownEditor";
+import ImageCarousel from "./ImageCarousel";
 import { useEdit } from "../contexts/EditContext";
 import {
   PAGE_CACHE_TTL_MS,
@@ -283,7 +285,7 @@ const buildAqarMarkdownFromItems = (items = [], sectionTitle = "") => {
       const rawTitle = String(item?.title || "").trim();
       const title =
         /^\d{4}-\d{2}$/.test(rawTitle) &&
-        sectionTitle.toLowerCase().includes("previous")
+          sectionTitle.toLowerCase().includes("previous")
           ? `AQAR Report ${rawTitle}`
           : rawTitle || `Document ${index + 1}`;
       const url = String(item?.url || "").trim();
@@ -306,58 +308,58 @@ const normalizeLegacyPageData = (pageId, pageData) => {
 
   const clonedSections = Array.isArray(pageData.sections)
     ? pageData.sections.map((section) => {
-        const content =
-          section?.type === "markdown" &&
+      const content =
+        section?.type === "markdown" &&
           typeof section?.content?.text !== "string" &&
           typeof section?.content?.markdown === "string"
-            ? { ...section.content, text: section.content.markdown }
-            : section?.content;
+          ? { ...section.content, text: section.content.markdown }
+          : section?.content;
 
-        const text = content?.text;
-        if (typeof text !== "string") {
-          return content === section?.content ? section : { ...section, content };
+      const text = content?.text;
+      if (typeof text !== "string") {
+        return content === section?.content ? section : { ...section, content };
+      }
+
+      let nextText = text;
+      if (String(pageId || "").toLowerCase() === "research-phd") {
+        if (!nextText.includes(LEGACY_PHD_ENROLLMENT_URL)) {
+          return section;
         }
 
-        let nextText = text;
-        if (String(pageId || "").toLowerCase() === "research-phd") {
-          if (!nextText.includes(LEGACY_PHD_ENROLLMENT_URL)) {
-            return section;
-          }
+        nextText = nextText.replace(
+          LEGACY_PHD_ENROLLMENT_URL,
+          LOCAL_PHD_ENROLLMENT_URL,
+        );
+      }
 
-          nextText = nextText.replace(
-            LEGACY_PHD_ENROLLMENT_URL,
-            LOCAL_PHD_ENROLLMENT_URL,
-          );
+      if (String(pageId || "").toLowerCase() === "research-ug-projects") {
+        RESEARCH_UG_PROJECTS_LINK_REPLACEMENTS.forEach(([from, to]) => {
+          nextText = nextText.replaceAll(`](${from})`, `](${to})`);
+        });
+
+        if (nextText === text) {
+          return section;
         }
+      }
 
-        if (String(pageId || "").toLowerCase() === "research-ug-projects") {
-          RESEARCH_UG_PROJECTS_LINK_REPLACEMENTS.forEach(([from, to]) => {
-            nextText = nextText.replaceAll(`](${from})`, `](${to})`);
-          });
+      if (String(pageId || "").toLowerCase() === "research-nisp") {
+        RESEARCH_NISP_LINK_REPLACEMENTS.forEach(([from, to]) => {
+          nextText = nextText.replaceAll(from, to);
+        });
 
-          if (nextText === text) {
-            return section;
-          }
+        if (nextText === text) {
+          return section;
         }
+      }
 
-        if (String(pageId || "").toLowerCase() === "research-nisp") {
-          RESEARCH_NISP_LINK_REPLACEMENTS.forEach(([from, to]) => {
-            nextText = nextText.replaceAll(from, to);
-          });
-
-          if (nextText === text) {
-            return section;
-          }
-        }
-
-        return {
-          ...section,
-          content: {
-            ...content,
-            text: nextText,
-          },
-        };
-      })
+      return {
+        ...section,
+        content: {
+          ...content,
+          text: nextText,
+        },
+      };
+    })
     : pageData.sections;
 
   return {
@@ -528,11 +530,10 @@ const VideoGallery = ({ videos, channelUrl }) => {
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-              activeCategory === cat
-                ? "bg-ssgmce-blue text-white"
-                : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-            }`}
+            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${activeCategory === cat
+              ? "bg-ssgmce-blue text-white"
+              : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+              }`}
           >
             {cat}
           </button>
@@ -766,7 +767,7 @@ const GenericContentPage = ({ pageId, sidebar: forcedSidebar = null }) => {
           prevPage &&
           prevPage.pageId === cachedPage.pageId &&
           String(prevPage.updatedAt || "") ===
-            String(cachedPage.updatedAt || "")
+          String(cachedPage.updatedAt || "")
         ) {
           return prevPage;
         }
@@ -790,7 +791,7 @@ const GenericContentPage = ({ pageId, sidebar: forcedSidebar = null }) => {
             prevPage &&
             prevPage.pageId === fetchedPage.pageId &&
             String(prevPage.updatedAt || "") ===
-              String(fetchedPage.updatedAt || "")
+            String(fetchedPage.updatedAt || "")
           ) {
             return prevPage;
           }
@@ -1248,7 +1249,7 @@ Constituted By **All India Council for Technical Education, New Delhi**
 
     const campusImageMeta =
       findSectionByIds(["campus-image", "campus-photo", "image"]) ||
-      findSectionByTitle(/campus image|campus photo/i) ||
+      findSectionByTitle(/campus images|campus photo/i) ||
       findSectionByType("image");
 
     const quickStatsMeta =
@@ -1468,6 +1469,10 @@ Constituted By **All India Council for Technical Education, New Delhi**
     const campusImageUrl = String(
       campusImageMeta?.section?.content?.url || "",
     ).trim();
+    const campusImageUrls = Array.isArray(campusImageMeta?.section?.content?.urls)
+      ? campusImageMeta.section.content.urls.filter(u => typeof u === 'string' && u.trim() !== '')
+      : [];
+    const hasMultipleCampusImages = campusImageUrls.length > 0;
     const campusImageAlt =
       campusImageMeta?.section?.content?.alt || "SSGMCE Campus";
     const campusCaption = campusImageMeta?.section?.content?.caption || "";
@@ -1523,11 +1528,10 @@ Constituted By **All India Council for Technical Education, New Delhi**
                         {introMeta.section.title || "About SSGMCE"}
                       </h3>
                       <div
-                        className={`prose max-w-none text-gray-700 leading-7 relative ${
-                          shouldShowIntroReadMore && !isGlanceIntroExpanded
-                            ? "max-h-[280px] overflow-hidden"
-                            : ""
-                        }`}
+                        className={`prose max-w-none text-gray-700 leading-7 relative ${shouldShowIntroReadMore && !isGlanceIntroExpanded
+                          ? "max-h-[280px] overflow-hidden"
+                          : ""
+                          }`}
                       >
                         {renderSectionContent(introMeta)}
                         {shouldShowIntroReadMore && !isGlanceIntroExpanded && (
@@ -1562,19 +1566,24 @@ Constituted By **All India Council for Technical Education, New Delhi**
                   >
                     <section className="h-full rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                       <h3 className="text-xl font-bold text-ssgmce-blue mb-4 pb-2 border-b border-gray-100">
-                        {campusImageMeta.section.title || "Campus Image"}
+                        {campusImageMeta.section.title || "Campus Images"}
                       </h3>
                       {isEditing ? (
-                        <EditableImage
-                          src={resolvedCampusImageUrl}
-                          onSave={(newUrl) =>
+                        <EditableImageCarousel
+                          urls={hasMultipleCampusImages ? campusImageUrls : (campusImageUrl ? [campusImageUrl] : [])}
+                          onSave={(newUrls) =>
                             updateData(
-                              `sections[${campusImageMeta.originalIndex}].content.url`,
-                              newUrl,
+                              `sections[${campusImageMeta.originalIndex}].content.urls`,
+                              newUrls,
                             )
                           }
-                          className="w-full aspect-[16/10] rounded-lg object-cover border border-gray-100"
                           alt={campusImageAlt}
+                        />
+                      ) : hasMultipleCampusImages ? (
+                        <ImageCarousel
+                          images={campusImageUrls}
+                          alt={campusImageAlt}
+                          className="w-full aspect-[16/10] rounded-lg border border-gray-100"
                         />
                       ) : campusImageUrl || resolvedCampusImageUrl ? (
                         <ImageWithFallback
@@ -1627,7 +1636,7 @@ Constituted By **All India Council for Technical Education, New Delhi**
                 ) : (
                   <section className="h-full rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                     <h3 className="text-xl font-bold text-ssgmce-blue mb-4 pb-2 border-b border-gray-100">
-                      Campus Image
+                      Campus Images
                     </h3>
                     <ImageWithFallback
                       src={fallbackGlanceImage}
@@ -2067,11 +2076,10 @@ Constituted By **All India Council for Technical Education, New Delhi**
                             {row.map((cell, cellIndex) => (
                               <td
                                 key={`governing-cell-${rowIndex}-${cellIndex}`}
-                                className={`border-b border-slate-200 px-2 py-3 leading-relaxed text-slate-600 whitespace-normal break-words sm:px-4 md:px-5 md:py-4 ${
-                                  cellIndex === 0
-                                    ? "text-center font-medium text-slate-800"
-                                    : ""
-                                }`}
+                                className={`border-b border-slate-200 px-2 py-3 leading-relaxed text-slate-600 whitespace-normal break-words sm:px-4 md:px-5 md:py-4 ${cellIndex === 0
+                                  ? "text-center font-medium text-slate-800"
+                                  : ""
+                                  }`}
                               >
                                 {cell}
                               </td>
@@ -2153,8 +2161,8 @@ Constituted By **All India Council for Technical Education, New Delhi**
       .filter(Boolean);
     const focusListItems = Array.isArray(focusMeta?.section?.content?.items)
       ? focusMeta.section.content.items
-          .map((item) => stripMarkdownInline(item))
-          .filter(Boolean)
+        .map((item) => stripMarkdownInline(item))
+        .filter(Boolean)
       : [];
 
     const defaultHighlights = [
@@ -2302,12 +2310,11 @@ Constituted By **All India Council for Technical Education, New Delhi**
                     contentPath={`sections[${principalMessageMeta.originalIndex}].content`}
                   >
                     <div
-                      className={`prose max-w-none text-gray-700 leading-relaxed relative ${
-                        shouldShowPrincipalReadMore &&
+                      className={`prose max-w-none text-gray-700 leading-relaxed relative ${shouldShowPrincipalReadMore &&
                         !isPrincipalMessageExpanded
-                          ? "max-h-[420px] overflow-hidden"
-                          : ""
-                      }`}
+                        ? "max-h-[420px] overflow-hidden"
+                        : ""
+                        }`}
                     >
                       {principalMessageMeta.section.type === "markdown" ? (
                         <MarkdownEditor
@@ -2742,13 +2749,12 @@ Constituted By **All India Council for Technical Education, New Delhi**
                   contentPath={`sections[${index}].content`}
                 >
                   <div
-                    className={`page-section ${
-                      isAdmissionsThemePage
-                        ? "rounded-xl border border-gray-200 bg-white/95 p-5 shadow-sm"
-                        : isAboutThemePage
-                          ? "rounded-xl border border-slate-200 bg-white p-5 md:p-6 shadow-sm"
-                          : ""
-                    }`}
+                    className={`page-section ${isAdmissionsThemePage
+                      ? "rounded-xl border border-gray-200 bg-white/95 p-5 shadow-sm"
+                      : isAboutThemePage
+                        ? "rounded-xl border border-slate-200 bg-white p-5 md:p-6 shadow-sm"
+                        : ""
+                      }`}
                     id={section.sectionId}
                   >
                     {/* Section Title */}
@@ -2772,11 +2778,10 @@ Constituted By **All India Council for Technical Education, New Delhi**
                     {/* Text Section */}
                     {section.type === "text" && (
                       <div
-                        className={`prose max-w-none text-gray-700 whitespace-pre-wrap ${
-                          isAdmissionsThemePage || isAboutThemePage
-                            ? "leading-7"
-                            : ""
-                        }`}
+                        className={`prose max-w-none text-gray-700 whitespace-pre-wrap ${isAdmissionsThemePage || isAboutThemePage
+                          ? "leading-7"
+                          : ""
+                          }`}
                       >
                         <EditableText
                           value={section.content.text}
@@ -2802,11 +2807,10 @@ Constituted By **All India Council for Technical Education, New Delhi**
                         />
                       ) : (
                         <div
-                          className={`prose max-w-none text-gray-700 ${
-                            isAdmissionsThemePage || isAboutThemePage
-                              ? "leading-7"
-                              : ""
-                          }`}
+                          className={`prose max-w-none text-gray-700 ${isAdmissionsThemePage || isAboutThemePage
+                            ? "leading-7"
+                            : ""
+                            }`}
                         >
                           <EditableText
                             value={section.content.text}
@@ -2856,13 +2860,12 @@ Constituted By **All India Council for Technical Education, New Delhi**
                         {section.content.stats.map((stat, idx) => (
                           <div
                             key={idx}
-                            className={`rounded-lg p-4 text-center ${
-                              isAdmissionsThemePage
-                                ? "bg-gray-50 border border-gray-200 shadow-sm"
-                                : isAboutThemePage
-                                  ? "bg-slate-50 border border-slate-200 shadow-sm"
-                                  : `bg-white shadow border-t-4 ${stat.color === "orange" ? "border-ssgmce-orange" : "border-ssgmce-blue"}`
-                            }`}
+                            className={`rounded-lg p-4 text-center ${isAdmissionsThemePage
+                              ? "bg-gray-50 border border-gray-200 shadow-sm"
+                              : isAboutThemePage
+                                ? "bg-slate-50 border border-slate-200 shadow-sm"
+                                : `bg-white shadow border-t-4 ${stat.color === "orange" ? "border-ssgmce-orange" : "border-ssgmce-blue"}`
+                              }`}
                           >
                             <div
                               className={`text-2xl font-bold ${stat.color === "orange" ? "text-ssgmce-orange" : "text-ssgmce-blue"}`}
@@ -2880,31 +2883,28 @@ Constituted By **All India Council for Technical Education, New Delhi**
                     {/* Timeline Section */}
                     {section.type === "timeline" && section.content.events && (
                       <div
-                        className={`relative ${
-                          isAdmissionsThemePage
-                            ? "border-l border-gray-300 ml-3 space-y-4"
-                            : isAboutThemePage
-                              ? "border-l border-slate-300 ml-3 space-y-5"
-                              : "border-l-2 border-ssgmce-blue ml-4 space-y-6"
-                        }`}
+                        className={`relative ${isAdmissionsThemePage
+                          ? "border-l border-gray-300 ml-3 space-y-4"
+                          : isAboutThemePage
+                            ? "border-l border-slate-300 ml-3 space-y-5"
+                            : "border-l-2 border-ssgmce-blue ml-4 space-y-6"
+                          }`}
                       >
                         {section.content.events.map((event, idx) => (
                           <div
                             key={idx}
-                            className={`relative ${
-                              isAdmissionsThemePage || isAboutThemePage
-                                ? "pl-6"
-                                : "pl-8"
-                            }`}
+                            className={`relative ${isAdmissionsThemePage || isAboutThemePage
+                              ? "pl-6"
+                              : "pl-8"
+                              }`}
                           >
                             <div
-                              className={`absolute rounded-full top-2 ${
-                                isAdmissionsThemePage
-                                  ? "-left-[6px] h-2.5 w-2.5 bg-ssgmce-blue border border-white"
-                                  : isAboutThemePage
-                                    ? "-left-[6px] h-2.5 w-2.5 bg-slate-500 border border-white"
-                                    : "-left-[9px] w-4 h-4 bg-ssgmce-orange border-2 border-white shadow"
-                              }`}
+                              className={`absolute rounded-full top-2 ${isAdmissionsThemePage
+                                ? "-left-[6px] h-2.5 w-2.5 bg-ssgmce-blue border border-white"
+                                : isAboutThemePage
+                                  ? "-left-[6px] h-2.5 w-2.5 bg-slate-500 border border-white"
+                                  : "-left-[9px] w-4 h-4 bg-ssgmce-orange border-2 border-white shadow"
+                                }`}
                             ></div>
                             <div
                               className={
@@ -2916,24 +2916,22 @@ Constituted By **All India Council for Technical Education, New Delhi**
                               }
                             >
                               <span
-                                className={`text-sm font-semibold ${
-                                  isAdmissionsThemePage
-                                    ? "text-gray-500 uppercase tracking-wide"
-                                    : isAboutThemePage
-                                      ? "text-slate-500 uppercase tracking-wide"
-                                      : "text-ssgmce-blue"
-                                }`}
+                                className={`text-sm font-semibold ${isAdmissionsThemePage
+                                  ? "text-gray-500 uppercase tracking-wide"
+                                  : isAboutThemePage
+                                    ? "text-slate-500 uppercase tracking-wide"
+                                    : "text-ssgmce-blue"
+                                  }`}
                               >
                                 {event.year}
                               </span>
                               <h4
-                                className={`text-gray-900 ${
-                                  isAdmissionsThemePage
+                                className={`text-gray-900 ${isAdmissionsThemePage
+                                  ? "font-semibold mt-1"
+                                  : isAboutThemePage
                                     ? "font-semibold mt-1"
-                                    : isAboutThemePage
-                                      ? "font-semibold mt-1"
-                                      : "font-semibold"
-                                }`}
+                                    : "font-semibold"
+                                  }`}
                               >
                                 {event.title}
                               </h4>
@@ -2954,13 +2952,12 @@ Constituted By **All India Council for Technical Education, New Delhi**
                         {section.content.cards.map((card, idx) => (
                           <div
                             key={idx}
-                            className={`rounded-lg p-5 ${
-                              isAdmissionsThemePage
-                                ? "bg-white border border-gray-200 shadow-sm"
-                                : isAboutThemePage
-                                  ? "bg-white border border-slate-200 shadow-sm"
-                                  : `bg-white rounded-lg shadow p-5 border-l-4 ${card.color === "orange" ? "border-ssgmce-orange" : "border-ssgmce-blue"}`
-                            }`}
+                            className={`rounded-lg p-5 ${isAdmissionsThemePage
+                              ? "bg-white border border-gray-200 shadow-sm"
+                              : isAboutThemePage
+                                ? "bg-white border border-slate-200 shadow-sm"
+                                : `bg-white rounded-lg shadow p-5 border-l-4 ${card.color === "orange" ? "border-ssgmce-orange" : "border-ssgmce-blue"}`
+                              }`}
                           >
                             <h4 className="font-bold text-gray-900 mb-1">
                               {card.title}
@@ -3008,13 +3005,12 @@ Constituted By **All India Council for Technical Education, New Delhi**
                                   {row.map((cell, cIdx) => (
                                     <td
                                       key={cIdx}
-                                      className={`px-4 py-3 text-sm text-gray-700 align-top ${
-                                        isLikelyNameColumnHeader(
-                                          section.content.headers?.[cIdx],
-                                        )
-                                          ? "text-left"
-                                          : ""
-                                      }`}
+                                      className={`px-4 py-3 text-sm text-gray-700 align-top ${isLikelyNameColumnHeader(
+                                        section.content.headers?.[cIdx],
+                                      )
+                                        ? "text-left"
+                                        : ""
+                                        }`}
                                     >
                                       {cell}
                                     </td>
@@ -3038,13 +3034,12 @@ Constituted By **All India Council for Technical Education, New Delhi**
                         {section.content.items.map((item, idx) => (
                           <details
                             key={idx}
-                            className={`border rounded-lg group ${
-                              isAdmissionsThemePage
-                                ? "bg-white border-gray-200 shadow-sm"
-                                : isAboutThemePage
-                                  ? "bg-white border-slate-200 shadow-sm"
-                                  : "bg-white border rounded-lg shadow-sm"
-                            }`}
+                            className={`border rounded-lg group ${isAdmissionsThemePage
+                              ? "bg-white border-gray-200 shadow-sm"
+                              : isAboutThemePage
+                                ? "bg-white border-slate-200 shadow-sm"
+                                : "bg-white border rounded-lg shadow-sm"
+                              }`}
                           >
                             <summary className="px-4 py-3 cursor-pointer font-medium text-gray-900 hover:bg-gray-50 list-none flex justify-between items-center">
                               {item.title}
@@ -3102,11 +3097,10 @@ Constituted By **All India Council for Technical Education, New Delhi**
                           >
                             {isAdmissionsThemePage || isAboutThemePage ? (
                               <span
-                                className={`mt-2 inline-block h-2 w-2 rounded-full flex-shrink-0 ${
-                                  isAboutThemePage
-                                    ? "bg-slate-500"
-                                    : "bg-ssgmce-blue"
-                                }`}
+                                className={`mt-2 inline-block h-2 w-2 rounded-full flex-shrink-0 ${isAboutThemePage
+                                  ? "bg-slate-500"
+                                  : "bg-ssgmce-blue"
+                                  }`}
                               ></span>
                             ) : null}
                             <EditableText

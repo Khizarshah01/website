@@ -39,6 +39,7 @@ const DEFAULT_HOME_CONFIG = {
     para1: "",
     para2: "",
     mainImageUrl: "",
+    imageUrls: [],
     sideImageUrl: "",
     establishedYear: "",
     establishedLabel: "",
@@ -284,6 +285,43 @@ const AdminHomepageEditor = () => {
       setField(path, uploadedUrl);
     } catch (error) {
       setError(getUploadErrorMessage(error, "Image upload failed."));
+    } finally {
+      setUploadingPaths((prev) => {
+        const next = { ...prev };
+        delete next[path];
+        return next;
+      });
+    }
+  };
+
+  const uploadMultipleImages = async (path, files) => {
+    if (!files || files.length === 0) return;
+    try {
+      setUploadingPaths((prev) => ({ ...prev, [path]: true }));
+      setError("");
+      
+      const newUrls = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const response = await uploadAsset({
+          endpoint: "/upload/image",
+          fieldName: "image",
+          file,
+        });
+        const uploadedUrl =
+          response.data?.fileUrl || response.data?.url || response.data?.data?.fileUrl || "";
+        if (uploadedUrl) newUrls.push(uploadedUrl);
+      }
+      
+      setConfig((previous) => {
+        const next = deepClone(previous);
+        const currentList = getAtPath(next, path) || [];
+        const newList = Array.isArray(currentList) ? [...currentList, ...newUrls] : newUrls;
+        setAtPath(next, path, newList);
+        return next;
+      });
+    } catch (uploadErr) {
+      setError(getUploadErrorMessage(uploadErr, "Multiple image upload failed."));
     } finally {
       setUploadingPaths((prev) => {
         const next = { ...prev };
@@ -591,23 +629,34 @@ const AdminHomepageEditor = () => {
             <Field label="Heading" value={config.welcome.heading} onChange={(value) => setField("welcome.heading", value)} />
             <TextareaField label="Paragraph 1" value={config.welcome.para1} onChange={(value) => setField("welcome.para1", value)} />
             <TextareaField label="Paragraph 2" value={config.welcome.para2} onChange={(value) => setField("welcome.para2", value)} />
-            <Field label="Main Image URL" value={config.welcome.mainImageUrl} onChange={(value) => setField("welcome.mainImageUrl", value)} />
-            <Field label="Side Image URL" value={config.welcome.sideImageUrl} onChange={(value) => setField("welcome.sideImageUrl", value)} />
             <Field label="CTA Label" value={config.welcome.ctaLabel} onChange={(value) => setField("welcome.ctaLabel", value)} />
             <Field label="CTA Link" value={config.welcome.ctaLink} onChange={(value) => setField("welcome.ctaLink", value)} />
           </div>
           <div className="grid gap-3 md:grid-cols-2">
-            <label className="block rounded-lg border border-gray-200 p-3">
-              <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Upload Main Image</span>
-              <input type="file" accept="image/*" onChange={(event) => uploadImage("welcome.mainImageUrl", event.target.files?.[0])} className="text-xs" />
-              {uploadingPaths["welcome.mainImageUrl"] ? <p className="mt-1 text-xs text-blue-600">Uploading...</p> : null}
-              {config.welcome.mainImageUrl ? <img src={resolveUploadedAssetUrl(config.welcome.mainImageUrl)} alt="main" className="mt-2 h-24 w-full rounded border object-cover" /> : null}
-            </label>
-            <label className="block rounded-lg border border-gray-200 p-3">
-              <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Upload Side Image</span>
-              <input type="file" accept="image/*" onChange={(event) => uploadImage("welcome.sideImageUrl", event.target.files?.[0])} className="text-xs" />
-              {uploadingPaths["welcome.sideImageUrl"] ? <p className="mt-1 text-xs text-blue-600">Uploading...</p> : null}
-              {config.welcome.sideImageUrl ? <img src={resolveUploadedAssetUrl(config.welcome.sideImageUrl)} alt="side" className="mt-2 h-24 w-full rounded border object-cover" /> : null}
+            <label className="block rounded-lg border border-gray-200 p-3 md:col-span-2">
+              <span className="mb-1 flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Upload Main Images (Carousel)
+                {uploadingPaths["welcome.imageUrls"] ? <span className="text-blue-600 normal-case">Uploading...</span> : null}
+              </span>
+              <input type="file" multiple accept="image/*" onChange={(event) => uploadMultipleImages("welcome.imageUrls", event.target.files)} className="mb-2 w-full text-xs" />
+              {config.welcome.imageUrls && config.welcome.imageUrls.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {config.welcome.imageUrls.map((imgUrl, i) => (
+                    <div key={i} className="relative group">
+                      <img src={resolveUploadedAssetUrl(imgUrl)} alt="carousel" className="h-20 w-32 rounded border object-cover" />
+                      <button 
+                        type="button" 
+                        onClick={() => removeArrayItem("welcome.imageUrls", i)}
+                        className="absolute top-1 right-1 bg-red-600 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-400">No carousel images uploaded yet.</p>
+              )}
             </label>
           </div>
         </Section>
