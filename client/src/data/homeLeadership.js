@@ -3,7 +3,7 @@ import ashHodImage from "../assets/images/departments/applied-sciences/ASH_HOD_A
 import cseHodImage from "../assets/images/departments/cse/HOD_CSE_JMP.jpg";
 import electricalHodImage from "../assets/images/departments/electrical/HOD_ELECTRICAL.jpg";
 import entcHodImage from "../assets/images/departments/electronics/EXTC_HOD.jpg";
-import itHodImage from "../assets/images/departments/it/SDPadiya_HOD.jpg";
+import itHodImage from "../assets/images/departments/it/SDPadiya_HOD.jpeg";
 import mechanicalHodImage from "../assets/images/departments/mechanical/HOD_MECH.jpg";
 import mbaHodImage from "../assets/images/departments/mba/HOD_MBA.png";
 
