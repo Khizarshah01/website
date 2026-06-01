@@ -318,6 +318,11 @@ function MarqueeRow({ images, direction = "left", speed = 70, onImageClick }) {
 
   if (!images.length) return null;
 
+  const itemsShifted = duplicated.length / 2;
+  // Calculate duration to maintain constant visual speed. 
+  // Base calibration: speed prop was originally for ~12 items shifted (4 images * 6 copies / 2).
+  const dynamicDuration = itemsShifted * (speed / 12);
+
   const animClass =
     direction === "left"
       ? "gallery-marquee-track-left"
@@ -328,7 +333,7 @@ function MarqueeRow({ images, direction = "left", speed = 70, onImageClick }) {
       <div
         ref={trackRef}
         className={`gallery-marquee-track ${animClass}`}
-        style={{ "--marquee-speed": `${speed}s` }}
+        style={{ "--marquee-speed": `${dynamicDuration}s` }}
       >
         {duplicated.map((img) => (
           <button
